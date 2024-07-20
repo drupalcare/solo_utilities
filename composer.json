@@ -1,0 +1,25 @@
+{
+    "name": "drupal/solo_utilities",
+    "description": "A reusable Paragraphs Bundles.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Alaa Haddad (alaahaddad.com)",
+            "homepage": "https://www.drupal.org/u/flashwebcenter",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://drupal.org/project/solo_utilities",
+    "require": {
+    "drupal/core": "*",
+    "drupal/entity_reference_revisions": "*",
+    "drupal/paragraphs": "*",
+    "drupal/field_group": "*"
+    },
+    "support": {
+        "issues": "https://drupal.org/project/issues/solo_utilities",
+        "source": "https://git.drupalcode.org/project/solo_utilities"
+    }
+}

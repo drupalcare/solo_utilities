@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * @file
+ * Create the table for storing the nodes.
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database schema for the solo_utilities module.
+ */
+
+function solo_utilities_schema() {
+  return [
+    'solo_theme_node_width' => [
+      'description' => 'Table to store custom width classes for nodes.',
+      'fields' => [
+        'id' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'node_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'width_class' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+        ],
+      ],
+      'primary key' => ['id'],
+      'indexes' => [
+        'node_id' => ['node_id'],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_install().
+ *
+ * Installs the solo_utilities module schema.
+ */
+function solo_utilities_install() {
+  $schema = solo_utilities_schema();
+  $schema_handler = \Drupal::database()->schema();
+
+  if (!$schema_handler->tableExists('solo_theme_node_width')) {
+    $schema_handler->createTable('solo_theme_node_width', $schema['solo_theme_node_width']);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Uninstalls the solo_utilities module schema.
+ */
+function solo_utilities_uninstall() {
+  $schema_handler = \Drupal::database()->schema();
+
+  if ($schema_handler->tableExists('solo_theme_node_width')) {
+    $schema_handler->dropTable('solo_theme_node_width');
+  }
+}

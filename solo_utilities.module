@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Add custom features to Solo.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds a custom width dropdown to the node form.
+ */
+function solo_utilities_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Check if the custom width feature is enabled in the theme settings.
+  $default_theme = \Drupal::config('system.theme')->get('default');
+  $enable_custom_width = ($default_theme == 'solo' && theme_get_setting('enable_custom_node_width', 'solo'));
+
+  if ($enable_custom_width) {
+    $node = $form_state->getFormObject()->getEntity();
+    if ($node instanceof NodeInterface) {
+      $width_options = [
+        'none' => t('None'),
+        'sw-800' => t('800px / 50rem'),
+        'sw-1024' => t('1024px / 64rem'),
+        'sw-1280' => t('1280px / 80rem'),
+        'sw-1440' => t('1440px / 90rem'),
+        'sw-1600' => t('1600px / 100rem'),
+        'sw-1920' => t('1920px / 120rem'),
+        'sw-2560' => t('2560px / 160rem'),
+        'sw-100' => t('100%'),
+      ];
+
+      // Add the custom width select dropdown next to the node title.
+      $current_width = \Drupal::entityTypeManager()->getStorage('node_width')->loadByProperties(['node_id' => $node->id()]);
+      $current_width_class = !empty($current_width) ? reset($current_width)->get('width_class')->value : 'none';
+
+      $form['custom_node_width'] = [
+        '#type' => 'select',
+        '#title' => t('Custom Width'),
+        '#options' => $width_options,
+        '#default_value' => $current_width_class,
+        '#attributes' => ['name' => 'custom_node_width'],
+        '#weight' => 10,
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Saves the custom width value when the node is saved.
+ */
+function solo_utilities_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof NodeInterface) {
+    $custom_width = \Drupal::request()->request->get('custom_node_width');
+    if ($custom_width && $custom_width !== 'none') {
+      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+      $existing = $node_width_storage->loadByProperties(['node_id' => $entity->id()]);
+
+      if (!empty($existing)) {
+        $node_width = reset($existing);
+        $node_width->set('width_class', $custom_width);
+      }
+      else {
+        $node_width = $node_width_storage->create([
+          'node_id' => $entity->id(),
+          'width_class' => $custom_width,
+        ]);
+      }
+
+      $node_width->save();
+    }
+    elseif ($custom_width === 'none') {
+      // Remove custom width if 'None' is selected.
+      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+      $existing = $node_width_storage->loadByProperties(['node_id' => $entity->id()]);
+
+      if (!empty($existing)) {
+        $node_width = reset($existing);
+        $node_width->delete();
+      }
+    }
+  }
+}
