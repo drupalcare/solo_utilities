@@ -53,9 +53,8 @@ function _solo_utilities_helper_render_readme() {
 function solo_utilities_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Check if the custom width feature is enabled in the theme settings.
   $default_theme = \Drupal::config('system.theme')->get('default');
-  $enable_custom_width = ($default_theme == 'solo' && theme_get_setting('enable_custom_node_width', 'solo'));
 
-  if ($enable_custom_width) {
+  if (theme_get_setting('enable_custom_node_width', $default_theme)) {
     $node = $form_state->getFormObject()->getEntity();
     if ($node instanceof NodeInterface) {
       $width_options = [
