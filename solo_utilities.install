@@ -2,13 +2,15 @@
 
 /**
  * @file
- * Create the table for storing the nodes.
+ * Defines the schema for storing custom node width settings.
  */
 
 /**
  * Implements hook_schema().
  *
  * Defines the database schema for the solo_utilities module.
+ *
+ *   The schema definition for the solo_utilities module.
  */
 function solo_utilities_schema() {
   return [
@@ -19,16 +21,19 @@ function solo_utilities_schema() {
           'type' => 'serial',
           'unsigned' => TRUE,
           'not null' => TRUE,
+          'description' => 'Primary key: Unique ID for each entry.',
         ],
         'node_id' => [
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => TRUE,
+          'description' => 'The ID of the node.',
         ],
         'width_class' => [
           'type' => 'varchar',
           'length' => 255,
           'not null' => TRUE,
+          'description' => 'The width class applied to the node.',
         ],
       ],
       'primary key' => ['id'],
@@ -40,28 +45,20 @@ function solo_utilities_schema() {
 }
 
 /**
- * Implements hook_install().
- *
- * Installs the solo_utilities module schema.
- */
-function solo_utilities_install() {
-  $schema = solo_utilities_schema();
-  $schema_handler = \Drupal::database()->schema();
-
-  if (!$schema_handler->tableExists('solo_theme_node_width')) {
-    $schema_handler->createTable('solo_theme_node_width', $schema['solo_theme_node_width']);
-  }
-}
-
-/**
  * Implements hook_uninstall().
  *
- * Uninstalls the solo_utilities module schema.
+ * Perform actions when the module is uninstalled.
  */
 function solo_utilities_uninstall() {
   $schema_handler = \Drupal::database()->schema();
 
+  // Drop the custom table if it exists.
   if ($schema_handler->tableExists('solo_theme_node_width')) {
-    $schema_handler->dropTable('solo_theme_node_width');
+    try {
+      $schema_handler->dropTable('solo_theme_node_width');
+    }
+    catch (Exception $e) {
+      \Drupal::logger('solo_utilities')->error('Failed to drop table solo_theme_node_width: @message', ['@message' => $e->getMessage()]);
+    }
   }
 }

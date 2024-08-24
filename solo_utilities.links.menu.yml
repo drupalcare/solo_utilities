@@ -1,0 +1,12 @@
+solo_utilities.admin:
+  title: 'Solo Utilities'
+  description: 'Manage Solo Theme Custom Configuration.'
+  route_name: solo_utilities.admin
+  parent: system.admin_config_system
+
+solo_utilities.solo_color_schemes:
+  title: 'Color Schemes'
+  description: 'Manage color schemes for the Solo theme.'
+  route_name: entity.color_schemes_rule.collection
+  parent: solo_utilities.admin
+  weight: 0

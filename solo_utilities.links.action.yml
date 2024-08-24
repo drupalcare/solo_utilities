@@ -1,0 +1,5 @@
+entity.color_schemes_rule.add_form:
+  title: 'Add a Color Schemes Rule'
+  route_name: entity.color_schemes_rule.add_form
+  appears_on:
+    - entity.color_schemes_rule.collection

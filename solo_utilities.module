@@ -6,11 +6,11 @@
  *
  * Filename:     solo_utilities.module
  * Website:      https://www.flashwebcenter.com
- * Description:  template.
+ * Description:  Custom features for the Solo theme, including library loading
+ * based on conditions.
  * Developer:    Alaa Haddad https://www.alaahaddad.com.
  */
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\NodeInterface;
@@ -46,79 +46,187 @@ function _solo_utilities_helper_render_readme() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * Adds a custom width dropdown to the node form.
+ * Implements hook_preprocess_HOOK() for page templates.
  */
-function solo_utilities_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Check if the custom width feature is enabled in the theme settings.
+function solo_utilities_preprocess_page(&$variables) {
+  // Check if Solo theme or a sub-theme is active before attaching libraries.
+  if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    $negotiator = \Drupal::service('solo_utilities.color_schemes_negotiator');
+    $negotiator->evaluateRules($variables);
+  }
+}
+
+/**
+ * Helper function to check if a theme is in the Solo hierarchy.
+ *
+ * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise.
+ */
+function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
+  $theme_handler = \Drupal::service('theme_handler');
+  $theme_info = $theme_handler->getTheme($theme_name);
+
+  // If the theme is 'solo', return TRUE.
+  if ($theme_name === 'solo') {
+    return TRUE;
+  }
+
+  // If there are base themes, check them recursively.
+  if (!empty($theme_info->info['base theme'])) {
+    foreach ((array) $theme_info->info['base theme'] as $base_theme_name) {
+      if (solo_utilities__is_solo_in_theme_hierarchy($base_theme_name)) {
+        return TRUE;
+      }
+    }
+  }
+
+  // If 'solo' was not found in the hierarchy, return FALSE.
+  return FALSE;
+}
+
+/**
+ * Check if the Solo theme or its sub-themes are active in the front-end.
+ *
+ * TRUE if 'solo' or its sub-themes are in the active front-end theme
+ * hierarchy, FALSE otherwise.
+ */
+function solo_utilities__is_solo_or_sub_in_hierarchy_active() {
+  // Get the front-end (default) theme's name from configuration.
   $default_theme = \Drupal::config('system.theme')->get('default');
 
-  if (theme_get_setting('enable_custom_node_width', $default_theme)) {
-    $node = $form_state->getFormObject()->getEntity();
-    if ($node instanceof NodeInterface) {
-      $width_options = [
-        'none' => t('None'),
-        'sw-800' => t('800px / 50rem'),
-        'sw-1024' => t('1024px / 64rem'),
-        'sw-1280' => t('1280px / 80rem'),
-        'sw-1440' => t('1440px / 90rem'),
-        'sw-1600' => t('1600px / 100rem'),
-        'sw-1920' => t('1920px / 120rem'),
-        'sw-2560' => t('2560px / 160rem'),
-        'sw-100' => t('100%'),
-      ];
+  // Check if 'solo' is the default theme or in the base theme hierarchy.
+  return solo_utilities__is_solo_in_theme_hierarchy($default_theme);
+}
 
-      // Add the custom width select dropdown next to the node title.
-      $current_width = \Drupal::entityTypeManager()->getStorage('node_width')->loadByProperties(['node_id' => $node->id()]);
-      $current_width_class = !empty($current_width) ? reset($current_width)->get('width_class')->value : 'none';
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function solo_utilities_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    $default_theme = \Drupal::config('system.theme')->get('default');
 
-      $form['custom_node_width'] = [
-        '#type' => 'select',
-        '#title' => t('Custom Width'),
-        '#options' => $width_options,
-        '#default_value' => $current_width_class,
-        '#attributes' => ['name' => 'custom_node_width'],
-        '#weight' => 10,
-      ];
+    if (theme_get_setting('enable_custom_node_width', $default_theme)) {
+      $node = $form_state->getFormObject()->getEntity();
+      if ($node instanceof NodeInterface) {
+        $current_width_class = 'none';
+        $node_id = $node->id();
+
+        if ($node_id) {
+          $current_width = \Drupal::entityTypeManager()->getStorage('node_width')->loadByProperties(['node_id' => $node_id]);
+          $current_width_class = !empty($current_width) ? reset($current_width)->get('width_class')->value : 'none';
+        }
+
+        $width_options = [
+          'none' => t('None'),
+          'sw-800' => t('800px / 50rem'),
+          'sw-1024' => t('1024px / 64rem'),
+          'sw-1280' => t('1280px / 80rem'),
+          'sw-1440' => t('1440px / 90rem'),
+          'sw-1600' => t('1600px / 100rem'),
+          'sw-1920' => t('1920px / 120rem'),
+          'sw-2560' => t('2560px / 160rem'),
+          'sw-100' => t('100%'),
+        ];
+
+        $form['custom_node_width'] = [
+          '#type' => 'select',
+          '#title' => t('Custom Width'),
+          '#options' => $width_options,
+          '#default_value' => $current_width_class,
+          '#attributes' => ['name' => 'custom_node_width'],
+          '#weight' => 999,
+        ];
+
+        // Add a custom submit handler to ensure the width gets correctly.
+        $form['#submit'][] = 'solo_utilities__node_form_submit';
+      }
     }
   }
 }
 
 /**
- * Implements hook_entity_presave().
+ * Custom submit handler for node form.
+ */
+function solo_utilities__node_form_submit($form, FormStateInterface $form_state) {
+  // Ensure custom width is saved to the node.
+  $node = $form_state->getFormObject()->getEntity();
+  if ($node instanceof NodeInterface) {
+    $custom_width = $form_state->getValue('custom_node_width');
+    \Drupal::request()->request->set('custom_node_width', $custom_width);
+  }
+}
+
+/**
+ * Implements hook_node_presave().
  *
  * Saves the custom width value when the node is saved.
  */
-function solo_utilities_entity_presave(EntityInterface $entity) {
-  if ($entity instanceof NodeInterface) {
+function solo_utilities_node_presave(NodeInterface $node) {
+  // Check if the Solo theme or its sub-themes are active.
+  if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    // Use the request stack to get the POST data during node save.
     $custom_width = \Drupal::request()->request->get('custom_node_width');
-    if ($custom_width && $custom_width !== 'none') {
-      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
-      $existing = $node_width_storage->loadByProperties(['node_id' => $entity->id()]);
-
-      if (!empty($existing)) {
-        $node_width = reset($existing);
-        $node_width->set('width_class', $custom_width);
-      }
-      else {
-        $node_width = $node_width_storage->create([
-          'node_id' => $entity->id(),
-          'width_class' => $custom_width,
-        ]);
-      }
-
-      $node_width->save();
+    if ($custom_width === NULL) {
+      // Exit if no width is provided.
+      return;
     }
-    elseif ($custom_width === 'none') {
-      // Remove custom width if 'None' is selected.
-      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
-      $existing = $node_width_storage->loadByProperties(['node_id' => $entity->id()]);
 
-      if (!empty($existing)) {
-        $node_width = reset($existing);
-        $node_width->delete();
+    $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+    $node_id = $node->id();
+
+    if ($node_id) {
+      if ($custom_width && $custom_width !== 'none') {
+        $existing = $node_width_storage->loadByProperties(['node_id' => $node_id]);
+
+        if (!empty($existing)) {
+          $node_width = reset($existing);
+          $node_width->set('width_class', $custom_width);
+        }
+        else {
+          $node_width = $node_width_storage->create([
+            'node_id' => $node_id,
+            'width_class' => $custom_width,
+          ]);
+        }
+
+        $node_width->save();
       }
+      elseif ($custom_width === 'none') {
+        // Remove custom width if 'None' is selected.
+        $existing = $node_width_storage->loadByProperties(['node_id' => $node_id]);
+
+        if (!empty($existing)) {
+          $node_width = reset($existing);
+          $node_width->delete();
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Saves the custom width value when a new node is created.
+ */
+function solo_utilities_node_insert(NodeInterface $node) {
+  // Check if the Solo theme or its sub-themes are active.
+  if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    // Use the request object to get the POST data during node save.
+    $custom_width = \Drupal::request()->request->get('custom_node_width');
+
+    // Check if custom width is not NULL and not 'none'.
+    if ($custom_width !== NULL && $custom_width !== 'none') {
+      // Get the storage for the node_width entity.
+      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+
+      // Create and save a new node_width entity for the node.
+      $node_width = $node_width_storage->create([
+        'node_id' => $node->id(),
+        'width_class' => $custom_width,
+      ]);
+
+      // Save the node_width entity.
+      $node_width->save();
     }
   }
 }

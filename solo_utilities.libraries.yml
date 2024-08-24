@@ -1,0 +1,9 @@
+pre-defined:
+  version: VERSION
+  js:
+    js/pre-defined.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once

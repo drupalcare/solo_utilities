@@ -1,0 +1,64 @@
+solo_utilities.admin:
+  path: '/admin/config/system/solo_utilities'
+  defaults:
+    _title: 'Solo Utilities'
+    _controller: 'Drupal\solo_utilities\Controller\ColorSchemesController::overview'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _custom_access: 'solo_utilities.access_check:access'
+
+entity.color_schemes_rule.collection:
+  path: '/admin/config/solo_utilities/color-schemes-rules'
+  defaults:
+    _title: 'Color Schemes Rules'
+    _entity_list: 'color_schemes_rule'
+  requirements:
+    _custom_access: 'solo_utilities.access_check:access'
+  options:
+    _admin_route: TRUE
+
+entity.color_schemes_rule.add_form:
+  path: '/admin/config/solo_utilities/color-schemes-rules/add'
+  defaults:
+    _entity_form: 'color_schemes_rule.add'
+    _title: 'Add Color Schemes Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'create Color Schemes Rules'
+    _custom_access: 'solo_utilities.access_check:access'
+
+entity.color_schemes_rule.edit_form:
+  path: '/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}'
+  defaults:
+    _entity_form: 'color_schemes_rule.edit'
+    _title: 'Edit Color Schemes Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: 'color_schemes_rule.update'
+    _custom_access: 'solo_utilities.access_check:access'
+
+entity.color_schemes_rule.delete_form:
+  path: '/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}'
+  defaults:
+    _entity_form: 'color_schemes_rule.delete'
+    _title: 'Delete Color Schemes Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: 'color_schemes_rule.delete'
+    _custom_access: 'solo_utilities.access_check:access'
+
+solo_utilities.ajax_operation:
+  path: '/admin/config/solo_utilities/color-schemes-rules/{op}/{color_schemes_rule}'
+  defaults:
+    _controller: 'Drupal\solo_utilities\Controller\ColorSchemesController::ajaxOperation'
+  requirements:
+    _entity_access: 'color_schemes_rule.update'
+    _csrf_token: 'TRUE'
+    op: 'enable|disable'
+    _custom_access: 'solo_utilities.access_check:access'
+  options:
+    _admin_route: TRUE

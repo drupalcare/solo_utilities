@@ -1,7 +1,7 @@
 name: 'Solo Utilities'
 type: module
 description: 'Solo Utilities is a module designed to enhance the Solo theme with additional features and customization options.'
-package: Custom
+package: 'Solo Theme Extensions'
 core_version_requirement: ^10 || ^11
 dependencies:
   - node

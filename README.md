@@ -7,28 +7,39 @@ builders and content creators more control over the presentation of their
 content. Future updates will include new features to further enhance the Solo
 theme.
 
-## FEATURES
+## Table of Contents
+
+1. [Features](#features)
+2. [Requirements](#requirements)
+3. [Installation](#installation)
+4. [Configuration](#configuration)
+5. [Usage](#usage)
+6. [Future Plans](#future-plans)
+7. [Maintainers](#maintainers)
+8. [License](#license)
+
+## Features
 
 - **Custom Node Widths**: Set custom widths for individual nodes to tailor the
   display of your content.
 - **Future Enhancements**: Solo Utilities will be updated with new features
   that enhance the Solo theme.
 
-## REQUIREMENTS
+## Requirements
 
-- Solo theme
-- Node module
+- **Solo theme**: Ensure the Solo theme is installed and active.
+- **Node module**: Core Drupal module that must be enabled.
 
-## INSTALLATION
+## Installation
 
-1. Download and place the Solo Utilities module in the `modules/custom`
-   directory of your Drupal installation.
-2. Enable the module using Drush or the Drupal admin interface:
-   - Using Drush: `drush en solo_utilities -y`
-   - Using Drupal Admin Interface: Navigate to `Extend`, find the `Solo
-     Utilities` module, enable it, and save the configuration.
+1. **Download the module**: Place the Solo Utilities module in the
+   `modules/custom` directory of your Drupal installation.
+2. **Enable the module**:
+   - **Using Drush**: Run `drush en solo_utilities -y` in the command line.
+   - **Using Drupal Admin Interface**: Navigate to **Extend**, find the **Solo
+     Utilities** module, enable it, and save the configuration.
 
-## CONFIGURATION
+## Configuration
 
 1. Ensure the Solo theme is active and configured correctly.
 2. Navigate to the theme settings of the Solo theme.
@@ -36,22 +47,22 @@ theme.
    custom widths for individual nodes.
 4. Configure the settings as needed.
 
-## USAGE
+## Usage
 
 1. When creating or editing a node, you will see a dropdown to select a custom
    width for the node.
-2. Choose the desired width or select "None" to use the default width.
+2. Choose the desired width or select **None** to use the default width.
 
-## FUTURE PLANS
+## Future Plans
 
 Solo Utilities is designed to be a foundational module for extending the Solo
 theme. Future updates will include additional features and improvements to
 further enhance the capabilities of the Solo theme.
 
-## MAINTAINERS
+## Maintainers
 
-- Maintainer Name (Alaa Haddad)
+- **Alaa Haddad** - [Alaa Haddad](https://www.alaahaddad.com)
 
-## LICENSE
+## License
 
 This project is licensed under the [GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html).

@@ -1,0 +1,49 @@
+solo_utilities.color_schemes_rules.*:
+  type: config_entity
+  label: 'Color Schemes Rule'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: string
+      label: 'Label'
+    status:
+      type: boolean
+      label: 'Status'
+    conditions:
+      type: sequence
+      label: 'Conditions'
+      sequence:
+        type: mapping
+        label: 'Condition'
+        mapping:
+          id:
+            type: string
+            label: 'Condition ID'
+          settings:
+            type: mapping
+            label: 'Condition settings'
+            mapping:
+              key:
+                type: string
+                label: 'Setting Key'
+              value:
+                type: string
+                label: 'Setting Value'
+          negate:
+            type: boolean
+            label: 'Negate'
+    conjunction:
+      type: string
+      label: 'Conjunction'
+    predefined_theme:
+      type: string
+      label: 'Predefined Theme'
+    theme_category:
+      type: string
+      label: 'Theme Category'
+    library:
+      type: string
+      label: 'Library'
+  description: 'Configuration schema for the Color Schemes Rules in Solo Utilities module.'

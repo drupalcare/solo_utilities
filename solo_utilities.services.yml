@@ -1,0 +1,15 @@
+services:
+  solo_utilities.color_schemes_negotiator:
+    class: 'Drupal\solo_utilities\ColorSchemesNegotiator'
+    arguments:
+      - '@entity_type.manager'
+      - '@request_stack'
+      - '@current_route_match'
+      - '@context.handler'
+      - '@context.repository'
+
+  solo_utilities.access_check:
+    class: Drupal\solo_utilities\Access\ColorSchemesAccessCheck
+    arguments: ['@theme_handler']
+    tags:
+      - { name: access_check, applies: 'solo_utilities.access_check' }

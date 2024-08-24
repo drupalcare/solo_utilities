@@ -1,0 +1,24 @@
+administer Color Schemes Rules:
+  title: 'Administer all Color Schemes Rules'
+  description: 'Allows all permissions for the module.'
+  restrict access: true
+
+view Color Schemes Rules:
+  title: 'View Color Schemes Rules'
+  description: "Allows viewing of 'Color Schemes Rules'."
+  restrict access: false
+
+create Color Schemes Rules:
+  title: 'Create Color Schemes Rules'
+  description: "Allows creating 'Color Schemes Rules'."
+  restrict access: true
+
+edit Color Schemes Rules:
+  title: 'Edit Color Schemes Rules'
+  description: "Allows editing 'Color Schemes Rules'."
+  restrict access: true
+
+delete Color Schemes Rules:
+  title: 'Delete Color Schemes Rules'
+  description: "Allows deleting 'Color Schemes Rules'."
+  restrict access: true
