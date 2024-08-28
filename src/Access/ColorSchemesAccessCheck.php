@@ -35,7 +35,6 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
         $account->hasPermission('view Color Schemes Rules') ||
         $account->hasPermission('edit Color Schemes Rules') ||
         $account->hasPermission('delete Color Schemes Rules')) {
-      \Drupal::logger('solo_utilities')->notice('Access granted for user @user.', ['@user' => $account->getDisplayName()]);
       return AccessResult::allowed();
     }
 
