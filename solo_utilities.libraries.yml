@@ -1,5 +1,4 @@
 pre-defined:
-  version: VERSION
   js:
     js/pre-defined.js: {}
   dependencies:
