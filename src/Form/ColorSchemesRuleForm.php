@@ -196,9 +196,9 @@ class ColorSchemesRuleForm extends EntityForm {
         }
       }
       catch (PluginException $e) {
-        \Drupal::logger('solo_utilities')
-          ->warning('Condition plugin @id could not be loaded: @message',
-          ['@id' => $condition_id, '@message' => $e->getMessage()]);
+        // \Drupal::logger('solo_utilities')
+        // ->warning('Condition plugin @id could not be loaded: @message',
+        // ['@id' => $condition_id, '@message' => $e->getMessage()]);
       }
     }
 

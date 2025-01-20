@@ -84,12 +84,13 @@ class ColorSchemesNegotiator {
    */
   public function evaluateRules() {
     $rules = $this->entityTypeManager->getStorage('color_schemes_rule')->loadMultiple();
-    \Drupal::logger('solo_utilities')->info('Evaluating library load rules.');
-
+    // \Drupal::logger('solo_utilities')
+    // ->info('Evaluating library load rules.');
     foreach ($rules as $rule) {
       // Check if the rule is enabled.
       if (!$rule->getStatus()) {
-        \Drupal::logger('solo_utilities')->info('Rule {label} is disabled and will not be processed.', ['label' => $rule->label()]);
+        // \Drupal::logger('solo_utilities')->info('Rule {label} is disabled
+        // and will not be processed.', ['label' => $rule->label()]);
         continue;
       }
 
@@ -109,10 +110,11 @@ class ColorSchemesNegotiator {
             $this->contextHandler->applyContextMapping($condition, $contexts);
           }
           catch (MissingValueContextException | ContextException $e) {
-            \Drupal::logger('solo_utilities')->warning('Condition {plugin_id} skipped due to missing or invalid context: {context_name}', [
-              'plugin_id' => $condition->getPluginId(),
-              'context_name' => $condition_id,
-            ]);
+            // \Drupal::logger('solo_utilities')->warning('Condition {plugin_id}
+            // skipped due to missing or invalid context: {context_name}', [
+            // 'plugin_id' => $condition->getPluginId(),
+            // 'context_name' => $condition_id,
+            // ]);
             continue 2;
           }
         }
@@ -121,11 +123,13 @@ class ColorSchemesNegotiator {
 
       // Resolve conditions according to conjunction.
       if ($this->resolveConditions($resolved_conditions, $conjunction) !== FALSE) {
-        \Drupal::logger('solo_utilities')->info('All conditions met for rule {label}.', ['label' => $rule->label()]);
+        // \Drupal::logger('solo_utilities')->info('All conditions met for
+        // rule {label}.', ['label' => $rule->label()]);
         return $library;
       }
       else {
-        \Drupal::logger('solo_utilities')->info('Conditions not met for rule {label}.', ['label' => $rule->label()]);
+        // \Drupal::logger('solo_utilities')->info('Conditions not met for
+        // rule {label}.', ['label' => $rule->label()]);
       }
     }
 
@@ -156,11 +160,11 @@ class ColorSchemesNegotiator {
       }
 
       // Log the result of each condition evaluation.
-      \Drupal::logger('solo_utilities')->info('Condition {plugin_id} evaluated to: {result}', [
-        'plugin_id' => $condition->getPluginId(),
-        'result' => $result ? 'TRUE' : 'FALSE',
-      ]);
-
+      // \Drupal::logger('solo_utilities')->info('Condition {plugin_id}
+      // evaluated to: {result}', [
+      // 'plugin_id' => $condition->getPluginId(),
+      // 'result' => $result ? 'TRUE' : 'FALSE',
+      // ]);.
       if ($conjunction === 'or' && $result) {
         return TRUE;
       }

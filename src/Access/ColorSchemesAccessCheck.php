@@ -26,7 +26,8 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
   public function access(Route $route, AccountInterface $account) {
     // Check if the Solo theme or its sub-themes are enabled.
     if (!$this->isSoloOrSubThemeEnabled()) {
-     // \Drupal::logger('solo_utilities')->notice('Access denied: Solo or sub-theme is not enabled.');
+      // \Drupal::logger('solo_utilities')->notice('Access denied:
+      // Solo or sub-theme is not enabled.');
       return AccessResult::forbidden();
     }
 
@@ -38,7 +39,8 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
       return AccessResult::allowed();
     }
 
-  //  \Drupal::logger('solo_utilities')->notice('Access denied: No sufficient permissions for user @user.', ['@user' => $account->getDisplayName()]);
+    // \Drupal::logger('solo_utilities')->notice('Access denied: No sufficient
+    // permissions for user @user.', ['@user' => $account->getDisplayName()]);
     return AccessResult::forbidden();
   }
 

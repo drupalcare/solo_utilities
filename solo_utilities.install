@@ -58,7 +58,8 @@ function solo_utilities_uninstall() {
       $schema_handler->dropTable('solo_theme_node_width');
     }
     catch (Exception $e) {
-      \Drupal::logger('solo_utilities')->error('Failed to drop table solo_theme_node_width: @message', ['@message' => $e->getMessage()]);
+      // \Drupal::logger('solo_utilities')->error('Failed to drop table
+      // solo_theme_node_width: @message', ['@message' => $e->getMessage()]);
     }
   }
 }
