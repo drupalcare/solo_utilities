@@ -5,8 +5,6 @@
  * Defines the schema for storing custom node width settings.
  */
 
-use Drupal\block\BlockInterface;
-
 /**
  * Implements hook_schema().
  *
@@ -66,70 +64,22 @@ function solo_utilities_uninstall(): void {
     }
   }
 
-  // Clean solo_block_title_visibility only from blocks assigned to Solo or
-  // its sub-themes.
-  $storage = \Drupal::entityTypeManager()->getStorage('block');
-  $ids = $storage->getQuery()->accessCheck(FALSE)->execute();
+  // Clean up block visibility settings.
+  \Drupal::service('solo_utilities.block_title_visibility_migrator')->cleanupBlockSettings();
+}
 
-  foreach ($storage->loadMultiple($ids) as $block) {
-    if (!$block instanceof BlockInterface) {
-      continue;
-    }
-
-    $theme_name = $block->getTheme();
-    if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
-      continue;
-    }
-
-    $settings = $block->get('settings');
-    if (isset($settings['solo_block_title_visibility'])) {
-      unset($settings['solo_block_title_visibility']);
-      $block->set('settings', $settings);
-      $block->save();
-    }
+/**
+ * Implements hook_modules_enabled().
+ */
+function solo_utilities_modules_enabled(array $modules): void {
+  if (in_array('solo_utilities', $modules, TRUE)) {
+    \Drupal::service('solo_utilities.block_title_visibility_migrator')->migrateLegacySettings();
   }
 }
 
 /**
- * Migrate legacy label_display values to solo_block_title_visibility.
+ * Update hook to migrate legacy block visibility settings.
  */
 function solo_utilities_update_8001(): void {
-  $storage = \Drupal::entityTypeManager()->getStorage('block');
-  $ids = $storage->getQuery()->accessCheck(FALSE)->execute();
-
-  $count = 0;
-
-  foreach ($storage->loadMultiple($ids) as $block) {
-    if (!$block instanceof \Drupal\block\BlockInterface) {
-      continue;
-    }
-
-    $theme_name = $block->getTheme();
-    if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
-      continue;
-    }
-
-    $settings = $block->get('settings');
-    $has_new = isset($settings['solo_block_title_visibility']);
-    $legacy = $settings['label_display'] ?? NULL;
-
-    if (!$has_new) {
-      $settings['solo_block_title_visibility'] = match (TRUE) {
-        $legacy === 'visible',
-        $legacy === TRUE,
-        $legacy === '1' => 'visible',
-
-        $legacy === '0',
-        $legacy === FALSE => 'visually_hidden',
-
-        $legacy === NULL => 'none',
-
-        default => 'visible',
-      };
-
-      $block->set('settings', $settings);
-      $block->save();
-    }
-  }
-
+  \Drupal::service('solo_utilities.block_title_visibility_migrator')->migrateLegacySettings();
 }

@@ -301,15 +301,16 @@ function solo_utilities_form_block_form_alter(array &$form, FormStateInterface $
     '#type' => 'select',
     '#title' => t('Block title tag'),
     '#options' => [
-      'h1' => 'H1',
+      'h1' => 'H1 (⚠ Avoid unless this is the main page heading)',
       'h2' => 'H2',
       'h3' => 'H3',
       'h4' => 'H4',
       'h5' => 'H5',
       'h6' => 'H6',
+      'div' => 'Div (non-semantic wrapper)',
     ],
     '#default_value' => $heading_level,
-    '#description' => t('Choose the HTML heading tag to wrap the block title.'),
+    '#description' => t('Choose an HTML wrapper for the block title. Use H2–H6 for headings. Use "Div" if you do not want to affect heading structure. Avoid H1 unless this is the primary page title.'),
     '#parents' => ['settings', 'solo_block_title_tag'],
     '#states' => [
       'visible' => [
@@ -397,7 +398,6 @@ function solo_utilities_preprocess_block(array &$variables): void {
     default => 'visible',
   };
 
-
   // Store for use in Twig.
   $variables['configuration']['solo_block_title_visibility'] = $mode;
 
@@ -450,7 +450,7 @@ function solo_utilities_preprocess_block(array &$variables): void {
       break;
   }
 
-  $allowed_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  $allowed_tags = ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   $tag = $settings['solo_block_title_tag'] ?? 'h2';
   $tag = in_array($tag, $allowed_tags, TRUE) ? $tag : 'h2';
   $variables['configuration']['solo_block_title_tag'] = $tag;
