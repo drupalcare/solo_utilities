@@ -8,12 +8,29 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
- * Migrate old label display settings.
+ * Migrates legacy block title visibility settings for Solo theme.
  */
 final class BlockTitleVisibilityMigrator {
 
+  /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
   protected EntityTypeManagerInterface $entityTypeManager;
+
+  /**
+   * The config factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
   protected ConfigFactoryInterface $configFactory;
+
+  /**
+   * The theme manager service.
+   *
+   * @var \Drupal\Core\Theme\ThemeManagerInterface
+   */
   protected ThemeManagerInterface $themeManager;
 
   public function __construct(
