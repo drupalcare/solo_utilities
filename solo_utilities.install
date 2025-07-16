@@ -5,6 +5,8 @@
  * Defines the schema for storing custom node width settings.
  */
 
+use Drupal\block\BlockInterface;
+
 /**
  * Implements hook_schema().
  *
@@ -47,19 +49,77 @@ function solo_utilities_schema() {
 /**
  * Implements hook_uninstall().
  *
- * Perform actions when the module is uninstalled.
+ * Cleans up Solo Utilities config and schema during uninstall.
  */
-function solo_utilities_uninstall() {
+function solo_utilities_uninstall(): void {
   $schema_handler = \Drupal::database()->schema();
 
-  // Drop the custom table if it exists.
+  // Drop the custom node width table if it exists.
   if ($schema_handler->tableExists('solo_theme_node_width')) {
     try {
       $schema_handler->dropTable('solo_theme_node_width');
     }
-    catch (Exception $e) {
-      // \Drupal::logger('solo_utilities')->error('Failed to drop table
-      // solo_theme_node_width: @message', ['@message' => $e->getMessage()]);
+    catch (\Exception $e) {
+      \Drupal::logger('solo_utilities')->warning('Failed to drop table solo_theme_node_width: @message', [
+        '@message' => $e->getMessage(),
+      ]);
+    }
+  }
+
+  // Clean solo_block_title_visibility only from blocks assigned to Solo or
+  // its sub-themes.
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  $ids = $storage->getQuery()->accessCheck(FALSE)->execute();
+
+  foreach ($storage->loadMultiple($ids) as $block) {
+    if (!$block instanceof BlockInterface) {
+      continue;
+    }
+
+    $theme_name = $block->getTheme();
+    if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
+      continue;
+    }
+
+    $settings = $block->get('settings');
+    if (isset($settings['solo_block_title_visibility'])) {
+      unset($settings['solo_block_title_visibility']);
+      $block->set('settings', $settings);
+      $block->save();
+    }
+  }
+}
+
+/**
+ * Migrate legacy label_display values to solo_block_title_visibility.
+ */
+function solo_utilities_update_8008(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  $ids = $storage->getQuery()->accessCheck(FALSE)->execute();
+
+  foreach ($storage->loadMultiple($ids) as $block) {
+    if (!$block instanceof BlockInterface) {
+      continue;
+    }
+
+    $theme_name = $block->getTheme();
+    if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
+      continue;
+    }
+
+    $settings = $block->get('settings');
+    $has_new = isset($settings['solo_block_title_visibility']);
+    $legacy = $settings['label_display'] ?? NULL;
+
+    if (!$has_new) {
+      $settings['solo_block_title_visibility'] = match ($legacy) {
+        'visible', TRUE => 'visible',
+        '0', FALSE => 'visually_hidden',
+        NULL => 'none',
+        default => 'visible',
+      };
+      $block->set('settings', $settings);
+      $block->save();
     }
   }
 }

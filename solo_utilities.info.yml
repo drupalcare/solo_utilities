@@ -4,4 +4,4 @@ description: 'Solo Utilities is a module designed to enhance the Solo theme with
 package: 'Solo Theme Extensions'
 core_version_requirement: ^10 || ^11
 dependencies:
-  - node
+  - drupal:node

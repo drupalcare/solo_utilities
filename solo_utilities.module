@@ -12,8 +12,10 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\block\BlockInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\NodeInterface;
+use Drupal\Core\Template\Attribute;
 
 /**
  * Implements hook_help().
@@ -229,4 +231,228 @@ function solo_utilities_node_insert(NodeInterface $node) {
       $node_width->save();
     }
   }
+}
+
+/**
+ * Checks if block title visibility feature is enabled via theme settings.
+ *
+ * - Returns TRUE if the active front-end theme or its base theme is 'solo'
+ *   AND the active theme settings have 'enable_block_title_visibility' enabled.
+ */
+function solo_utilities__is_block_title_visibility_enabled(): bool {
+  $theme_name = \Drupal::config('system.theme')->get('default');
+
+  // Only proceed if 'solo' is in the active theme hierarchy.
+  if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
+    return FALSE;
+  }
+
+  return (bool) theme_get_setting('enable_block_title_visibility', $theme_name);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function solo_utilities_form_block_form_alter(array &$form, FormStateInterface $form_state): void {
+  if (!solo_utilities__is_block_title_visibility_enabled()) {
+    return;
+  }
+
+  $block = $form_state->getFormObject()?->getEntity();
+  if (!$block instanceof BlockInterface) {
+    return;
+  }
+
+  // If the block does NOT support 'label_display', do not alter the form.
+  if (!isset($form['settings']['label_display'])) {
+    return;
+  }
+
+  // Capture original label_display value and stored custom setting.
+  $original = $form['settings']['label_display']['#default_value'] ?? NULL;
+  $stored = $block->get('settings')['solo_block_title_visibility'] ?? NULL;
+
+  // Determine the default for dropdown.
+  $default = $stored ?? match (TRUE) {
+    $original === 'visible' || $original === TRUE => 'visible',
+    $original === '0' || $original === FALSE => 'visually_hidden',
+    $original === NULL => 'none',
+    default => 'visible',
+  };
+
+  // Unset the core checkbox.
+  unset($form['settings']['label_display']);
+
+  $dropdown_visibility = [
+    '#type' => 'select',
+    '#title' => t('Block title visibility mode'),
+    '#options' => [
+      'visible' => t('Visible (always render)'),
+      'visually_hidden' => t('Visually hidden (screen readers only)'),
+      'none' => t('Do not render at all'),
+    ],
+    '#default_value' => $default,
+    '#description' => t('Controls how this block title is rendered in the HTML.'),
+    '#parents' => ['settings', 'solo_block_title_visibility'],
+  ];
+
+  $heading_level = $block->get('settings')['solo_block_title_tag'] ?? 'h2';
+  $dropdown_tag = [
+    '#type' => 'select',
+    '#title' => t('Block title tag'),
+    '#options' => [
+      'h1' => 'H1',
+      'h2' => 'H2',
+      'h3' => 'H3',
+      'h4' => 'H4',
+      'h5' => 'H5',
+      'h6' => 'H6',
+    ],
+    '#default_value' => $heading_level,
+    '#description' => t('Choose the HTML heading tag to wrap the block title.'),
+    '#parents' => ['settings', 'solo_block_title_tag'],
+    '#states' => [
+      'visible' => [
+        ':input[name="settings[solo_block_title_visibility]"]' => ['!value' => 'none'],
+      ],
+    ],
+  ];
+
+  // Insert both fields after 'label'.
+  $new_settings = [];
+  foreach ($form['settings'] as $key => $field) {
+    $new_settings[$key] = $field;
+    if ($key === 'label') {
+      $new_settings['solo_block_title_visibility'] = $dropdown_visibility;
+      $new_settings['solo_block_title_tag'] = $dropdown_tag;
+    }
+  }
+  $form['settings'] = $new_settings;
+
+  // Attach entity builder.
+  $form['#entity_builders'][] = '_solo_utilities_block_form_entity_builder';
+}
+
+/**
+ * Saves custom visibility mode setting into block config.
+ */
+function _solo_utilities_block_form_entity_builder($entity_type, BlockInterface $block, array &$form, FormStateInterface $form_state): void {
+  // Get current settings.
+  $settings = $block->get('settings');
+
+  // Update visibility setting if present.
+  $visibility = $form_state->getValue(['settings', 'solo_block_title_visibility']);
+  if (isset($visibility)) {
+    $settings['solo_block_title_visibility'] = $visibility;
+  }
+
+  // Update heading tag if present.
+  $tag = $form_state->getValue(['settings', 'solo_block_title_tag']);
+  if (isset($tag)) {
+    $settings['solo_block_title_tag'] = $tag;
+  }
+
+  // Save updated settings.
+  $block->set('settings', $settings);
+}
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function solo_utilities_preprocess_block(array &$variables): void {
+  $variables['solo_block_title_visibility_enabled'] = solo_utilities__is_block_title_visibility_enabled();
+
+  if (!$variables['solo_block_title_visibility_enabled']) {
+    return;
+  }
+
+  $id = $variables['elements']['#id'] ?? NULL;
+  if (!$id) {
+    return;
+  }
+
+  /** @var \Drupal\block\BlockInterface|null $block */
+  $block = \Drupal::entityTypeManager()
+    ->getStorage('block')
+    ->load($id);
+  if (!$block instanceof BlockInterface) {
+    return;
+  }
+
+  $settings = $block->get('settings') ?? [];
+
+  // Resolve final visibility mode.
+  $custom_mode = $settings['solo_block_title_visibility'] ?? NULL;
+  $legacy = $settings['label_display'] ?? NULL;
+
+  $mode = $custom_mode ?? match (TRUE) {
+    $legacy === 'visually_hidden',
+    $legacy === '0',
+    $legacy === FALSE,
+    $legacy === NULL => 'visually_hidden',
+
+    $legacy === '1',
+    $legacy === TRUE => 'visible',
+
+    default => 'visible',
+  };
+
+
+  // Store for use in Twig.
+  $variables['configuration']['solo_block_title_visibility'] = $mode;
+
+  // Ensure title_attributes is always safe.
+  if (!isset($variables['title_attributes']) || !($variables['title_attributes'] instanceof Attribute)) {
+    $variables['title_attributes'] = new Attribute($variables['title_attributes'] ?? []);
+  }
+
+  // Ensure label is available if missing.
+  if (empty($variables['label']) && empty($variables['configuration']['label'])) {
+    $label = $variables['elements']['#configuration']['label'] ?? NULL;
+    if (!$label && !empty($settings['label'])) {
+      $label = $settings['label'];
+    }
+
+    // Clean fallback for plugin ID.
+    if (!$label && !empty($variables['plugin_id'])) {
+      if (str_starts_with($variables['plugin_id'], 'views_block:')) {
+        // Extract view and display ID: views_block:view_id-display_id.
+        $plugin_parts = explode(':', $variables['plugin_id']);
+        $view_parts = explode('-', $plugin_parts[1] ?? '');
+        if (count($view_parts) >= 2) {
+          [$view_id, $display_id] = $view_parts;
+          $label = ucwords(str_replace('_', ' ', $view_id)) . ' - ' . ucwords(str_replace('_', ' ', $display_id));
+        }
+      }
+      else {
+        // Fallback for other plugin types.
+        $label = ucwords(str_replace(['_', ':'], [' ', ' '], $variables['plugin_id']));
+      }
+    }
+
+    $variables['label'] = $label;
+    $variables['configuration']['label'] = $label;
+  }
+
+  // Apply final visibility behavior.
+  switch ($mode) {
+    case 'none':
+      unset($variables['label']);
+      break;
+
+    case 'visually_hidden':
+      $variables['title_attributes']->addClass('visually-hidden');
+      break;
+
+    case 'visible':
+    default:
+      // No change.
+      break;
+  }
+
+  $allowed_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  $tag = $settings['solo_block_title_tag'] ?? 'h2';
+  $tag = in_array($tag, $allowed_tags, TRUE) ? $tag : 'h2';
+  $variables['configuration']['solo_block_title_tag'] = $tag;
+
 }
