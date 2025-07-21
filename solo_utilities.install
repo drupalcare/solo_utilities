@@ -64,6 +64,41 @@ function solo_utilities_uninstall(): void {
     }
   }
 
+
+  // 🧹 Clean up per-content-type width config from all Solo-based themes.
+  $theme_handler = \Drupal::service('theme_handler');
+  $themes = $theme_handler->listInfo();
+
+  foreach ($themes as $theme_name => $theme) {
+    // Skip if not Solo or a sub-theme of Solo.
+    $base_themes = array_keys($theme->info['base theme'] ?? []);
+    if ($theme_name !== 'solo' && !in_array('solo', $base_themes, TRUE)) {
+      continue;
+    }
+
+    $config = \Drupal::configFactory()->getEditable("{$theme_name}.settings");
+    $has_changes = FALSE;
+
+    if ($config->get('enable_custom_widths') !== NULL) {
+      $config->clear('enable_custom_widths');
+      $has_changes = TRUE;
+    }
+
+    $content_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+    foreach ($content_types as $type) {
+      $key = "site_width_{$type->id()}";
+      if ($config->get($key) !== NULL) {
+        $config->clear($key);
+        $has_changes = TRUE;
+      }
+    }
+
+    if ($has_changes) {
+      $config->save();
+      \Drupal::configFactory()->reset("{$theme_name}.settings");
+    }
+  }
+
   // Clean up block visibility settings.
   \Drupal::service('solo_utilities.block_title_visibility_migrator')->cleanupBlockSettings();
 }
