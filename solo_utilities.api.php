@@ -2,6 +2,11 @@
 
 /**
  * @file
+ */
+
+declare(strict_types=1);
+
+/**
  * API documentation and hook implementations for the Solo Utilities module.
  */
 

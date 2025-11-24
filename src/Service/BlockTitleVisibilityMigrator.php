@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\solo_utilities\Service;
 
 use Drupal\block\BlockInterface;
@@ -8,7 +10,15 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
- * Migrates legacy block title visibility settings for Solo theme.
+ * Migrates and manages block title visibility settings for Solo theme.
+ *
+ * This service handles the migration of legacy block title visibility settings
+ * to the new solo_block_title_visibility format. It provides functionality for
+ * detecting Solo theme hierarchy, migrating old settings, and cleaning up
+ * custom settings during module uninstallation.
+ *
+ * The migration supports converting from various legacy formats (visible, TRUE,
+ * '1', etc.) to standardized visibility values (visible, visually_hidden, none).
  */
 final class BlockTitleVisibilityMigrator {
 
@@ -33,6 +43,16 @@ final class BlockTitleVisibilityMigrator {
    */
   protected ThemeManagerInterface $themeManager;
 
+  /**
+   * Constructs a BlockTitleVisibilityMigrator object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service for loading block entities.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory service for accessing theme settings.
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $theme_manager
+   *   The theme manager service for theme hierarchy detection.
+   */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
     ConfigFactoryInterface $config_factory,
@@ -44,7 +64,13 @@ final class BlockTitleVisibilityMigrator {
   }
 
   /**
-   * Determines if block title visibility is enabled in the theme settings.
+   * Determines if block title visibility feature is enabled in theme settings.
+   *
+   * Checks if the current default theme is part of the Solo theme hierarchy
+   * and if the enable_block_title_visibility setting is enabled.
+   *
+   * @return bool
+   *   TRUE if the feature is enabled and theme is Solo-based, FALSE otherwise.
    */
   protected function isFeatureEnabled(): bool {
     $theme = $this->configFactory->get('system.theme')->get('default');
@@ -55,7 +81,20 @@ final class BlockTitleVisibilityMigrator {
   }
 
   /**
-   * Migrates legacy block title visibility settings.
+   * Migrates legacy block title visibility settings to new format.
+   *
+   * Scans all block entities and converts legacy label_display settings
+   * to the new solo_block_title_visibility format. Only processes blocks
+   * for Solo-based themes when the feature is enabled.
+   *
+   * Legacy value mapping:
+   * - 'visible', TRUE, '1' => 'visible'
+   * - '0', FALSE => 'visually_hidden'
+   * - NULL => 'none'
+   * - default => 'visible'
+   *
+   * Blocks that already have the new setting are skipped to preserve
+   * manual configurations.
    */
   public function migrateLegacySettings(): void {
     if (!$this->isFeatureEnabled()) {
@@ -96,7 +135,14 @@ final class BlockTitleVisibilityMigrator {
   }
 
   /**
-   * Cleans up custom block settings on uninstall.
+   * Removes custom block title visibility settings during module uninstall.
+   *
+   * Scans all block entities and removes the solo_block_title_visibility
+   * setting from block configurations. This ensures clean uninstallation
+   * without leaving orphaned settings in the database.
+   *
+   * Only processes blocks for Solo-based themes when the feature is enabled.
+   * Each modified block is saved immediately to persist the changes.
    */
   public function cleanupBlockSettings(): void {
     if (!$this->isFeatureEnabled()) {

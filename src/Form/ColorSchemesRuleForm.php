@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\solo_utilities\Form;
 
 use Drupal\Component\Plugin\Exception\PluginException;

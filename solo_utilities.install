@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @file
  * Defines the schema for storing custom node width settings.
@@ -63,7 +65,6 @@ function solo_utilities_uninstall(): void {
       ]);
     }
   }
-
 
   // 🧹 Clean up per-content-type width config from all Solo-based themes.
   $theme_handler = \Drupal::service('theme_handler');

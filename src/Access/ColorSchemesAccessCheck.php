@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\solo_utilities\Access;
 
 use Drupal\Core\Access\AccessCheckInterface;
