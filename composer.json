@@ -19,7 +19,7 @@
     ],
     "support": {
         "issues": "https://www.drupal.org/project/issues/solo_utilities",
-        "source": "https://git.drupalcode.org/project/solo_utilities",
+        "source": "https://git.drupalcode.org/project/solo_utilities"
     },
     "require": {
         "php": ">=8.1",
