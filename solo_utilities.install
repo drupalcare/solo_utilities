@@ -9,12 +9,8 @@ declare(strict_types=1);
 
 /**
  * Implements hook_schema().
- *
- * Defines the database schema for the solo_utilities module.
- *
- *   The schema definition for the solo_utilities module.
  */
-function solo_utilities_schema() {
+function solo_utilities_schema(): array {
   return [
     'solo_theme_node_width' => [
       'description' => 'Table to store custom width classes for nodes.',
@@ -48,36 +44,49 @@ function solo_utilities_schema() {
 
 /**
  * Implements hook_uninstall().
- *
- * Cleans up Solo Utilities config and schema during uninstall.
  */
 function solo_utilities_uninstall(): void {
-  $schema_handler = \Drupal::database()->schema();
+  $database = \Drupal::database();
+  $schema_handler = $database->schema();
 
-  // Drop the custom node width table if it exists.
+  /*
+   * --------------------------------------------------------------------------
+   * Schema cleanup (must be first and fully guarded).
+   * --------------------------------------------------------------------------
+   */
   if ($schema_handler->tableExists('solo_theme_node_width')) {
     try {
       $schema_handler->dropTable('solo_theme_node_width');
     }
-    catch (\Exception $e) {
-      \Drupal::logger('solo_utilities')->warning('Failed to drop table solo_theme_node_width: @message', [
-        '@message' => $e->getMessage(),
-      ]);
+    catch (\Throwable $e) {
+      \Drupal::logger('solo_utilities')->warning(
+        'Failed to drop table solo_theme_node_width during uninstall: @message',
+        ['@message' => $e->getMessage()]
+      );
     }
   }
 
-  // 🧹 Clean up per-content-type width config from all Solo-based themes.
+  /*
+   * --------------------------------------------------------------------------
+   * Theme config cleanup (must NOT touch schema-dependent services).
+   * --------------------------------------------------------------------------
+   */
   $theme_handler = \Drupal::service('theme_handler');
   $themes = $theme_handler->listInfo();
+  $config_factory = \Drupal::configFactory();
 
   foreach ($themes as $theme_name => $theme) {
-    // Skip if not Solo or a sub-theme of Solo.
-    $base_themes = array_keys($theme->info['base theme'] ?? []);
+    $base_theme = $theme->info['base theme'] ?? NULL;
+
+    $base_themes = is_array($base_theme)
+      ? array_keys($base_theme)
+      : (is_string($base_theme) ? [$base_theme] : []);
+
     if ($theme_name !== 'solo' && !in_array('solo', $base_themes, TRUE)) {
       continue;
     }
 
-    $config = \Drupal::configFactory()->getEditable("{$theme_name}.settings");
+    $config = $config_factory->getEditable("{$theme_name}.settings");
     $has_changes = FALSE;
 
     if ($config->get('enable_custom_widths') !== NULL) {
@@ -85,31 +94,52 @@ function solo_utilities_uninstall(): void {
       $has_changes = TRUE;
     }
 
-    $content_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
-    foreach ($content_types as $type) {
-      $key = "site_width_{$type->id()}";
-      if ($config->get($key) !== NULL) {
-        $config->clear($key);
-        $has_changes = TRUE;
+    // Guard entity access during uninstall.
+    if (\Drupal::entityTypeManager()->hasDefinition('node_type')) {
+      $content_types = \Drupal::entityTypeManager()
+        ->getStorage('node_type')
+        ->loadMultiple();
+
+      foreach ($content_types as $type) {
+        $key = "site_width_{$type->id()}";
+        if ($config->get($key) !== NULL) {
+          $config->clear($key);
+          $has_changes = TRUE;
+        }
       }
     }
 
     if ($has_changes) {
       $config->save();
-      \Drupal::configFactory()->reset("{$theme_name}.settings");
+      $config_factory->reset("{$theme_name}.settings");
     }
   }
 
-  // Clean up block visibility settings.
-  \Drupal::service('solo_utilities.block_title_visibility_migrator')->cleanupBlockSettings();
 }
 
 /**
  * Implements hook_modules_enabled().
  */
 function solo_utilities_modules_enabled(array $modules): void {
-  if (in_array('solo_utilities', $modules, TRUE)) {
-    \Drupal::service('solo_utilities.block_title_visibility_migrator')->migrateLegacySettings();
+  if (
+    in_array('solo_utilities', $modules, TRUE) &&
+    \Drupal::hasService('solo_utilities.block_title_visibility_migrator')
+  ) {
+    \Drupal::service('solo_utilities.block_title_visibility_migrator')
+      ->migrateLegacySettings();
+  }
+}
+
+/**
+ * Implements hook_modules_disabled().
+ */
+function solo_utilities_modules_disabled(array $modules): void {
+  if (
+    in_array('solo_utilities', $modules, TRUE) &&
+    \Drupal::hasService('solo_utilities.block_title_visibility_migrator')
+  ) {
+    \Drupal::service('solo_utilities.block_title_visibility_migrator')
+      ->cleanupBlockSettings();
   }
 }
 
@@ -117,5 +147,8 @@ function solo_utilities_modules_enabled(array $modules): void {
  * Update hook to migrate legacy block visibility settings.
  */
 function solo_utilities_update_8001(): void {
-  \Drupal::service('solo_utilities.block_title_visibility_migrator')->migrateLegacySettings();
+  if (\Drupal::hasService('solo_utilities.block_title_visibility_migrator')) {
+    \Drupal::service('solo_utilities.block_title_visibility_migrator')
+      ->migrateLegacySettings();
+  }
 }
