@@ -20,3 +20,7 @@ services:
       - '@entity_type.manager'
       - '@config.factory'
       - '@theme.manager'
+
+  Drupal\solo_utilities\Hook\SoloUtilitiesHooks:
+    class: Drupal\solo_utilities\Hook\SoloUtilitiesHooks
+    autowire: true

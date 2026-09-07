@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\solo_utilities\Service;
 
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\block\BlockInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -77,7 +79,7 @@ final class BlockTitleVisibilityMigrator {
     if (!solo_utilities__is_solo_in_theme_hierarchy($theme)) {
       return FALSE;
     }
-    return (bool) theme_get_setting('enable_block_title_visibility', $theme);
+    return (bool) DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('enable_block_title_visibility', $theme), fn() => theme_get_setting('enable_block_title_visibility', $theme));
   }
 
   /**
