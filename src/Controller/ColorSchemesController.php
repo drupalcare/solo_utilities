@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\solo_utilities\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -125,41 +124,6 @@ class ColorSchemesController extends ControllerBase {
     }
 
     return new JsonResponse(['status' => 'error', 'message' => 'Rule not found.']);
-  }
-
-  /**
-   * Provides the operations available for a color schemes rule.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
-   *
-   * @return array
-   *   An array of operation links.
-   */
-  public function getOperations(EntityInterface $entity) {
-    $operations = parent::getOperations($entity);
-
-    // Add enable/disable operation.
-    if ($entity->getStatus()) {
-      $operations['disable'] = [
-        'title' => $this->t('Disable'),
-        'url' => Url::fromRoute('solo_utilities.ajax_operation', [
-          'op' => 'disable',
-          'color_schemes_rule' => $entity->id(),
-        ]),
-      ];
-    }
-    else {
-      $operations['enable'] = [
-        'title' => $this->t('Enable'),
-        'url' => Url::fromRoute('solo_utilities.ajax_operation', [
-          'op' => 'enable',
-          'color_schemes_rule' => $entity->id(),
-        ]),
-      ];
-    }
-
-    return $operations;
   }
 
 }
