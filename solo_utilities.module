@@ -67,13 +67,33 @@ function solo_utilities_preprocess_page(&$variables) {
  * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise.
  */
 function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
-  $theme_handler = \Drupal::service('theme_handler');
-  $theme_info = $theme_handler->getTheme($theme_name);
+  // A missing or non-string name has no hierarchy. This is a trust boundary:
+  // the caller reads system.theme default straight out of configuration.
+  if (!is_string($theme_name) || $theme_name === '') {
+    return FALSE;
+  }
 
-  // If the theme is 'solo', return TRUE.
+  // Answer for Solo itself before touching the theme handler, so the result
+  // does not depend on Solo being installed on this site.
   if ($theme_name === 'solo') {
     return TRUE;
   }
+
+  $theme_handler = \Drupal::service('theme_handler');
+
+  // A theme that is not installed has no hierarchy to walk, and asking for one
+  // is not a soft failure: ThemeHandler::getTheme() THROWS
+  // UnknownExtensionException rather than returning NULL. Unguarded, an
+  // unknown theme name turned every page render into an HTTP 500 from inside
+  // this module. That is reachable in ordinary operation — system.theme
+  // default can name a theme that has been uninstalled or removed from disk,
+  // and base themes named in a .info.yml are not guaranteed to be installed
+  // either, which is why the recursion below re-enters this same guard.
+  if (!$theme_handler->themeExists($theme_name)) {
+    return FALSE;
+  }
+
+  $theme_info = $theme_handler->getTheme($theme_name);
 
   // If there are base themes, check them recursively.
   if (!empty($theme_info->info['base theme'])) {
