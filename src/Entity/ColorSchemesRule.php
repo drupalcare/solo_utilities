@@ -6,54 +6,58 @@ namespace Drupal\solo_utilities\Entity;
 
 use Drupal\Core\Condition\ConditionPluginCollection;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\Attribute\ConfigEntityType;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\solo_utilities\ColorSchemesRuleAccessControlHandler;
 use Drupal\solo_utilities\ColorSchemesRuleInterface;
+use Drupal\solo_utilities\ColorSchemesRuleListBuilder;
+use Drupal\solo_utilities\Form\ColorSchemesRuleDeleteForm;
+use Drupal\solo_utilities\Form\ColorSchemesRuleForm;
 
 /**
  * Defines the Color Schemes Rule entity.
- *
- * @ConfigEntityType(
- *   id = "color_schemes_rule",
- *   label = @Translation("Color Schemes Rule"),
- *   module = "solo_utilities",
- *   handlers = {
- *     "access" = "Drupal\solo_utilities\ColorSchemesRuleAccessControlHandler",
- *     "list_builder" = "Drupal\solo_utilities\ColorSchemesRuleListBuilder",
- *     "form" = {
- *       "add" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
- *       "edit" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
- *       "delete" = "Drupal\solo_utilities\Form\ColorSchemesRuleDeleteForm"
- *     }
- *   },
- *   config_prefix = "rule",
- *   admin_permission = "administer site configuration",
- *   entity_keys = {
- *     "id" = "id",
- *     "uuid" = "uuid",
- *     "label" = "label",
- *     "status" = "status",
- *     "weight" = "weight"
- *   },
- *   config_export = {
- *     "uuid",
- *     "id",
- *     "label",
- *     "weight",
- *     "status",
- *     "library",
- *     "conditions",
- *     "theme_category",
- *     "predefined_theme",
- *     "conjunction",
- *   },
- *   links = {
- *     "collection" = "/admin/config/solo_utilities/color-schemes-rules",
- *     "add-form" = "/admin/config/solo_utilities/color-schemes-rules/add",
- *     "edit-form" = "/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}",
- *     "delete-form" = "/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}"
- *   }
- * )
  */
+#[ConfigEntityType(
+  id: 'color_schemes_rule',
+  label: new TranslatableMarkup('Color Schemes Rule'),
+  config_prefix: 'rule',
+  entity_keys: [
+    'id' => 'id',
+    'uuid' => 'uuid',
+    'label' => 'label',
+    'status' => 'status',
+    'weight' => 'weight',
+  ],
+  handlers: [
+    'access' => ColorSchemesRuleAccessControlHandler::class,
+    'list_builder' => ColorSchemesRuleListBuilder::class,
+    'form' => [
+      'add' => ColorSchemesRuleForm::class,
+      'edit' => ColorSchemesRuleForm::class,
+      'delete' => ColorSchemesRuleDeleteForm::class,
+    ],
+  ],
+  links: [
+    'collection' => '/admin/config/solo_utilities/color-schemes-rules',
+    'add-form' => '/admin/config/solo_utilities/color-schemes-rules/add',
+    'edit-form' => '/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}',
+    'delete-form' => '/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}',
+  ],
+  admin_permission: 'administer site configuration',
+  config_export: [
+    'uuid',
+    'id',
+    'label',
+    'weight',
+    'status',
+    'library',
+    'conditions',
+    'theme_category',
+    'predefined_theme',
+    'conjunction',
+  ],
+)]
 class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInterface, EntityWithPluginCollectionInterface {
 
   /**
@@ -212,7 +216,7 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
   /**
    * {@inheritdoc}
    */
-  public function getPluginCollections() {
+  public function getPluginCollections(): array {
     return ['conditions' => $this->getVisibilityConditions()];
   }
 
