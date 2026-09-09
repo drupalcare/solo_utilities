@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Install, update and uninstall hooks for Solo Utilities.
+ */
+
 declare(strict_types=1);
 
 /**

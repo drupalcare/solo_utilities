@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Hooks provided by the Solo Utilities module.
  */
 
 declare(strict_types=1);
