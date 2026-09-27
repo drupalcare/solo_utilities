@@ -47,3 +47,28 @@ solo_utilities.color_schemes_rules.*:
       type: string
       label: 'Library'
   description: 'Configuration schema for the Color Schemes Rules in Solo Utilities module.'
+
+block.block.*.third_party.solo_utilities:
+  type: mapping
+  label: 'Solo Utilities block title settings'
+  mapping:
+    solo_block_title_visibility:
+      type: string
+      label: 'Block title visibility mode'
+      constraints:
+        Choice:
+          - visible
+          - visually_hidden
+          - none
+    solo_block_title_tag:
+      type: string
+      label: 'Block title tag'
+      constraints:
+        Choice:
+          - div
+          - h1
+          - h2
+          - h3
+          - h4
+          - h5
+          - h6

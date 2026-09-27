@@ -179,7 +179,7 @@ class SoloUtilitiesHooks {
     }
     // Capture original label_display value and stored custom setting.
     $original = $form['settings']['label_display']['#default_value'] ?? NULL;
-    $stored = $block->get('settings')['solo_block_title_visibility'] ?? NULL;
+    $stored = solo_utilities__block_title_setting($block, 'solo_block_title_visibility');
     // Determine the default for dropdown.
     $default = $stored ?? match (TRUE) {
       $original === 'visible' || $original === TRUE => 'visible',
@@ -204,7 +204,7 @@ class SoloUtilitiesHooks {
         'solo_block_title_visibility',
       ],
     ];
-    $heading_level = $block->get('settings')['solo_block_title_tag'] ?? 'h2';
+    $heading_level = solo_utilities__block_title_setting($block, 'solo_block_title_tag') ?? 'h2';
     $dropdown_tag = [
       '#type' => 'select',
       '#title' => $this->t('Block title tag'),
@@ -265,7 +265,7 @@ class SoloUtilitiesHooks {
     }
     $settings = $block->get('settings') ?? [];
     // Resolve final visibility mode.
-    $custom_mode = $settings['solo_block_title_visibility'] ?? NULL;
+    $custom_mode = solo_utilities__block_title_setting($block, 'solo_block_title_visibility');
     $legacy = $settings['label_display'] ?? NULL;
     $mode = $custom_mode ?? match (TRUE) {
       $legacy === 'visually_hidden', $legacy === '0', $legacy === FALSE, $legacy === NULL => 'visually_hidden',
@@ -333,7 +333,7 @@ class SoloUtilitiesHooks {
       'h5',
       'h6',
     ];
-    $tag = $settings['solo_block_title_tag'] ?? 'h2';
+    $tag = solo_utilities__block_title_setting($block, 'solo_block_title_tag') ?? 'h2';
     $tag = in_array($tag, $allowed_tags, TRUE) ? $tag : 'h2';
     $variables['configuration']['solo_block_title_tag'] = $tag;
   }

@@ -157,3 +157,12 @@ function solo_utilities_update_8001(): void {
       ->migrateLegacySettings();
   }
 }
+
+/**
+ * Move block title settings from block plugin settings to third-party.
+ */
+function solo_utilities_update_8002(): string {
+  $changed = \Drupal::service('solo_utilities.block_title_visibility_migrator')
+    ->moveToThirdPartySettings();
+  return (string) t('Moved block title settings to third-party settings on @count block(s).', ['@count' => $changed]);
+}

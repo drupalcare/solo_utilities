@@ -19,6 +19,7 @@ declare(strict_types=1);
  */
 use Drupal\Core\Hook\Attribute\LegacyHook;
 use Drupal\solo_utilities\Hook\SoloUtilitiesHooks;
+use Drupal\solo_utilities\Service\BlockTitleVisibilityMigrator;
 use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Form\FormStateInterface;
@@ -189,26 +190,36 @@ function solo_utilities_form_block_form_alter(array &$form, FormStateInterface $
 }
 
 /**
- * Saves custom visibility mode setting into block config.
+ * Saves the block title settings as the block's third-party settings.
+ *
+ * They used to be written into the block PLUGIN settings, which no block
+ * plugin schema declares, so every such block failed config validation. Any
+ * legacy copy is removed here so a block holds the values in one place only.
  */
 function _solo_utilities_block_form_entity_builder($entity_type, BlockInterface $block, array &$form, FormStateInterface $form_state): void {
-  // Get current settings.
+  foreach (BlockTitleVisibilityMigrator::BLOCK_TITLE_KEYS as $key) {
+    $value = $form_state->getValue(['settings', $key]);
+    if (isset($value)) {
+      $block->setThirdPartySetting('solo_utilities', $key, $value);
+    }
+  }
+
   $settings = $block->get('settings');
-
-  // Update visibility setting if present.
-  $visibility = $form_state->getValue(['settings', 'solo_block_title_visibility']);
-  if (isset($visibility)) {
-    $settings['solo_block_title_visibility'] = $visibility;
+  $legacy = array_intersect_key($settings, array_flip(BlockTitleVisibilityMigrator::BLOCK_TITLE_KEYS));
+  if ($legacy) {
+    $block->set('settings', array_diff_key($settings, $legacy));
   }
+}
 
-  // Update heading tag if present.
-  $tag = $form_state->getValue(['settings', 'solo_block_title_tag']);
-  if (isset($tag)) {
-    $settings['solo_block_title_tag'] = $tag;
-  }
-
-  // Save updated settings.
-  $block->set('settings', $settings);
+/**
+ * Reads a block title setting: third-party first, then the legacy location.
+ *
+ * The legacy fallback covers blocks saved before solo_utilities_update_8002()
+ * moved the values out of the block plugin settings.
+ */
+function solo_utilities__block_title_setting(BlockInterface $block, string $key): mixed {
+  return $block->getThirdPartySetting('solo_utilities', $key)
+    ?? ($block->get('settings')[$key] ?? NULL);
 }
 
 /**

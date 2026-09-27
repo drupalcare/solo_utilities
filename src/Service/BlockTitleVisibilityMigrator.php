@@ -25,6 +25,16 @@ use Drupal\Core\Theme\ThemeManagerInterface;
 final class BlockTitleVisibilityMigrator {
 
   /**
+   * The block title settings this module stores on each block.
+   *
+   * They live in the block's third_party_settings.solo_utilities.
+   */
+  public const BLOCK_TITLE_KEYS = [
+    'solo_block_title_visibility',
+    'solo_block_title_tag',
+  ];
+
+  /**
    * The entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -117,11 +127,11 @@ final class BlockTitleVisibilityMigrator {
       }
 
       $settings = $block->get('settings');
-      $has_new = isset($settings['solo_block_title_visibility']);
+      $has_new = solo_utilities__block_title_setting($block, 'solo_block_title_visibility') !== NULL;
       $legacy = $settings['label_display'] ?? NULL;
 
       if (!$has_new) {
-        $settings['solo_block_title_visibility'] = match (TRUE) {
+        $block->setThirdPartySetting('solo_utilities', 'solo_block_title_visibility', match (TRUE) {
           $legacy === 'visible',
           $legacy === TRUE,
           $legacy === '1' => 'visible',
@@ -129,11 +139,54 @@ final class BlockTitleVisibilityMigrator {
           $legacy === FALSE => 'visually_hidden',
           $legacy === NULL => 'none',
           default => 'visible',
-        };
-        $block->set('settings', $settings);
+        });
         $block->save();
       }
     }
+  }
+
+  /**
+   * Moves block title settings out of block plugin settings.
+   *
+   * Earlier releases stored solo_block_title_visibility and
+   * solo_block_title_tag inside each block's PLUGIN settings. No block plugin
+   * schema declares them, so every such block failed config validation. They
+   * now live in the block's third_party_settings.solo_utilities, which this
+   * module's schema declares.
+   *
+   * Runs for every block, whatever its theme and whether or not the feature is
+   * enabled: the problem is the stored shape, not the rendering. A value that
+   * already exists in third-party settings wins over a legacy copy.
+   *
+   * @return int
+   *   The number of blocks changed.
+   */
+  public function moveToThirdPartySettings(): int {
+    $storage = $this->entityTypeManager->getStorage('block');
+    $changed = 0;
+
+    foreach ($storage->loadMultiple() as $block) {
+      if (!$block instanceof BlockInterface) {
+        continue;
+      }
+
+      $settings = $block->get('settings');
+      $legacy = array_intersect_key($settings, array_flip(self::BLOCK_TITLE_KEYS));
+      if (!$legacy) {
+        continue;
+      }
+
+      foreach ($legacy as $key => $value) {
+        if ($block->getThirdPartySetting('solo_utilities', $key) === NULL && $value !== NULL) {
+          $block->setThirdPartySetting('solo_utilities', $key, (string) $value);
+        }
+      }
+      $block->set('settings', array_diff_key($settings, $legacy));
+      $block->save();
+      $changed++;
+    }
+
+    return $changed;
   }
 
   /**
@@ -164,10 +217,12 @@ final class BlockTitleVisibilityMigrator {
         continue;
       }
 
+      // Third-party settings are removed by core when this module is
+      // uninstalled; only a legacy plugin-settings copy needs clearing here.
       $settings = $block->get('settings');
-      if (isset($settings['solo_block_title_visibility'])) {
-        unset($settings['solo_block_title_visibility']);
-        $block->set('settings', $settings);
+      $legacy = array_intersect_key($settings, array_flip(self::BLOCK_TITLE_KEYS));
+      if ($legacy) {
+        $block->set('settings', array_diff_key($settings, $legacy));
         $block->save();
       }
     }
