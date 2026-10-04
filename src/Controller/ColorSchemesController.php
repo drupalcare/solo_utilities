@@ -47,7 +47,7 @@ class ColorSchemesController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('messenger'),
       $container->get('logger.factory')->get('solo_utilities')
