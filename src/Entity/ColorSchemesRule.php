@@ -17,6 +17,55 @@ use Drupal\solo_utilities\Form\ColorSchemesRuleForm;
 
 /**
  * Defines the Color Schemes Rule entity.
+ *
+ * The definition is declared twice ON PURPOSE, and the two must agree. Core
+ * that ships the entity-type attribute classes reads #[ConfigEntityType] and
+ * ignores this annotation. Drupal 10 ships none (checked on 10.6.18) and
+ * discovers entity types from the annotation only: without it this entity
+ * type does not exist there, which is the 1.0.7 PluginNotFoundException.
+ * EntityTypeDefinitionTest fails if either copy goes missing or the two
+ * drift apart.
+ *
+ * @ConfigEntityType(
+ *   id = "color_schemes_rule",
+ *   label = @Translation("Color Schemes Rule"),
+ *   handlers = {
+ *     "access" = "Drupal\solo_utilities\ColorSchemesRuleAccessControlHandler",
+ *     "list_builder" = "Drupal\solo_utilities\ColorSchemesRuleListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
+ *       "edit" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
+ *       "delete" = "Drupal\solo_utilities\Form\ColorSchemesRuleDeleteForm"
+ *     }
+ *   },
+ *   config_prefix = "rule",
+ *   admin_permission = "administer site configuration",
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "uuid" = "uuid",
+ *     "label" = "label",
+ *     "status" = "status",
+ *     "weight" = "weight"
+ *   },
+ *   config_export = {
+ *     "uuid",
+ *     "id",
+ *     "label",
+ *     "weight",
+ *     "status",
+ *     "library",
+ *     "conditions",
+ *     "theme_category",
+ *     "predefined_theme",
+ *     "conjunction",
+ *   },
+ *   links = {
+ *     "collection" = "/admin/config/solo_utilities/color-schemes-rules",
+ *     "add-form" = "/admin/config/solo_utilities/color-schemes-rules/add",
+ *     "edit-form" = "/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}",
+ *     "delete-form" = "/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}"
+ *   }
+ * )
  */
 #[ConfigEntityType(
   id: 'color_schemes_rule',

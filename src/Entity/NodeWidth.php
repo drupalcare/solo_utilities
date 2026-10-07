@@ -12,6 +12,24 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Defines the NodeWidth entity.
+ *
+ * The definition is declared twice ON PURPOSE, and the two must agree. Core
+ * that ships the entity-type attribute classes reads #[ContentEntityType] and
+ * ignores this annotation. Drupal 10 ships none (checked on 10.6.18) and
+ * discovers entity types from the annotation only: without it this entity
+ * type does not exist there, which is the 1.0.7 PluginNotFoundException.
+ * EntityTypeDefinitionTest fails if either copy goes missing or the two
+ * drift apart.
+ *
+ * @ContentEntityType(
+ *   id = "node_width",
+ *   label = @Translation("Node Width"),
+ *   base_table = "solo_theme_node_width",
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "label" = "id",
+ *   },
+ * )
  */
 #[ContentEntityType(
   id: 'node_width',

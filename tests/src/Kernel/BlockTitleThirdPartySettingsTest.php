@@ -8,6 +8,7 @@ use Drupal\block\Entity\Block;
 use Drupal\Core\Config\Schema\SchemaCheckTrait;
 use Drupal\Core\Form\FormState;
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
@@ -20,8 +21,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * third_party_settings.solo_utilities, which this module's schema declares,
  * and solo_utilities_update_8002() moves the values on existing blocks.
  *
+ * @group solo_utilities
+ *
  * @license SPDX-License-Identifier: GPL-2.0-or-later
  */
+#[Group('solo_utilities')]
 #[RunTestsInSeparateProcesses]
 class BlockTitleThirdPartySettingsTest extends KernelTestBase {
 

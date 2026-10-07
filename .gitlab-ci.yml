@@ -1,4 +1,4 @@
-# Drupal.org GitLab CI for reference_blocked_users.
+# Drupal.org GitLab CI for Solo Utilities.
 #
 # For details on customizing this file see:
 # https://www.drupal.org/docs/develop/git/using-gitlab-to-contribute-to-drupal/gitlab-ci
@@ -12,9 +12,10 @@ include:
       - '/includes/include.drupalci.workflows.yml'
 
 variables:
-  # This 2.x branch targets Drupal 11.3+ and 12. Run the jobs against the next
-  # major (Drupal 12) in addition to the current core version so the D12
-  # readiness of this branch is verified on every pipeline.
+  # Solo Utilities declares ^10 || ^11 || ^12 (solo_utilities.info.yml), so
+  # every major it claims gets a job: current, next (12) and previous (10).
+  # Run the jobs against the next major in addition to the current core
+  # version so the D12 readiness of this branch is verified on every pipeline.
   OPT_IN_TEST_NEXT_MAJOR: '1'
   # THE LINE THAT WAS MISSING, and its absence is why that job had never run.
   # `OPT_IN_TEST_*` creates the job; `_AUTORUN_*` (default 'none') decides
@@ -24,8 +25,15 @@ variables:
   # pipeline 878576. A green pipeline with no coverage is worse than a missing
   # job, because it looks fine.
   _AUTORUN_NEXT_MAJOR: 'all'
-  # `^11.3` is claimed and current core has moved past it, so the floor of the
-  # supported range needs a job too. Drupal 10 is not claimed, so there is
-  # deliberately no previous-major job.
+  # Current core has moved past the 11.x floor, so the previous minor gets a
+  # job too.
   OPT_IN_TEST_PREVIOUS_MINOR: '1'
   _AUTORUN_PREVIOUS_MINOR: 'all'
+  # Drupal 10 IS claimed. 1.0.7 fataled there with PluginNotFoundException:
+  # both entity types were declared with attributes only, and Drupal 10 reads
+  # entity-type annotations only. Every pipeline was green because no job
+  # ever ran Drupal 10. EntityTypeDefinitionTest goes red on exactly that
+  # defect on this job, and the test runner here needs a @group annotation
+  # beside each #[Group] attribute to discover the tests at all.
+  OPT_IN_TEST_PREVIOUS_MAJOR: '1'
+  _AUTORUN_PREVIOUS_MAJOR: 'all'

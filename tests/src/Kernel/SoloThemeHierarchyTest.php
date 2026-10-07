@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\solo_utilities\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
@@ -21,8 +22,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * theme that has been uninstalled or removed from disk. This module had no
  * tests at all; these are the first.
  *
+ * @group solo_utilities
+ *
  * @license SPDX-License-Identifier: GPL-2.0-or-later
  */
+#[Group('solo_utilities')]
 #[RunTestsInSeparateProcesses]
 class SoloThemeHierarchyTest extends KernelTestBase {
 

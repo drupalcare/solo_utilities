@@ -166,3 +166,28 @@ function solo_utilities_update_8002(): string {
     ->moveToThirdPartySettings();
   return (string) t('Moved block title settings to third-party settings on @count block(s).', ['@count' => $changed]);
 }
+
+/**
+ * Install the entity type definitions a 1.0.7 install on Drupal 10 missed.
+ *
+ * 1.0.7 declared color_schemes_rule and node_width with PHP attributes only.
+ * Drupal 10 reads entity-type annotations only, so a site that installed 1.0.7
+ * on Drupal 10 never had either entity type installed, and its status report
+ * shows both as needing installation. Sites on newer core, and sites that
+ * installed an earlier release, already have them, and nothing happens there.
+ */
+function solo_utilities_update_8003(): string {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $installed = [];
+  foreach (['color_schemes_rule', 'node_width'] as $entity_type_id) {
+    if ($update_manager->getEntityType($entity_type_id) === NULL && $entity_type_manager->hasDefinition($entity_type_id)) {
+      $update_manager->installEntityType($entity_type_manager->getDefinition($entity_type_id));
+      $installed[] = $entity_type_id;
+    }
+  }
+  if ($installed === []) {
+    return (string) t('Both Solo Utilities entity types were already installed.');
+  }
+  return (string) t('Installed the missing entity type(s): @ids.', ['@ids' => implode(', ', $installed)]);
+}

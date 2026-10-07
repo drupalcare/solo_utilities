@@ -6,6 +6,7 @@ namespace Drupal\Tests\solo_utilities\Functional;
 
 use Drupal\block\Entity\Block;
 use Drupal\Tests\BrowserTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
@@ -16,8 +17,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * test covers the entity builder on its own; this one proves the form really
  * submits through it and that the page shows the result.
  *
+ * @group solo_utilities
+ *
  * @license SPDX-License-Identifier: GPL-2.0-or-later
  */
+#[Group('solo_utilities')]
 #[RunTestsInSeparateProcesses]
 class BlockTitleFormTest extends BrowserTestBase {
 
