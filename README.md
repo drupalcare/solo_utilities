@@ -1,10 +1,10 @@
 # Solo Utilities
 
-Solo Utilities is a module designed to enhance the Solo theme with additional
+Solo Utilities is a module designed to extend the Solo theme with additional
 features and customization options. The initial release of Solo Utilities
 introduces the ability to set custom widths for individual nodes, giving site
 builders and content creators more control over the presentation of their
-content. Future updates will include new features to further enhance the Solo
+content. Future updates will include new features to further extend the Solo
 theme.
 
 ## Table of Contents
@@ -23,7 +23,7 @@ theme.
 - **Custom Node Widths**: Set custom widths for individual nodes to tailor the
   display of your content.
 - **Future Enhancements**: Solo Utilities will be updated with new features
-  that enhance the Solo theme.
+  that extend the Solo theme.
 
 ## Requirements
 
@@ -57,7 +57,7 @@ theme.
 
 Solo Utilities is designed to be a foundational module for extending the Solo
 theme. Future updates will include additional features and improvements to
-further enhance the capabilities of the Solo theme.
+further extend the capabilities of the Solo theme.
 
 ## Maintainers
 
