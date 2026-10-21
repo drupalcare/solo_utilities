@@ -22,6 +22,8 @@ theme.
 
 - **Custom Node Widths**: Set custom widths for individual nodes to tailor the
   display of your content.
+- **Create a Solo sub-theme with one command**: `drush solo:subtheme my_theme`
+  (Drush 12 or later). See [Create a sub-theme](#create-a-sub-theme).
 - **Future Enhancements**: Solo Utilities will be updated with new features
   that extend the Solo theme.
 
@@ -52,6 +54,31 @@ theme.
 1. When creating or editing a node, you will see a dropdown to select a custom
    width for the node.
 2. Choose the desired width or select **None** to use the default width.
+
+### Create a sub-theme
+
+You need a sub-theme only to override Solo's Twig templates. Theme
+settings survive Solo updates, and your own CSS and JavaScript go in
+**Global Site Settings > Custom Code**.
+
+```
+drush solo:subtheme my_theme
+drush theme:install my_theme
+drush config:set system.theme default my_theme -y
+```
+
+The command finds Solo wherever it is installed, copies its `solo_subtheme`
+starter to `themes/custom/my_theme` under your web root, and renames
+every file, namespace, function and label to the new name. Add
+`--label="My Theme"` to choose the human-readable name.
+
+The machine name follows Drupal's rules: lowercase letters, numbers and
+underscores, starting with a letter, at most 50 characters. It must not be
+used by another theme, module or profile on the site, or be a name Drupal
+reserves (`src`, `lib`, `vendor`, `assets`, `css`, `files`, `images`, `js`,
+`misc`, `templates`, `includes`, `fixtures`, `drupal`). A short name unique
+to your site works best, for example `mysite_theme`. The command refuses
+a name that breaks these rules, and never overwrites an existing folder.
 
 ## Future Plans
 

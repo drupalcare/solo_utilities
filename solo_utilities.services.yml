@@ -21,6 +21,14 @@ services:
       - '@config.factory'
       - '@theme.manager'
 
+  solo_utilities.subtheme_generator:
+    class: Drupal\solo_utilities\Service\SubthemeGenerator
+    arguments:
+      - '@extension.list.theme'
+      - '@extension.list.module'
+      - '@extension.list.profile'
+      - '%app.root%'
+
   Drupal\solo_utilities\Hook\SoloUtilitiesHooks:
     class: Drupal\solo_utilities\Hook\SoloUtilitiesHooks
     autowire: true
