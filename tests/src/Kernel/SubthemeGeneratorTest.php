@@ -56,9 +56,7 @@ class SubthemeGeneratorTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->workDir = sys_get_temp_dir() . '/solo-subtheme-test-' . bin2hex(random_bytes(6));
-    $generator = $this->container->get('solo_utilities.subtheme_generator');
-    $this->assertInstanceOf(SubthemeGenerator::class, $generator);
-    $this->generator = $generator;
+    $this->generator = $this->container->get('solo_utilities.subtheme_generator');
   }
 
   /**
