@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use Drupal\solo_utilities\Service\SoloThemeDetection;
+
 /**
  * @file
  * Defines the schema for storing custom node width settings.
@@ -80,14 +82,11 @@ function solo_utilities_uninstall(): void {
   $themes = $theme_handler->listInfo();
   $config_factory = \Drupal::configFactory();
 
-  foreach ($themes as $theme_name => $theme) {
-    $base_theme = $theme->info['base theme'] ?? NULL;
+  $detection = \Drupal::classResolver(SoloThemeDetection::class);
 
-    $base_themes = is_array($base_theme)
-      ? array_keys($base_theme)
-      : (is_string($base_theme) ? [$base_theme] : []);
-
-    if ($theme_name !== 'solo' && !in_array('solo', $base_themes, TRUE)) {
+  foreach (array_keys($themes) as $theme_name) {
+    // The hierarchy walk has one home; see SoloThemeDetection.
+    if (!$detection->isInHierarchy($theme_name)) {
       continue;
     }
 
@@ -123,33 +122,7 @@ function solo_utilities_uninstall(): void {
 }
 
 /**
- * Implements hook_modules_enabled().
- */
-function solo_utilities_modules_enabled(array $modules): void {
-  if (
-    in_array('solo_utilities', $modules, TRUE) &&
-    \Drupal::hasService('solo_utilities.block_title_visibility_migrator')
-  ) {
-    \Drupal::service('solo_utilities.block_title_visibility_migrator')
-      ->migrateLegacySettings();
-  }
-}
-
-/**
- * Implements hook_modules_disabled().
- */
-function solo_utilities_modules_disabled(array $modules): void {
-  if (
-    in_array('solo_utilities', $modules, TRUE) &&
-    \Drupal::hasService('solo_utilities.block_title_visibility_migrator')
-  ) {
-    \Drupal::service('solo_utilities.block_title_visibility_migrator')
-      ->cleanupBlockSettings();
-  }
-}
-
-/**
- * Update hook to migrate legacy block visibility settings.
+ * Migrates legacy block visibility settings.
  */
 function solo_utilities_update_8001(): void {
   if (\Drupal::hasService('solo_utilities.block_title_visibility_migrator')) {
@@ -159,7 +132,7 @@ function solo_utilities_update_8001(): void {
 }
 
 /**
- * Move block title settings from block plugin settings to third-party.
+ * Moves block title settings from block plugin settings to third-party.
  */
 function solo_utilities_update_8002(): string {
   $changed = \Drupal::service('solo_utilities.block_title_visibility_migrator')
@@ -168,15 +141,14 @@ function solo_utilities_update_8002(): string {
 }
 
 /**
- * Install the entity type definitions a 1.0.7 install on Drupal 10 missed.
- *
- * 1.0.7 declared color_schemes_rule and node_width with PHP attributes only.
- * Drupal 10 reads entity-type annotations only, so a site that installed 1.0.7
- * on Drupal 10 never had either entity type installed, and its status report
- * shows both as needing installation. Sites on newer core, and sites that
- * installed an earlier release, already have them, and nothing happens there.
+ * Installs the entity type definitions a 1.0.7 install on Drupal 10 missed.
  */
 function solo_utilities_update_8003(): string {
+  // 1.0.7 declared color_schemes_rule and node_width with PHP attributes only.
+  // Drupal 10 reads entity-type annotations only, so a site that installed
+  // 1.0.7 on Drupal 10 never had either entity type installed. Sites on newer
+  // core, and sites that installed an earlier release, already have them, and
+  // nothing happens there.
   $update_manager = \Drupal::entityDefinitionUpdateManager();
   $entity_type_manager = \Drupal::entityTypeManager();
   $installed = [];

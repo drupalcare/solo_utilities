@@ -11,6 +11,8 @@ use Drupal\Core\Url;
 
 /**
  * Provides a listing of Color Schemes Rules.
+ *
+ * @internal
  */
 class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
 

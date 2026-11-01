@@ -7,13 +7,18 @@ namespace Drupal\solo_utilities\Form;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Executable\ExecutableManagerInterface;
+use Drupal\Core\Extension\ExtensionList;
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
+use Drupal\solo_utilities\Service\SoloThemeDetection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for Color Schemes Rule edit forms.
+ *
+ * @internal
  */
 class ColorSchemesRuleForm extends EntityForm {
 
@@ -38,8 +43,20 @@ class ColorSchemesRuleForm extends EntityForm {
    *   The ConditionManager for building the visibility UI.
    * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
    *   The context repository service.
+   * @param \Drupal\Core\Extension\ExtensionList $themeList
+   *   The theme extension list, to find Solo's path.
+   * @param \Drupal\Core\Extension\ThemeHandlerInterface $themeHandler
+   *   The theme handler, to list installed themes.
+   * @param \Drupal\solo_utilities\Service\SoloThemeDetection $detection
+   *   The one home of the Solo theme hierarchy question.
    */
-  public function __construct(ExecutableManagerInterface $condition_plugin_manager, ContextRepositoryInterface $context_repository) {
+  public function __construct(
+    ExecutableManagerInterface $condition_plugin_manager,
+    ContextRepositoryInterface $context_repository,
+    protected ExtensionList $themeList,
+    protected ThemeHandlerInterface $themeHandler,
+    protected SoloThemeDetection $detection,
+  ) {
     $this->conditionPluginManager = $condition_plugin_manager;
     $this->contextRepository = $context_repository;
   }
@@ -50,7 +67,10 @@ class ColorSchemesRuleForm extends EntityForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('plugin.manager.condition'),
-      $container->get('context.repository')
+      $container->get('context.repository'),
+      $container->get('extension.list.theme'),
+      $container->get('theme_handler'),
+      $container->get(SoloThemeDetection::class),
     );
   }
 
@@ -59,7 +79,7 @@ class ColorSchemesRuleForm extends EntityForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     // Get the path to the 'solo' theme using Drupal's service.
-    $theme_path = \Drupal::service('extension.list.theme')->getPath('solo');
+    $theme_path = $this->themeList->getPath('solo');
     if ($theme_path) {
       include_once DRUPAL_ROOT . '/' . $theme_path . '/includes/_theme_settings_helper_functions.inc';
     }
@@ -287,12 +307,11 @@ class ColorSchemesRuleForm extends EntityForm {
    *   An associative array of theme machine names and their readable names.
    */
   protected function getSoloAndSubThemes() {
-    $theme_handler = \Drupal::service('theme_handler');
-    $all_themes = $theme_handler->listInfo();
+    $all_themes = $this->themeHandler->listInfo();
     $solo_themes = [];
 
     foreach ($all_themes as $theme_key => $theme_info) {
-      if (solo_utilities__is_solo_in_theme_hierarchy($theme_key)) {
+      if ($this->detection->isInHierarchy($theme_key)) {
         $solo_themes[$theme_key] = $theme_info->info['name'];
       }
     }

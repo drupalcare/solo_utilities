@@ -26,6 +26,8 @@ use Drupal\solo_utilities\Form\ColorSchemesRuleForm;
  * EntityTypeDefinitionTest fails if either copy goes missing or the two
  * drift apart.
  *
+ * @api
+ *
  * @ConfigEntityType(
  *   id = "color_schemes_rule",
  *   label = @Translation("Color Schemes Rule"),

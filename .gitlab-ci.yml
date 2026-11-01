@@ -12,8 +12,8 @@ include:
       - '/includes/include.drupalci.workflows.yml'
 
 variables:
-  # Solo Utilities declares ^10 || ^11 || ^12 (solo_utilities.info.yml), so
-  # every major it claims gets a job: current, next (12) and previous (10).
+  # Solo Utilities declares ^11.3 || ^12 (solo_utilities.info.yml), so every
+  # major it claims gets a job: current (11) and next (12).
   # Run the jobs against the next major in addition to the current core
   # version so the D12 readiness of this branch is verified on every pipeline.
   OPT_IN_TEST_NEXT_MAJOR: '1'
@@ -29,11 +29,5 @@ variables:
   # job too.
   OPT_IN_TEST_PREVIOUS_MINOR: '1'
   _AUTORUN_PREVIOUS_MINOR: 'all'
-  # Drupal 10 IS claimed. 1.0.7 fataled there with PluginNotFoundException:
-  # both entity types were declared with attributes only, and Drupal 10 reads
-  # entity-type annotations only. Every pipeline was green because no job
-  # ever ran Drupal 10. EntityTypeDefinitionTest goes red on exactly that
-  # defect on this job, and the test runner here needs a @group annotation
-  # beside each #[Group] attribute to discover the tests at all.
-  OPT_IN_TEST_PREVIOUS_MAJOR: '1'
-  _AUTORUN_PREVIOUS_MAJOR: 'all'
+  # No previous-major job: 2.0.x requires ^11.3 || ^12, so Drupal 10 is not
+  # claimed (it stays on 1.0.x).

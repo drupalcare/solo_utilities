@@ -11,6 +11,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Drush command that creates a Solo sub-theme in themes/custom.
+ *
+ * @internal
  */
 final class SoloSubthemeCommands extends DrushCommands {
 

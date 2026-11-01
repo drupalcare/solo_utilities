@@ -1,0 +1,8 @@
+# The public API of solo_utilities: classes and interfaces tagged @api.
+# Everything else under src/ is @internal. One name per line.
+# DRAFT: the owner has not approved this list. PublicApiDriftTest keeps the
+# @api tags in src/ equal to it, so a change here is a deliberate, visible act.
+Drupal\solo_utilities\ColorSchemesRuleInterface
+Drupal\solo_utilities\Entity\ColorSchemesRule
+Drupal\solo_utilities\Entity\NodeWidth
+Drupal\solo_utilities\Service\SoloThemeDetection

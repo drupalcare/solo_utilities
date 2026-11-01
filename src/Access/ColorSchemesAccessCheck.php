@@ -7,12 +7,24 @@ namespace Drupal\solo_utilities\Access;
 use Drupal\Core\Access\AccessCheckInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\solo_utilities\Service\SoloThemeDetection;
 use Symfony\Component\Routing\Route;
 
 /**
  * Provides an access check for the Solo Utilities admin route.
+ *
+ * @internal
  */
 class ColorSchemesAccessCheck implements AccessCheckInterface {
+
+  /**
+   * Constructs the access check.
+   *
+   * @param \Drupal\solo_utilities\Service\SoloThemeDetection $themeDetection
+   *   The Solo theme detection.
+   */
+  public function __construct(protected SoloThemeDetection $themeDetection) {
+  }
 
   /**
    * Checks access based on whether Solo or its sub-themes are enabled.
@@ -69,7 +81,10 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
    *   TRUE if Solo or its sub-themes are enabled, FALSE otherwise.
    */
   protected function isSoloOrSubThemeEnabled() {
-    return solo_utilities__is_solo_or_sub_in_hierarchy_active();
+    // Theme scope: default. These routes render under the ADMIN theme, so the
+    // active theme is never Solo here; asking isActive() would lock every
+    // user out of the Color Schemes admin pages.
+    return $this->themeDetection->isDefault();
   }
 
 }

@@ -11,6 +11,8 @@ use Drupal\Core\Session\AccountInterface;
 
 /**
  * Defines the access control handler for the color_schemes_rule entity type.
+ *
+ * @internal
  */
 class ColorSchemesRuleAccessControlHandler extends EntityAccessControlHandler {
 

@@ -16,6 +16,8 @@ use Symfony\Component\Filesystem\Filesystem;
  * Used by `drush solo:subtheme`. The starter spells its own name in several
  * forms (machine name, class name, label, CSS/JS file names, JS behavior),
  * and every one of them is replaced, in file names and in file contents.
+ *
+ * @internal
  */
 final class SubthemeGenerator {
 

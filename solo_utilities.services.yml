@@ -1,6 +1,10 @@
 services:
+  _defaults:
+    autowire: true
+
   solo_utilities.color_schemes_negotiator:
     class: 'Drupal\solo_utilities\ColorSchemesNegotiator'
+    autowire: false
     arguments:
       - '@entity_type.manager'
       - '@request_stack'
@@ -8,27 +12,50 @@ services:
       - '@context.handler'
       - '@context.repository'
 
+  Drupal\solo_utilities\ColorSchemesNegotiator: '@solo_utilities.color_schemes_negotiator'
+
   solo_utilities.access_check:
     class: Drupal\solo_utilities\Access\ColorSchemesAccessCheck
-    arguments: ['@theme_handler']
+    autowire: false
+    arguments: ['@Drupal\solo_utilities\Service\SoloThemeDetection']
     tags:
       - { name: access_check, applies: 'solo_utilities.access_check' }
 
   solo_utilities.block_title_visibility_migrator:
     class: Drupal\solo_utilities\Service\BlockTitleVisibilityMigrator
+    autowire: false
     arguments:
       - '@entity_type.manager'
-      - '@config.factory'
-      - '@theme.manager'
+      - '@Drupal\solo_utilities\Service\SoloThemeDetection'
+      - '@Drupal\solo_utilities\Service\BlockTitleSettings'
+      - '@Drupal\Core\Extension\ThemeSettingsProvider'
 
   solo_utilities.subtheme_generator:
     class: Drupal\solo_utilities\Service\SubthemeGenerator
+    autowire: false
     arguments:
       - '@extension.list.theme'
       - '@extension.list.module'
       - '@extension.list.profile'
       - '%app.root%'
 
-  Drupal\solo_utilities\Hook\SoloUtilitiesHooks:
-    class: Drupal\solo_utilities\Hook\SoloUtilitiesHooks
-    autowire: true
+  solo_utilities.readiness_scanner:
+    class: Drupal\solo_utilities\Service\SoloReadinessScanner
+    autowire: false
+    arguments:
+      - '@theme_handler'
+      - '@extension.list.theme'
+      - '@module_handler'
+      - '%app.root%'
+
+  # Services below use the class name as their id and are autowired.
+  Drupal\solo_utilities\Service\SoloThemeDetection:
+    autowire: false
+    arguments:
+      - '@theme.manager'
+      - '@theme_handler'
+      - '@config.factory'
+
+  Drupal\solo_utilities\Service\BlockTitleSettings: {}
+  Drupal\solo_utilities\Service\NodeWidthForm: {}
+  Drupal\solo_utilities\Service\ReadmeRenderer: {}

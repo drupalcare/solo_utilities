@@ -10,6 +10,8 @@ use Drupal\Core\Url;
 
 /**
  * Provides a form for deleting a Color Schemes Rule entity.
+ *
+ * @internal
  */
 class ColorSchemesRuleDeleteForm extends EntityConfirmFormBase {
 

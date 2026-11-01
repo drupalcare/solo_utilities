@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Class ColorSchemesNegotiator.
  *
  * Determines which libraries to load based on the defined rules.
+ *
+ * @internal
  */
 class ColorSchemesNegotiator {
 

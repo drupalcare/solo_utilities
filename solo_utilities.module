@@ -2,230 +2,87 @@
 
 /**
  * @file
- * Primary module hooks for Solo Utilities.
+ * Custom features for the Solo theme.
+ *
+ * Website:      https://www.flashwebcenter.com
+ * Developer:    Alaa Haddad https://www.alaahaddad.com.
+ *
+ * Every hook lives in a class under src/Hook (#[Hook] attributes, discovered by
+ * core). This file keeps only the helper functions that existing code names:
+ * Solo and sub-themes call them, and cached forms store the callback names.
+ * Each is a one-line forwarder; the code is in src/Service.
  */
 
 declare(strict_types=1);
 
-/**
- * @file
- * Add custom features to Solo.
- *
- * Filename:     solo_utilities.module
- * Website:      https://www.flashwebcenter.com
- * Description:  Custom features for the Solo theme, including library loading
- * based on conditions.
- * Developer:    Alaa Haddad https://www.alaahaddad.com.
- */
-use Drupal\Core\Hook\Attribute\LegacyHook;
-use Drupal\solo_utilities\Hook\SoloUtilitiesHooks;
-use Drupal\solo_utilities\Service\BlockTitleVisibilityMigrator;
-use Drupal\Component\Utility\DeprecationHelper;
-use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\block\BlockInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\node\NodeInterface;
-
-/**
- * Implements hook_help().
- */
-#[LegacyHook]
-function solo_utilities_help($route_name, RouteMatchInterface $route_match) {
-  return \Drupal::classResolver(SoloUtilitiesHooks::class)->help($route_name, $route_match);
-}
+use Drupal\solo_utilities\Service\BlockTitleSettings;
+use Drupal\solo_utilities\Service\NodeWidthForm;
+use Drupal\solo_utilities\Service\ReadmeRenderer;
+use Drupal\solo_utilities\Service\SoloThemeDetection;
 
 /**
  * Helper function to render README.md.
+ *
+ * @see \Drupal\solo_utilities\Service\ReadmeRenderer::render()
  */
 function _solo_utilities_helper_render_readme() {
-  $text = file_get_contents(__DIR__ . "/README.md");
-
-  if (!\Drupal::moduleHandler()->moduleExists('markdown')) {
-    return '<pre>' . $text . '</pre>';
-  }
-
-  // Use the Markdown filter to render the README.
-  $filter_manager = \Drupal::service('plugin.manager.filter');
-  $settings = \Drupal::configFactory()
-    ->get('markdown.settings')
-    ->getRawData();
-  $config = ['settings' => $settings];
-  $filter = $filter_manager->createInstance('markdown', $config);
-  return $filter->process($text, 'en');
-}
-
-/**
- * Implements hook_preprocess_HOOK() for page templates.
- */
-#[LegacyHook]
-function solo_utilities_preprocess_page(&$variables) {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->preprocessPage($variables);
+  return \Drupal::classResolver(ReadmeRenderer::class)->render();
 }
 
 /**
  * Helper function to check if a theme is in the Solo hierarchy.
  *
- * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise.
+ * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise. The
+ * walk lives in SoloThemeDetection; this stays for callers that name it.
  */
 function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
-  // A missing or non-string name has no hierarchy. This is a trust boundary:
-  // the caller reads system.theme default straight out of configuration.
-  if (!is_string($theme_name) || $theme_name === '') {
-    return FALSE;
-  }
-
-  // Answer for Solo itself before touching the theme handler, so the result
-  // does not depend on Solo being installed on this site.
-  if ($theme_name === 'solo') {
-    return TRUE;
-  }
-
-  $theme_handler = \Drupal::service('theme_handler');
-
-  // A theme that is not installed has no hierarchy to walk, and asking for one
-  // is not a soft failure: ThemeHandler::getTheme() THROWS
-  // UnknownExtensionException rather than returning NULL. Unguarded, an
-  // unknown theme name turned every page render into an HTTP 500 from inside
-  // this module. That is reachable in ordinary operation — system.theme
-  // default can name a theme that has been uninstalled or removed from disk,
-  // and base themes named in a .info.yml are not guaranteed to be installed
-  // either, which is why the recursion below re-enters this same guard.
-  if (!$theme_handler->themeExists($theme_name)) {
-    return FALSE;
-  }
-
-  $theme_info = $theme_handler->getTheme($theme_name);
-
-  // If there are base themes, check them recursively.
-  if (!empty($theme_info->info['base theme'])) {
-    foreach ((array) $theme_info->info['base theme'] as $base_theme_name) {
-      if (solo_utilities__is_solo_in_theme_hierarchy($base_theme_name)) {
-        return TRUE;
-      }
-    }
-  }
-
-  // If 'solo' was not found in the hierarchy, return FALSE.
-  return FALSE;
+  return \Drupal::classResolver(SoloThemeDetection::class)->isInHierarchy($theme_name);
 }
 
 /**
- * Check if the Solo theme or its sub-themes are active in the front-end.
+ * Check if the Solo theme or its sub-themes are the default front-end theme.
  *
- * TRUE if 'solo' or its sub-themes are in the active front-end theme
- * hierarchy, FALSE otherwise.
+ * Reads system.theme:default, not the active theme, so it still answers for the
+ * front end while an admin theme renders the node and block forms. For "is
+ * Solo rendering this request" use SoloThemeDetection::isActive().
  */
 function solo_utilities__is_solo_or_sub_in_hierarchy_active() {
-  // Get the front-end (default) theme's name from configuration.
-  $default_theme = \Drupal::config('system.theme')->get('default');
-
-  // Check if 'solo' is the default theme or in the base theme hierarchy.
-  return solo_utilities__is_solo_in_theme_hierarchy($default_theme);
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-#[LegacyHook]
-function solo_utilities_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->formNodeFormAlter($form, $form_state, $form_id);
+  return \Drupal::classResolver(SoloThemeDetection::class)->isDefault();
 }
 
 /**
  * Custom submit handler for node form.
+ *
+ * Named by the node form's #submit, so cached forms keep calling it.
  */
 function solo_utilities__node_form_submit($form, FormStateInterface $form_state) {
-  // Ensure custom width is saved to the node.
-  $node = $form_state->getFormObject()->getEntity();
-  if ($node instanceof NodeInterface) {
-    $custom_width = $form_state->getValue('custom_node_width');
-    \Drupal::request()->request->set('custom_node_width', $custom_width);
-  }
-}
-
-/**
- * Implements hook_node_presave().
- *
- * Saves the custom width value when the node is saved.
- */
-#[LegacyHook]
-function solo_utilities_node_presave(NodeInterface $node) {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->nodePresave($node);
-}
-
-/**
- * Implements hook_node_insert().
- *
- * Saves the custom width value when a new node is created.
- */
-#[LegacyHook]
-function solo_utilities_node_insert(NodeInterface $node) {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->nodeInsert($node);
+  \Drupal::classResolver(NodeWidthForm::class)->submit($form, $form_state);
 }
 
 /**
  * Checks if block title visibility feature is enabled via theme settings.
  *
- * - Returns TRUE if the active front-end theme or its base theme is 'solo'
- *   AND the active theme settings have 'enable_block_title_visibility' enabled.
+ * TRUE if the default front-end theme is Solo or a sub-theme and its
+ * 'enable_block_title_visibility' setting is on.
  */
 function solo_utilities__is_block_title_visibility_enabled(): bool {
-  $theme_name = \Drupal::config('system.theme')->get('default');
-
-  // Only proceed if 'solo' is in the active theme hierarchy.
-  if (!solo_utilities__is_solo_in_theme_hierarchy($theme_name)) {
-    return FALSE;
-  }
-
-  return (bool) DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('enable_block_title_visibility', $theme_name), fn() => theme_get_setting('enable_block_title_visibility', $theme_name));
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-#[LegacyHook]
-function solo_utilities_form_block_form_alter(array &$form, FormStateInterface $form_state): void {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->formBlockFormAlter($form, $form_state);
+  return \Drupal::classResolver(BlockTitleSettings::class)->isEnabled();
 }
 
 /**
  * Saves the block title settings as the block's third-party settings.
  *
- * They used to be written into the block PLUGIN settings, which no block
- * plugin schema declares, so every such block failed config validation. Any
- * legacy copy is removed here so a block holds the values in one place only.
+ * Named by the block form's #entity_builders, so cached forms keep calling it.
  */
 function _solo_utilities_block_form_entity_builder($entity_type, BlockInterface $block, array &$form, FormStateInterface $form_state): void {
-  foreach (BlockTitleVisibilityMigrator::BLOCK_TITLE_KEYS as $key) {
-    $value = $form_state->getValue(['settings', $key]);
-    if (isset($value)) {
-      $block->setThirdPartySetting('solo_utilities', $key, $value);
-    }
-  }
-
-  $settings = $block->get('settings');
-  $legacy = array_intersect_key($settings, array_flip(BlockTitleVisibilityMigrator::BLOCK_TITLE_KEYS));
-  if ($legacy) {
-    $block->set('settings', array_diff_key($settings, $legacy));
-  }
+  \Drupal::classResolver(BlockTitleSettings::class)->buildEntity((string) $entity_type, $block, $form, $form_state);
 }
 
 /**
  * Reads a block title setting: third-party first, then the legacy location.
- *
- * The legacy fallback covers blocks saved before solo_utilities_update_8002()
- * moved the values out of the block plugin settings.
  */
 function solo_utilities__block_title_setting(BlockInterface $block, string $key): mixed {
-  return $block->getThirdPartySetting('solo_utilities', $key)
-    ?? ($block->get('settings')[$key] ?? NULL);
-}
-
-/**
- * Implements hook_preprocess_block().
- */
-#[LegacyHook]
-function solo_utilities_preprocess_block(array &$variables): void {
-  \Drupal::classResolver(SoloUtilitiesHooks::class)->preprocessBlock($variables);
+  return \Drupal::classResolver(BlockTitleSettings::class)->get($block, $key);
 }

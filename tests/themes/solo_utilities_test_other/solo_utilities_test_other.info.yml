@@ -1,0 +1,5 @@
+name: 'Solo Utilities test other theme'
+type: theme
+description: 'A theme outside the Solo hierarchy, for solo_utilities tests only.'
+core_version_requirement: ^10 || ^11 || ^12
+base theme: claro

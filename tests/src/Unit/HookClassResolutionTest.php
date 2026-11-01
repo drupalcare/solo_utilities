@@ -39,7 +39,10 @@ use PHPUnit\Framework\TestCase;
 class HookClassResolutionTest extends TestCase {
 
   /**
-   * The number of #[LegacyHook] wrappers that resolve the Hook class.
+   * The number of classResolver() wrappers in the .module.
+   *
+   * The helper forwarders: README, hierarchy, default theme, node submit,
+   * block feature flag, block entity builder, block title setting.
    */
   private const EXPECTED_WRAPPERS = 7;
 

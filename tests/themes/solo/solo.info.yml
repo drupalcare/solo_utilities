@@ -1,0 +1,5 @@
+name: 'Solo (test fixture)'
+type: theme
+description: 'Stand-in for the Solo base theme, for solo_utilities tests only.'
+core_version_requirement: ^10 || ^11 || ^12
+base theme: false

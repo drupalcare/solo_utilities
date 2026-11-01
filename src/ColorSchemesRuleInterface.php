@@ -8,6 +8,8 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
  * Provides an interface defining a Color Schemes Rule entity.
+ *
+ * @api
  */
 interface ColorSchemesRuleInterface extends ConfigEntityInterface {
 

@@ -1,60 +1,88 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\solo_utilities\Hook;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ThemeSettingsProvider;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Template\Attribute;
 use Drupal\block\BlockInterface;
 use Drupal\node\NodeInterface;
-use Drupal\Core\Extension\ThemeSettingsProvider;
-use Drupal\Component\Utility\DeprecationHelper;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Hook\Attribute\Hook;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\solo_utilities\ColorSchemesNegotiator;
+use Drupal\solo_utilities\Service\BlockTitleSettings;
+use Drupal\solo_utilities\Service\ReadmeRenderer;
+use Drupal\solo_utilities\Service\SoloThemeDetection;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Hook implementations for solo_utilities.
+ *
+ * @internal
  */
-class SoloUtilitiesHooks {
+final class SoloUtilitiesHooks {
+
   use StringTranslationTrait;
+
+  public function __construct(
+    private readonly SoloThemeDetection $detection,
+    private readonly ThemeSettingsProvider $themeSettings,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly RequestStack $requestStack,
+    private readonly ColorSchemesNegotiator $negotiator,
+    private readonly BlockTitleSettings $blockTitleSettings,
+    private readonly ReadmeRenderer $readmeRenderer,
+  ) {}
 
   /**
    * Implements hook_help().
+   *
+   * Theme scope: none. Reads no theme; the help page is theme independent.
    */
   #[Hook('help')]
-  public function help($route_name, RouteMatchInterface $route_match) {
+  public function help(string $route_name, RouteMatchInterface $route_match): string|array|NULL {
     if ($route_name === 'help.page.solo_utilities') {
-      return _solo_utilities_helper_render_readme();
+      return $this->readmeRenderer->render();
     }
     return NULL;
   }
 
   /**
    * Implements hook_preprocess_HOOK() for page templates.
+   *
+   * Theme scope: default. Kept as before: the rules attach for the front-end
+   * theme even when an admin theme renders. Candidate for active; owner
+   * decision.
    */
   #[Hook('preprocess_page')]
-  public function preprocessPage(&$variables) {
+  public function preprocessPage(array &$variables): void {
     // Check if Solo theme or a sub-theme is active before attaching libraries.
-    if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
-      $negotiator = \Drupal::service('solo_utilities.color_schemes_negotiator');
-      $negotiator->evaluateRules($variables);
+    if ($this->detection->isDefault()) {
+      $this->negotiator->evaluateRules($variables);
     }
   }
 
   /**
    * Implements hook_form_FORM_ID_alter().
+   *
+   * Theme scope: default. Node forms render under the admin theme; the width
+   * field must still show. isActive() would remove the feature.
    */
   #[Hook('form_node_form_alter')]
-  public function formNodeFormAlter(&$form, FormStateInterface $form_state, $form_id) {
-    if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
-      $default_theme = \Drupal::config('system.theme')->get('default');
-      if (DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('enable_custom_node_width', $default_theme), fn() => theme_get_setting('enable_custom_node_width', $default_theme))) {
+  public function formNodeFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    if ($this->detection->isDefault()) {
+      $default_theme = $this->detection->defaultThemeName();
+      if ($this->themeSettings->getSetting('enable_custom_node_width', $default_theme)) {
         $node = $form_state->getFormObject()->getEntity();
         if ($node instanceof NodeInterface) {
           $current_width_class = 'none';
           $node_id = $node->id();
           if ($node_id) {
-            $current_width = \Drupal::entityTypeManager()->getStorage('node_width')->loadByProperties([
+            $current_width = $this->entityTypeManager->getStorage('node_width')->loadByProperties([
               'node_id' => $node_id,
             ]);
             $current_width_class = !empty($current_width) ? reset($current_width)->get('width_class')->value : 'none';
@@ -91,18 +119,21 @@ class SoloUtilitiesHooks {
    * Implements hook_node_presave().
    *
    * Saves the custom width value when the node is saved.
+   *
+   * Theme scope: default. Saves run under the admin theme; same reason as the
+   * node form.
    */
   #[Hook('node_presave')]
-  public function nodePresave(NodeInterface $node) {
+  public function nodePresave(NodeInterface $node): void {
     // Check if the Solo theme or its sub-themes are active.
-    if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    if ($this->detection->isDefault()) {
       // Use the request stack to get the POST data during node save.
-      $custom_width = \Drupal::request()->request->get('custom_node_width');
+      $custom_width = $this->requestStack->getCurrentRequest()->request->get('custom_node_width');
       if ($custom_width === NULL) {
         // Exit if no width is provided.
         return;
       }
-      $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+      $node_width_storage = $this->entityTypeManager->getStorage('node_width');
       $node_id = $node->id();
       if ($node_id) {
         if ($custom_width && $custom_width !== 'none') {
@@ -139,17 +170,20 @@ class SoloUtilitiesHooks {
    * Implements hook_node_insert().
    *
    * Saves the custom width value when a new node is created.
+   *
+   * Theme scope: default. Saves run under the admin theme; same reason as the
+   * node form.
    */
   #[Hook('node_insert')]
-  public function nodeInsert(NodeInterface $node) {
+  public function nodeInsert(NodeInterface $node): void {
     // Check if the Solo theme or its sub-themes are active.
-    if (solo_utilities__is_solo_or_sub_in_hierarchy_active()) {
+    if ($this->detection->isDefault()) {
       // Use the request object to get the POST data during node save.
-      $custom_width = \Drupal::request()->request->get('custom_node_width');
+      $custom_width = $this->requestStack->getCurrentRequest()->request->get('custom_node_width');
       // Check if custom width is not NULL and not 'none'.
       if ($custom_width !== NULL && $custom_width !== 'none') {
         // Get the storage for the node_width entity.
-        $node_width_storage = \Drupal::entityTypeManager()->getStorage('node_width');
+        $node_width_storage = $this->entityTypeManager->getStorage('node_width');
         // Create and save a new node_width entity for the node.
         $node_width = $node_width_storage->create([
           'node_id' => $node->id(),
@@ -163,10 +197,13 @@ class SoloUtilitiesHooks {
 
   /**
    * Implements hook_form_FORM_ID_alter().
+   *
+   * Theme scope: default. Block forms render under the admin theme; the
+   * setting is read from the default theme.
    */
   #[Hook('form_block_form_alter')]
   public function formBlockFormAlter(array &$form, FormStateInterface $form_state): void {
-    if (!solo_utilities__is_block_title_visibility_enabled()) {
+    if (!$this->blockTitleSettings->isEnabled()) {
       return;
     }
     $block = $form_state->getFormObject()?->getEntity();
@@ -179,7 +216,7 @@ class SoloUtilitiesHooks {
     }
     // Capture original label_display value and stored custom setting.
     $original = $form['settings']['label_display']['#default_value'] ?? NULL;
-    $stored = solo_utilities__block_title_setting($block, 'solo_block_title_visibility');
+    $stored = $this->blockTitleSettings->get($block, 'solo_block_title_visibility');
     // Determine the default for dropdown.
     $default = $stored ?? match (TRUE) {
       $original === 'visible' || $original === TRUE => 'visible',
@@ -204,7 +241,7 @@ class SoloUtilitiesHooks {
         'solo_block_title_visibility',
       ],
     ];
-    $heading_level = solo_utilities__block_title_setting($block, 'solo_block_title_tag') ?? 'h2';
+    $heading_level = $this->blockTitleSettings->get($block, 'solo_block_title_tag') ?? 'h2';
     $dropdown_tag = [
       '#type' => 'select',
       '#title' => $this->t('Block title tag'),
@@ -247,10 +284,13 @@ class SoloUtilitiesHooks {
 
   /**
    * Implements hook_preprocess_block().
+   *
+   * Theme scope: default. Kept as before: the flag is read from the default
+   * theme. Candidate for active; owner decision.
    */
   #[Hook('preprocess_block')]
   public function preprocessBlock(array &$variables): void {
-    $variables['solo_block_title_visibility_enabled'] = solo_utilities__is_block_title_visibility_enabled();
+    $variables['solo_block_title_visibility_enabled'] = $this->blockTitleSettings->isEnabled();
     if (!$variables['solo_block_title_visibility_enabled']) {
       return;
     }
@@ -259,13 +299,13 @@ class SoloUtilitiesHooks {
       return;
     }
     /** @var \Drupal\block\BlockInterface|null $block */
-    $block = \Drupal::entityTypeManager()->getStorage('block')->load($id);
+    $block = $this->entityTypeManager->getStorage('block')->load($id);
     if (!$block instanceof BlockInterface) {
       return;
     }
     $settings = $block->get('settings') ?? [];
     // Resolve final visibility mode.
-    $custom_mode = solo_utilities__block_title_setting($block, 'solo_block_title_visibility');
+    $custom_mode = $this->blockTitleSettings->get($block, 'solo_block_title_visibility');
     $legacy = $settings['label_display'] ?? NULL;
     $mode = $custom_mode ?? match (TRUE) {
       $legacy === 'visually_hidden', $legacy === '0', $legacy === FALSE, $legacy === NULL => 'visually_hidden',
@@ -333,7 +373,7 @@ class SoloUtilitiesHooks {
       'h5',
       'h6',
     ];
-    $tag = solo_utilities__block_title_setting($block, 'solo_block_title_tag') ?? 'h2';
+    $tag = $this->blockTitleSettings->get($block, 'solo_block_title_tag') ?? 'h2';
     $tag = in_array($tag, $allowed_tags, TRUE) ? $tag : 'h2';
     $variables['configuration']['solo_block_title_tag'] = $tag;
   }

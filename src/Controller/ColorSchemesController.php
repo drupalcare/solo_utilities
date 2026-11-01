@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for handling AJAX operations and overview for Color Schemes Rules.
+ *
+ * @internal
  */
 class ColorSchemesController extends ControllerBase {
 

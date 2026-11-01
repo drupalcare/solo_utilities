@@ -80,6 +80,19 @@ reserves (`src`, `lib`, `vendor`, `assets`, `css`, `files`, `images`, `js`,
 to your site works best, for example `mysite_theme`. The command refuses
 a name that breaks these rules, and never overwrites an existing folder.
 
+### Check your sub-themes for Solo 2
+
+```
+drush solo:preflight
+```
+
+Reads every installed Solo sub-theme and lists calls to Solo's PHP
+functions, `@solo/` template paths, `libraries-override` entries for Solo
+libraries, and templates that copy a Solo template. It writes nothing and
+changes no setting. The exit code is 0 when nothing needs a change and 1
+when something is listed. The same list shows in the **Solo 2 readiness**
+panel on Solo's theme settings page.
+
 ## Future Plans
 
 Solo Utilities is designed to be a foundational module for extending the Solo

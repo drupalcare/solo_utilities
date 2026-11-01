@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\solo_utilities\Service;
 
-use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\block\BlockInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
  * Migrates and manages block title visibility settings for Solo theme.
@@ -21,6 +18,8 @@ use Drupal\Core\Theme\ThemeManagerInterface;
  *
  * The migration supports converting from various legacy formats (visible, TRUE,
  * '1', etc.) to standardized visibility values (visible, visually_hidden, none).
+ *
+ * @internal
  */
 final class BlockTitleVisibilityMigrator {
 
@@ -35,45 +34,23 @@ final class BlockTitleVisibilityMigrator {
   ];
 
   /**
-   * The entity type manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected EntityTypeManagerInterface $entityTypeManager;
-
-  /**
-   * The config factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected ConfigFactoryInterface $configFactory;
-
-  /**
-   * The theme manager service.
-   *
-   * @var \Drupal\Core\Theme\ThemeManagerInterface
-   */
-  protected ThemeManagerInterface $themeManager;
-
-  /**
    * Constructs a BlockTitleVisibilityMigrator object.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager service for loading block entities.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The configuration factory service for accessing theme settings.
-   * @param \Drupal\Core\Theme\ThemeManagerInterface $theme_manager
-   *   The theme manager service for theme hierarchy detection.
+   * @param \Drupal\solo_utilities\Service\SoloThemeDetection $detection
+   *   The one home of the Solo theme hierarchy and default theme questions.
+   * @param \Drupal\solo_utilities\Service\BlockTitleSettings $blockTitleSettings
+   *   Reads the block title settings a block stores.
+   * @param \Drupal\Core\Extension\ThemeSettingsProvider $themeSettings
+   *   Reads theme settings by theme name.
    */
   public function __construct(
-    EntityTypeManagerInterface $entity_type_manager,
-    ConfigFactoryInterface $config_factory,
-    ThemeManagerInterface $theme_manager,
-  ) {
-    $this->entityTypeManager = $entity_type_manager;
-    $this->configFactory = $config_factory;
-    $this->themeManager = $theme_manager;
-  }
+    private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly SoloThemeDetection $detection,
+    private readonly BlockTitleSettings $blockTitleSettings,
+    private readonly ThemeSettingsProvider $themeSettings,
+  ) {}
 
   /**
    * Determines if block title visibility feature is enabled in theme settings.
@@ -85,11 +62,11 @@ final class BlockTitleVisibilityMigrator {
    *   TRUE if the feature is enabled and theme is Solo-based, FALSE otherwise.
    */
   protected function isFeatureEnabled(): bool {
-    $theme = $this->configFactory->get('system.theme')->get('default');
-    if (!solo_utilities__is_solo_in_theme_hierarchy($theme)) {
+    $theme = $this->detection->defaultThemeName();
+    if (!$this->detection->isInHierarchy($theme)) {
       return FALSE;
     }
-    return (bool) DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('enable_block_title_visibility', $theme), fn() => theme_get_setting('enable_block_title_visibility', $theme));
+    return (bool) $this->themeSettings->getSetting('enable_block_title_visibility', $theme);
   }
 
   /**
@@ -122,12 +99,12 @@ final class BlockTitleVisibilityMigrator {
       }
 
       $theme = $block->getTheme();
-      if (!solo_utilities__is_solo_in_theme_hierarchy($theme)) {
+      if (!$this->detection->isInHierarchy($theme)) {
         continue;
       }
 
       $settings = $block->get('settings');
-      $has_new = solo_utilities__block_title_setting($block, 'solo_block_title_visibility') !== NULL;
+      $has_new = $this->blockTitleSettings->get($block, 'solo_block_title_visibility') !== NULL;
       $legacy = $settings['label_display'] ?? NULL;
 
       if (!$has_new) {
@@ -213,7 +190,7 @@ final class BlockTitleVisibilityMigrator {
       }
 
       $theme = $block->getTheme();
-      if (!solo_utilities__is_solo_in_theme_hierarchy($theme)) {
+      if (!$this->detection->isInHierarchy($theme)) {
         continue;
       }
 

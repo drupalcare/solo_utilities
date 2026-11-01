@@ -1,0 +1,7 @@
+solo_utilities_test_sub.settings:
+  type: config_object
+  label: 'Solo Utilities test sub-theme settings'
+  mapping:
+    enable_custom_node_width:
+      type: boolean
+      label: 'Enable custom node width'

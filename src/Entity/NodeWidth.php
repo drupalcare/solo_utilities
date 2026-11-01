@@ -21,6 +21,8 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  * EntityTypeDefinitionTest fails if either copy goes missing or the two
  * drift apart.
  *
+ * @api
+ *
  * @ContentEntityType(
  *   id = "node_width",
  *   label = @Translation("Node Width"),
