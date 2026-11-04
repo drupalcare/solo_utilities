@@ -8,9 +8,10 @@
  * Developer:    Alaa Haddad https://www.alaahaddad.com.
  *
  * Every hook lives in a class under src/Hook (#[Hook] attributes, discovered by
- * core). This file keeps only the helper functions that existing code names:
- * Solo and sub-themes call them, and cached forms store the callback names.
- * Each is a one-line forwarder; the code is in src/Service.
+ * core). This file keeps only the two callbacks that cached forms store by
+ * name, so an editor's open form still saves after an update. Each is a
+ * one-line forwarder; the code is in src/Service. The other helper functions
+ * that Solo 1 sub-themes may call live in modules/solo_utilities_compat.
  */
 
 declare(strict_types=1);
@@ -19,38 +20,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\block\BlockInterface;
 use Drupal\solo_utilities\Service\BlockTitleSettings;
 use Drupal\solo_utilities\Service\NodeWidthForm;
-use Drupal\solo_utilities\Service\ReadmeRenderer;
-use Drupal\solo_utilities\Service\SoloThemeDetection;
-
-/**
- * Helper function to render README.md.
- *
- * @see \Drupal\solo_utilities\Service\ReadmeRenderer::render()
- */
-function _solo_utilities_helper_render_readme() {
-  return \Drupal::classResolver(ReadmeRenderer::class)->render();
-}
-
-/**
- * Helper function to check if a theme is in the Solo hierarchy.
- *
- * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise. The
- * walk lives in SoloThemeDetection; this stays for callers that name it.
- */
-function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
-  return \Drupal::classResolver(SoloThemeDetection::class)->isInHierarchy($theme_name);
-}
-
-/**
- * Check if the Solo theme or its sub-themes are the default front-end theme.
- *
- * Reads system.theme:default, not the active theme, so it still answers for the
- * front end while an admin theme renders the node and block forms. For "is
- * Solo rendering this request" use SoloThemeDetection::isActive().
- */
-function solo_utilities__is_solo_or_sub_in_hierarchy_active() {
-  return \Drupal::classResolver(SoloThemeDetection::class)->isDefault();
-}
 
 /**
  * Custom submit handler for node form.
@@ -62,27 +31,10 @@ function solo_utilities__node_form_submit($form, FormStateInterface $form_state)
 }
 
 /**
- * Checks if block title visibility feature is enabled via theme settings.
- *
- * TRUE if the default front-end theme is Solo or a sub-theme and its
- * 'enable_block_title_visibility' setting is on.
- */
-function solo_utilities__is_block_title_visibility_enabled(): bool {
-  return \Drupal::classResolver(BlockTitleSettings::class)->isEnabled();
-}
-
-/**
  * Saves the block title settings as the block's third-party settings.
  *
  * Named by the block form's #entity_builders, so cached forms keep calling it.
  */
 function _solo_utilities_block_form_entity_builder($entity_type, BlockInterface $block, array &$form, FormStateInterface $form_state): void {
   \Drupal::classResolver(BlockTitleSettings::class)->buildEntity((string) $entity_type, $block, $form, $form_state);
-}
-
-/**
- * Reads a block title setting: third-party first, then the legacy location.
- */
-function solo_utilities__block_title_setting(BlockInterface $block, string $key): mixed {
-  return \Drupal::classResolver(BlockTitleSettings::class)->get($block, $key);
 }

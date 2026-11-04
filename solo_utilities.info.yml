@@ -3,6 +3,6 @@ type: module
 description: 'Enhance the Solo theme with additional features, utilities, and customization options for advanced site building.'
 package: 'Solo Suite'
 core_version_requirement: ^11.3 || ^12
-php: ^8.3
+php: 8.3
 dependencies:
   - drupal:node

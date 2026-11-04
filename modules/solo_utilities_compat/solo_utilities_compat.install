@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for Solo Utilities Compatibility.
+ */
+
+declare(strict_types=1);
+
+use Drupal\solo_utilities_compat\CompatThemeSettingsProvider;
+
+/**
+ * Implements hook_uninstall().
+ */
+function solo_utilities_compat_uninstall(): void {
+  \Drupal::keyValue(CompatThemeSettingsProvider::LOGGED_COLLECTION)->deleteAll();
+}

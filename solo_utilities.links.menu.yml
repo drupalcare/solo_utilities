@@ -4,6 +4,12 @@ solo_utilities.admin:
   route_name: solo_utilities.admin
   parent: system.admin_config_system
 
+solo_utilities.upgrade:
+  title: 'Solo upgrade'
+  description: 'See each Solo theme, its occupied regions and its upgrade state.'
+  route_name: solo_utilities.upgrade
+  parent: system.admin_config_system
+
 solo_utilities.solo_color_schemes:
   title: 'Color Schemes'
   description: 'Manage color schemes for the Solo theme.'

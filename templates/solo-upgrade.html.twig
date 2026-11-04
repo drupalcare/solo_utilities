@@ -1,0 +1,118 @@
+{#
+/**
+ * @file
+ * The Solo upgrade page.
+ *
+ * Available variables:
+ * - solo_found: Whether the Solo theme is on this site.
+ * - themes: One entry per theme: name, label, base, default, installed, tone,
+ *   state, summary, regions (label, occupied, count) and layout_url.
+ * - waiting: A sentence naming the waiting themes, or empty.
+ * - run: The link to the confirm form, or empty.
+ * - done: Lines for the green list.
+ * - needs: Groups for the amber list: title, path and rows (location, type,
+ *   detail).
+ * - backup: A sentence about the earlier settings held.
+ * - restore: The link to the restore form, or empty.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="solo-upgrade">
+  {% if not solo_found %}
+    <p>{{ 'The Solo theme is not on this site, so there is nothing to upgrade.'|t }}</p>
+  {% else %}
+    <div class="solo-upgrade__run{{ waiting ? ' is-waiting' }}">
+      {% if waiting %}
+        <p>{{ waiting }}</p>
+        {{ run }}
+      {% else %}
+        <p>{{ 'No theme is waiting. There is nothing to run.'|t }}</p>
+      {% endif %}
+    </div>
+
+    <h2>{{ 'Your themes'|t }}</h2>
+    {% for theme in themes %}
+      <section class="solo-upgrade__theme">
+        <header class="solo-upgrade__head">
+          <h3>{{ theme.label }}</h3>
+          <code>{{ theme.name }}</code>
+          {% if theme.default %}<span class="solo-upgrade__tag">{{ 'Default theme'|t }}</span>{% endif %}
+          {% if not theme.installed %}<span class="solo-upgrade__tag">{{ 'Not installed'|t }}</span>{% endif %}
+          <span class="solo-upgrade__state solo-upgrade__state--{{ theme.tone }}">{{ theme.state }}</span>
+        </header>
+        <p class="solo-upgrade__meta">
+          {% if theme.base %}
+            {{ 'Base theme: @base'|t({'@base': theme.base}) }}
+          {% else %}
+            {{ 'Parent theme'|t }}
+          {% endif %}
+          {% if theme.layout_url %}
+            · <a href="{{ theme.layout_url }}">{{ 'Block layout'|t }}</a>
+          {% endif %}
+        </p>
+        {% if theme.installed %}
+          <p class="solo-upgrade__meta">{{ theme.summary }}</p>
+          <ul class="solo-upgrade__regions">
+            {% for region in theme.regions %}
+              <li class="solo-upgrade__region{{ region.occupied ? ' is-occupied' }}">
+                <span>{{ region.label }}</span>
+                <small>{{ region.count }}</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="solo-upgrade__meta">{{ 'Install this theme to place blocks in its regions.'|t }}</p>
+        {% endif %}
+      </section>
+    {% endfor %}
+
+    <h2>{{ 'Done automatically'|t }}</h2>
+    <div class="solo-upgrade__list solo-upgrade__list--done">
+      {% if done %}
+        <ul>
+          {% for item in done %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{{ 'Nothing is finished yet.'|t }}</p>
+      {% endif %}
+      <p class="solo-upgrade__note">{{ backup }}</p>
+      {{ restore }}
+    </div>
+
+    <h2>{{ 'Needs you'|t }}</h2>
+    <div class="solo-upgrade__list{{ needs ? ' solo-upgrade__list--needs' : ' solo-upgrade__list--done' }}">
+      {% if needs %}
+        <p>{{ 'This page never changes sub-theme code. Each line names what to check.'|t }}</p>
+        {% for group in needs %}
+          <h3>{{ group.title }}</h3>
+          {% if group.path %}<p class="solo-upgrade__note"><code>{{ group.path }}</code></p>{% endif %}
+          <div class="solo-upgrade__table">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'Where'|t }}</th>
+                  <th scope="col">{{ 'Kind'|t }}</th>
+                  <th scope="col">{{ 'What to check'|t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in group.rows %}
+                  <tr>
+                    <td>{% if row.location %}<code>{{ row.location }}</code>{% endif %}</td>
+                    <td>{{ row.type }}</td>
+                    <td>{{ row.detail }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>{{ 'Nothing needs you.'|t }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>

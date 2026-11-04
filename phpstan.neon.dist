@@ -14,6 +14,7 @@ parameters:
     - tests
     - solo_utilities.install
     - solo_utilities.module
+    - modules/solo_utilities_compat/solo_utilities_compat.module
   excludePaths:
     # A contrib project has no vendor/ of its own -- composer installs into the
     # SITE's vendor dir. PHPStan treats a missing excludePath as a FATAL config

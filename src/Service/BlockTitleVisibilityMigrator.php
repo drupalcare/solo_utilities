@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\solo_utilities\Service;
 
-use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\block\BlockInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\solo_utilities\Settings\SettingsReader;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
 
 /**
  * Migrates and manages block title visibility settings for Solo theme.
@@ -38,18 +39,18 @@ final class BlockTitleVisibilityMigrator {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager service for loading block entities.
-   * @param \Drupal\solo_utilities\Service\SoloThemeDetection $detection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $detection
    *   The one home of the Solo theme hierarchy and default theme questions.
    * @param \Drupal\solo_utilities\Service\BlockTitleSettings $blockTitleSettings
    *   Reads the block title settings a block stores.
-   * @param \Drupal\Core\Extension\ThemeSettingsProvider $themeSettings
+   * @param \Drupal\solo_utilities\Settings\SettingsReader $themeSettings
    *   Reads theme settings by theme name.
    */
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly SoloThemeDetection $detection,
     private readonly BlockTitleSettings $blockTitleSettings,
-    private readonly ThemeSettingsProvider $themeSettings,
+    private readonly SettingsReader $themeSettings,
   ) {}
 
   /**
@@ -66,7 +67,7 @@ final class BlockTitleVisibilityMigrator {
     if (!$this->detection->isInHierarchy($theme)) {
       return FALSE;
     }
-    return (bool) $this->themeSettings->getSetting('enable_block_title_visibility', $theme);
+    return $this->themeSettings->forTheme($theme)->bool('enable_block_title_visibility');
   }
 
   /**

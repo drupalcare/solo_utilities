@@ -34,9 +34,9 @@ class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
     $header['label'] = $this->t('Label');
     $header['status'] = $this->t('Status');
     $header['weight'] = $this->t('Weight');
-    $header['selected_theme'] = $this->t('Selected Theme');
-    $header['theme_category'] = $this->t('Theme Category');
-    $header['predefined_theme'] = $this->t('Predefined Theme');
+    $header['selected_theme'] = $this->t('Selected theme');
+    $header['theme_category'] = $this->t('Theme category');
+    $header['predefined_theme'] = $this->t('Predefined theme');
     return $header + parent::buildHeader();
   }
 

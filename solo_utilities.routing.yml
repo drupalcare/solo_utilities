@@ -8,6 +8,34 @@ solo_utilities.admin:
   requirements:
     _custom_access: 'solo_utilities.access_check:access'
 
+solo_utilities.upgrade:
+  path: '/admin/config/system/solo-upgrade'
+  defaults:
+    _title: 'Solo upgrade'
+    _controller: 'Drupal\solo_utilities\Controller\SoloUpgradeController::page'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer themes'
+
+solo_utilities.upgrade_run:
+  path: '/admin/config/system/solo-upgrade/run'
+  defaults:
+    _form: 'Drupal\solo_utilities\Form\SoloUpgradeConfirmForm'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer themes'
+
+solo_utilities.upgrade_restore:
+  path: '/admin/config/system/solo-upgrade/restore'
+  defaults:
+    _form: 'Drupal\solo_utilities\Form\SoloUpgradeRestoreForm'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer themes'
+
 entity.color_schemes_rule.collection:
   path: '/admin/config/solo_utilities/color-schemes-rules'
   defaults:

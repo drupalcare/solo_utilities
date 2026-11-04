@@ -10,7 +10,7 @@ use Drush\Commands\DrushCommands;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Drush command that checks the installed Solo sub-themes for Solo 2.
+ * Drush command that checks the Solo sub-themes on disk for Solo 2.
  *
  * @internal
  */
@@ -39,7 +39,7 @@ final class SoloPreflightCommands extends DrushCommands {
    *   and 2 when Solo is not on the site.
    */
   #[CLI\Command(name: 'solo:preflight', aliases: ['solo-preflight'])]
-  #[CLI\Usage(name: 'drush solo:preflight', description: 'Scan the installed Solo sub-themes and list what Solo 2 will change for them.')]
+  #[CLI\Usage(name: 'drush solo:preflight', description: 'Scan the Solo sub-themes and custom modules and list what Solo 2 will change for them.')]
   public function preflight(): int {
     $result = $this->scanner->scan();
     if (!$result['solo_found']) {
@@ -47,13 +47,17 @@ final class SoloPreflightCommands extends DrushCommands {
       return 2;
     }
     $this->io()->writeln(dt('Solo Utilities is enabled: !state', ['!state' => $result['solo_utilities_enabled'] ? 'yes' : 'no']));
-    if ($result['subthemes'] === []) {
-      $this->io()->success(dt('No installed Solo sub-theme was found. Nothing to change.'));
+    $targets = $result['subthemes'] + $result['custom_modules'];
+    if ($result['solo_overrides'] !== []) {
+      $targets = ['solo' => ['path' => '', 'findings' => $result['solo_overrides']]] + $targets;
+    }
+    if ($targets === []) {
+      $this->io()->success(dt('No Solo sub-theme was found. Nothing to change.'));
       return self::EXIT_SUCCESS;
     }
 
     $total = 0;
-    foreach ($result['subthemes'] as $name => $subtheme) {
+    foreach ($targets as $name => $subtheme) {
       $count = count($subtheme['findings']);
       $total += $count;
       $this->io()->section(dt('!name (!path): !count to change', [
@@ -67,7 +71,7 @@ final class SoloPreflightCommands extends DrushCommands {
       }
     }
     if ($total === 0) {
-      $this->io()->success(dt('All installed Solo sub-themes are ready for Solo 2.'));
+      $this->io()->success(dt('All Solo sub-themes are ready for Solo 2.'));
       return self::EXIT_SUCCESS;
     }
     $this->io()->warning(dt('!count item(s) to change. Nothing was written.', ['!count' => $total]));

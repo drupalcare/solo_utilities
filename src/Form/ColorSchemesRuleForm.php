@@ -7,12 +7,11 @@ namespace Drupal\solo_utilities\Form;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Executable\ExecutableManagerInterface;
-use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
-use Drupal\solo_utilities\Service\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -43,19 +42,19 @@ class ColorSchemesRuleForm extends EntityForm {
    *   The ConditionManager for building the visibility UI.
    * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
    *   The context repository service.
-   * @param \Drupal\Core\Extension\ExtensionList $themeList
-   *   The theme extension list, to find Solo's path.
    * @param \Drupal\Core\Extension\ThemeHandlerInterface $themeHandler
    *   The theme handler, to list installed themes.
-   * @param \Drupal\solo_utilities\Service\SoloThemeDetection $detection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $detection
    *   The one home of the Solo theme hierarchy question.
+   * @param \Drupal\solo_utilities\Form\SettingsOptions $settingsOptions
+   *   The one home of the color scheme option lists.
    */
   public function __construct(
     ExecutableManagerInterface $condition_plugin_manager,
     ContextRepositoryInterface $context_repository,
-    protected ExtensionList $themeList,
     protected ThemeHandlerInterface $themeHandler,
     protected SoloThemeDetection $detection,
+    protected SettingsOptions $settingsOptions,
   ) {
     $this->conditionPluginManager = $condition_plugin_manager;
     $this->contextRepository = $context_repository;
@@ -68,9 +67,9 @@ class ColorSchemesRuleForm extends EntityForm {
     return new static(
       $container->get('plugin.manager.condition'),
       $container->get('context.repository'),
-      $container->get('extension.list.theme'),
       $container->get('theme_handler'),
       $container->get(SoloThemeDetection::class),
+      $container->get(SettingsOptions::class),
     );
   }
 
@@ -78,22 +77,6 @@ class ColorSchemesRuleForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    // Get the path to the 'solo' theme using Drupal's service.
-    $theme_path = $this->themeList->getPath('solo');
-    if ($theme_path) {
-      include_once DRUPAL_ROOT . '/' . $theme_path . '/includes/_theme_settings_helper_functions.inc';
-    }
-    else {
-      // If the theme path is not found, disable the form and show an error.
-      $form['error'] = [
-        '#markup' => '<div class="messages messages--error">' . $this->t('The required Solo theme settings helper functions could not be loaded. Please ensure the Solo theme is installed and enabled.') . '</div>',
-        '#weight' => -1000,
-      ];
-      // Disable all other form elements.
-      $form['#attributes']['class'][] = 'form-disabled';
-      return $form;
-    }
-
     $available_contexts = $this->contextRepository->getAvailableContexts();
     $form_state->setTemporaryValue('gathered_contexts', $available_contexts);
 
@@ -131,7 +114,7 @@ class ColorSchemesRuleForm extends EntityForm {
     ];
 
     // Theme category field.
-    $theme_categories = _get_theme_category();
+    $theme_categories = $this->settingsOptions->themeCategory();
     $form['theme_category'] = [
       '#type' => 'select',
       '#title' => $this->t('Select a category'),
@@ -141,7 +124,7 @@ class ColorSchemesRuleForm extends EntityForm {
     ];
 
     // Predefined theme field.
-    $predefined_themes = _get_predefined_theme();
+    $predefined_themes = $this->settingsOptions->predefinedTheme();
     $form['predefined_theme'] = [
       '#type' => 'select',
       '#title' => $this->t('Choose the desired color scheme'),

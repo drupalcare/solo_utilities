@@ -17,7 +17,7 @@ services:
   solo_utilities.access_check:
     class: Drupal\solo_utilities\Access\ColorSchemesAccessCheck
     autowire: false
-    arguments: ['@Drupal\solo_utilities\Service\SoloThemeDetection']
+    arguments: ['@Drupal\solo_utilities\Theme\SoloThemeDetection']
     tags:
       - { name: access_check, applies: 'solo_utilities.access_check' }
 
@@ -26,9 +26,9 @@ services:
     autowire: false
     arguments:
       - '@entity_type.manager'
-      - '@Drupal\solo_utilities\Service\SoloThemeDetection'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
       - '@Drupal\solo_utilities\Service\BlockTitleSettings'
-      - '@Drupal\Core\Extension\ThemeSettingsProvider'
+      - '@Drupal\solo_utilities\Settings\SettingsReader'
 
   solo_utilities.subtheme_generator:
     class: Drupal\solo_utilities\Service\SubthemeGenerator
@@ -43,19 +43,202 @@ services:
     class: Drupal\solo_utilities\Service\SoloReadinessScanner
     autowire: false
     arguments:
-      - '@theme_handler'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
       - '@extension.list.theme'
       - '@module_handler'
       - '%app.root%'
+      - '@Drupal\solo_utilities\Upgrade\SettingsMap'
+      - '@config.factory'
+      - '@extension.list.module'
 
   # Services below use the class name as their id and are autowired.
-  Drupal\solo_utilities\Service\SoloThemeDetection:
+  Drupal\solo_utilities\Theme\SoloThemeDetection:
     autowire: false
     arguments:
       - '@theme.manager'
       - '@theme_handler'
       - '@config.factory'
+      - '@extension.list.theme'
 
   Drupal\solo_utilities\Service\BlockTitleSettings: {}
   Drupal\solo_utilities\Service\NodeWidthForm: {}
   Drupal\solo_utilities\Service\ReadmeRenderer: {}
+  Drupal\solo_utilities\Settings\SettingsReader: {}
+  Drupal\solo_utilities\Settings\SettingsCatalog:
+    autowire: false
+    arguments:
+      - '@config.typed'
+      - '@extension.path.resolver'
+      - '%app.root%'
+  Drupal\solo_utilities\Security\CssValueValidator: {}
+  Drupal\solo_utilities\Security\UrlSafety: {}
+  Drupal\solo_utilities\Context\RequestContext: {}
+  Drupal\solo_utilities\Layout\RegionInventory: {}
+  Drupal\solo_utilities\Layout\LayoutResolver: {}
+  Drupal\solo_utilities\Feature\BodyClasses: {}
+  Drupal\solo_utilities\Feature\HtmlPreprocessor: {}
+  Drupal\solo_utilities\Feature\PagePreprocessor: {}
+  Drupal\solo_utilities\Feature\MenuDebugNotice: {}
+  Drupal\solo_utilities\Feature\MenuTemplates: {}
+  Drupal\solo_utilities\Feature\FormDecorator: {}
+  Drupal\solo_utilities\Feature\Suggestions: {}
+  Drupal\solo_utilities\Feature\SearchResult: {}
+  Drupal\solo_utilities\Feature\ContentPreprocessor: {}
+  Drupal\solo_utilities\Feature\CommentPreprocessor: {}
+  Drupal\solo_utilities\Feature\Preloader: {}
+  Drupal\solo_utilities\Feature\BackToTop: {}
+  Drupal\solo_utilities\Feature\Breadcrumb: {}
+  Drupal\solo_utilities\Feature\BlockBranding: {}
+  Drupal\solo_utilities\Feature\MaintenancePage: {}
+  Drupal\solo_utilities\Render\AttributeHelper: {}
+  Drupal\solo_utilities\Render\FormElementInspector: {}
+
+  # Theme settings form.
+  Drupal\solo_utilities\Form\SettingsOptions:
+    autowire: false
+    arguments:
+      - '@entity_type.manager'
+      - '@extension.list.theme'
+      - '%app.root%'
+  Drupal\solo_utilities\Form\SettingsElementFactory: {}
+  Drupal\solo_utilities\Form\ThemeSettings\SettingsFormValidator: {}
+  Drupal\solo_utilities\Form\ThemeSettings\SettingsFormSubmitter:
+    autowire: false
+    arguments:
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@config.factory'
+      - '@Drupal\solo_utilities\Settings\SettingsCatalog'
+      - '@Drupal\solo_utilities\Form\SettingsOptions'
+      - '@entity.repository'
+      - '@theme.registry'
+      - '@twig'
+      - '@?file.usage'
+  Drupal\solo_utilities\Form\ThemeSettings\SettingsFormBuilder:
+    autowire: false
+    arguments:
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@Drupal\solo_utilities\Settings\SettingsReader'
+      - '@Drupal\solo_utilities\Settings\SettingsCatalog'
+      - '@Drupal\solo_utilities\Layout\RegionInventory'
+      - '@Drupal\solo_utilities\Form\SettingsOptions'
+      - '@Drupal\solo_utilities\Form\ThemeSettings\SettingsFormValidator'
+      - '@Drupal\solo_utilities\Form\ThemeSettings\SettingsFormSubmitter'
+      - !tagged_iterator solo_utilities.settings_section
+      - '@extension.path.resolver'
+  # Sections, in 1.x's form order: highest priority first.
+  Drupal\solo_utilities\Form\ThemeSettings\Section\BlueprintSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 2300 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\GlobalSiteSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 2200 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\LibrariesFontsSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 2100 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\SearchResultsSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 2000 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\ColorSchemesSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1900 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\PageWrapperSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1800 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\HighlightedSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1700 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\PopupLoginSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1600 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\FixedSearchSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1500 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\HeaderSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1400 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\PrimarySidebarMenuSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1300 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\PrimaryMenuSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1200 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\WelcomeTextSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1100 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\TopSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 1000 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\SystemMessagesSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 900 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\PageTitleSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 800 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\BreadcrumbSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 700 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\MainSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 600 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\BottomSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 500 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\FooterSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 400 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\FooterMenuSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 300 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\SocialIconsSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 200 }]
+  Drupal\solo_utilities\Form\ThemeSettings\Section\CreditCopyrightSection:
+    tags: [{ name: solo_utilities.settings_section, priority: 100 }]
+
+  # Generated CSS and JS. Explicit arguments: the logger channel is not autowired.
+  logger.channel.solo_utilities:
+    class: Psr\Log\LoggerInterface
+    autowire: false
+    factory: ['@logger.factory', 'get']
+    arguments: ['solo_utilities']
+
+  Drupal\solo_utilities\Css\ThemeCssBuilder: {}
+  Drupal\solo_utilities\Css\ThemeLibraryRegistrar: {}
+  Drupal\solo_utilities\Css\ThemeAssetFiles:
+    autowire: false
+    arguments:
+      - '@file_system'
+      - '@Drupal\solo_utilities\Css\ThemeCssBuilder'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@cache_tags.invalidator'
+      - '@logger.channel.solo_utilities'
+
+  Drupal\solo_utilities\Asset\AssetAttacher:
+    autowire: false
+    arguments:
+      - '@Drupal\solo_utilities\Settings\SettingsReader'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@Drupal\solo_utilities\Css\ThemeCssBuilder'
+      - '@Drupal\solo_utilities\Css\ThemeAssetFiles'
+      - '@Drupal\solo_utilities\Css\ThemeLibraryRegistrar'
+      - '@Drupal\solo_utilities\Security\CssValueValidator'
+      - '@Drupal\solo_utilities\Context\RequestContext'
+      - '@solo_utilities.color_schemes_negotiator'
+      - '@library.discovery'
+      - '@file_url_generator'
+      - '@logger.channel.solo_utilities'
+
+  Drupal\solo_utilities\EventSubscriber\ThemeSettingsSaveSubscriber:
+    tags:
+      - { name: event_subscriber }
+  Drupal\solo_utilities\Upgrade\SettingsMap:
+    autowire: false
+    arguments: ['@cache.discovery']
+  Drupal\solo_utilities\Upgrade\SettingsMigrator:
+    autowire: false
+    arguments:
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@Drupal\solo_utilities\Upgrade\SettingsMap'
+      - '@config.storage'
+      - '@config.factory'
+      - '@config.manager'
+      - '@config.typed'
+      - '@event_dispatcher'
+      - '@keyvalue'
+      - '@logger.factory'
+      - '@extension.list.theme'
+      - '@extension.list.module'
+  Drupal\solo_utilities\Upgrade\UpgradeOverview:
+    autowire: false
+    arguments:
+      - '@Drupal\solo_utilities\Upgrade\SettingsMigrator'
+      - '@solo_utilities.readiness_scanner'
+      - '@Drupal\solo_utilities\Layout\RegionInventory'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+      - '@extension.list.theme'
+      - '@theme_handler'
+      - '@module_handler'
+      - '@logger.channel.solo_utilities'
+  Drupal\solo_utilities\EventSubscriber\SettingsImportSubscriber:
+    autowire: false
+    arguments: ['@Drupal\solo_utilities\Upgrade\SettingsMigrator']
+    tags:
+      - { name: event_subscriber }

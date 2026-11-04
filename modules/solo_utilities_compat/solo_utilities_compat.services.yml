@@ -1,0 +1,9 @@
+services:
+  solo_utilities_compat.theme_settings_provider:
+    class: Drupal\solo_utilities_compat\CompatThemeSettingsProvider
+    decorates: Drupal\Core\Extension\ThemeSettingsProvider
+    arguments:
+      - '@solo_utilities_compat.theme_settings_provider.inner'
+      - '@Drupal\solo_utilities\Upgrade\SettingsMap'
+      - '@keyvalue'
+      - '@logger.factory'

@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Forwarders for helper functions that Solo 1 sub-themes may still call.
+ *
+ * Install this module only when "drush solo:preflight" reports a caller. Every
+ * function is a one-line forwarder to a Solo Utilities service; there is no
+ * logic here. Tell callers to change to the service, then uninstall this module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\block\BlockInterface;
+use Drupal\solo_utilities\Service\BlockTitleSettings;
+use Drupal\solo_utilities\Service\ReadmeRenderer;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
+
+/**
+ * Helper function to render README.md.
+ *
+ * @see \Drupal\solo_utilities\Service\ReadmeRenderer::render()
+ */
+function _solo_utilities_helper_render_readme() {
+  return \Drupal::classResolver(ReadmeRenderer::class)->render();
+}
+
+/**
+ * Helper function to check if a theme is in the Solo hierarchy.
+ *
+ * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise. The
+ * walk lives in SoloThemeDetection; this stays for callers that name it.
+ */
+function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
+  return \Drupal::classResolver(SoloThemeDetection::class)->isInHierarchy($theme_name);
+}
+
+/**
+ * Check if the Solo theme or its sub-themes are the default front-end theme.
+ *
+ * Reads system.theme:default, not the active theme, so it still answers for the
+ * front end while an admin theme renders the node and block forms. For "is
+ * Solo rendering this request" use SoloThemeDetection::isActive().
+ */
+function solo_utilities__is_solo_or_sub_in_hierarchy_active() {
+  return \Drupal::classResolver(SoloThemeDetection::class)->isDefault();
+}
+
+/**
+ * Checks if block title visibility feature is enabled via theme settings.
+ *
+ * TRUE if the default front-end theme is Solo or a sub-theme and its
+ * 'enable_block_title_visibility' setting is on.
+ */
+function solo_utilities__is_block_title_visibility_enabled(): bool {
+  return \Drupal::classResolver(BlockTitleSettings::class)->isEnabled();
+}
+
+/**
+ * Reads a block title setting: third-party first, then the legacy location.
+ */
+function solo_utilities__block_title_setting(BlockInterface $block, string $key): mixed {
+  return \Drupal::classResolver(BlockTitleSettings::class)->get($block, $key);
+}

@@ -6,9 +6,10 @@ namespace Drupal\solo_utilities\Service;
 
 use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\block\BlockInterface;
+use Drupal\solo_utilities\Settings\SettingsReader;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
 
 /**
  * Reads and stores the block title settings of the Solo block title feature.
@@ -24,7 +25,7 @@ final class BlockTitleSettings implements ContainerInjectionInterface {
   use AutowireTrait;
 
   public function __construct(
-    private readonly ThemeSettingsProvider $themeSettings,
+    private readonly SettingsReader $themeSettings,
     private readonly SoloThemeDetection $detection,
   ) {}
 
@@ -40,7 +41,7 @@ final class BlockTitleSettings implements ContainerInjectionInterface {
     if (!$this->detection->isInHierarchy($theme_name)) {
       return FALSE;
     }
-    return (bool) $this->themeSettings->getSetting('enable_block_title_visibility', $theme_name);
+    return $this->themeSettings->forTheme($theme_name)->bool('enable_block_title_visibility');
   }
 
   /**

@@ -6,3 +6,8 @@ pre-defined:
     - core/drupal.ajax
     - core/drupalSettings
     - core/once
+
+upgrade-page:
+  css:
+    theme:
+      css/solo-upgrade.css: {}

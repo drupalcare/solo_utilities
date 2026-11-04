@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Drupal\solo_utilities\Service;
 
 use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Upgrade\SettingsMap;
 
 /**
- * Reads the installed Solo sub-themes and lists what Solo 2 will change.
+ * Reads the Solo sub-themes on disk and lists what Solo 2 will change.
  *
  * WHY THIS EXISTS
  * Solo 2 moves its PHP into this module and removes solo.theme. A sub-theme
@@ -22,7 +24,13 @@ use Drupal\Core\Extension\ThemeHandlerInterface;
  *
  * Findings are arrays with the keys type, file (relative to the sub-theme),
  * line (0 when it applies to the whole file) and detail. The types are
- * function_call, solo_include, library_override and copied_template.
+ * function_call, solo_include, library_override, copied_template, config_read,
+ * settings_call, form_alter and config_override.
+ *
+ * The settings types cover what the settings migration cannot change by itself.
+ * A renamed setting read through config, a form alter aimed at an old element,
+ * and an override of an old key all stop working with no error. Overrides are
+ * found through Config::hasOverrides(): settings.php is never opened.
  *
  * @internal
  */
@@ -35,6 +43,14 @@ final class SoloReadinessScanner {
   public const TYPE_LIBRARY_OVERRIDE = 'library_override';
 
   public const TYPE_COPIED_TEMPLATE = 'copied_template';
+
+  public const TYPE_CONFIG_READ = 'config_read';
+
+  public const TYPE_SETTINGS_CALL = 'settings_call';
+
+  public const TYPE_FORM_ALTER = 'form_alter';
+
+  public const TYPE_CONFIG_OVERRIDE = 'config_override';
 
   /**
    * A file is read only when it is at most this size, in bytes.
@@ -54,23 +70,30 @@ final class SoloReadinessScanner {
   private ?array $soloFunctions = NULL;
 
   public function __construct(
-    private readonly ThemeHandlerInterface $themeHandler,
+    private readonly SoloThemeDetection $detection,
     private readonly ExtensionList $themeList,
     private readonly ModuleHandlerInterface $moduleHandler,
     private readonly string $appRoot,
+    private readonly SettingsMap $settingsMap,
+    private readonly ConfigFactoryInterface $configFactory,
+    private readonly ExtensionList $moduleList,
   ) {}
 
   /**
-   * Scans every installed sub-theme of Solo.
+   * Scans every sub-theme of Solo on disk, installed or not.
    *
-   * @return array{solo_utilities_enabled: bool, solo_found: bool, subthemes: array<string, array{path: string, findings: list<array{type: string, file: string, line: int, detail: string}>}>}
-   *   The result. Sub-themes with no finding are present with an empty list.
+   * @return array{solo_utilities_enabled: bool, solo_found: bool, subthemes: array<string, array{path: string, findings: list<array{type: string, file: string, line: int, detail: string}>}>, custom_modules: array<string, array{path: string, findings: list<array{type: string, file: string, line: int, detail: string}>}>, solo_overrides: list<array{type: string, file: string, line: int, detail: string}>}
+   *   The result. Sub-themes with no finding are present with an empty list;
+   *   custom modules appear only with a finding. solo_overrides lists overrides
+   *   of Solo's own settings.
    */
   public function scan(): array {
     $result = [
       'solo_utilities_enabled' => $this->moduleHandler->moduleExists('solo_utilities'),
       'solo_found' => FALSE,
       'subthemes' => [],
+      'custom_modules' => [],
+      'solo_overrides' => [],
     ];
     $solo_path = $this->soloPath();
     if ($solo_path === NULL) {
@@ -78,16 +101,39 @@ final class SoloReadinessScanner {
     }
     $result['solo_found'] = TRUE;
 
-    foreach ($this->themeHandler->listInfo() as $name => $theme) {
-      $base_themes = $theme->base_themes ?? [];
-      if ($name === 'solo' || !is_array($base_themes) || !array_key_exists('solo', $base_themes)) {
+    $themes = $this->themeList->getList();
+    foreach ($this->detection->chainOnDisk() as $name) {
+      if ($name === 'solo') {
+        $result['solo_overrides'] = $this->overrideFindings($name);
         continue;
       }
-      $path = $this->appRoot . '/' . $theme->getPath();
-      $result['subthemes'][(string) $name] = [
-        'path' => $theme->getPath(),
-        'findings' => $this->scanDirectory($path, $solo_path),
+      $path = $themes[$name]->getPath();
+      $result['subthemes'][$name] = [
+        'path' => $path,
+        'findings' => array_merge(
+          $this->overrideFindings($name),
+          $this->scanDirectory($this->appRoot . '/' . $path, $solo_path),
+        ),
       ];
+    }
+
+    // Custom modules can read a Solo setting too. Only the settings checks
+    // apply: the other types are about what a theme inherits from Solo.
+    foreach ($this->moduleList->getList() as $name => $module) {
+      $path = $module->getPath();
+      if (!str_contains('/' . $path . '/', '/custom/') || str_starts_with((string) $name, 'solo_utilities')) {
+        continue;
+      }
+      $findings = [];
+      foreach ($this->files($this->appRoot . '/' . $path) as $relative => $absolute) {
+        $contents = file_get_contents($absolute);
+        if ($contents !== FALSE) {
+          array_push($findings, ...$this->settingsUseFindings($relative, $contents));
+        }
+      }
+      if ($findings !== []) {
+        $result['custom_modules'][(string) $name] = ['path' => $path, 'findings' => $findings];
+      }
     }
     return $result;
   }
@@ -104,7 +150,7 @@ final class SoloReadinessScanner {
    *   The findings, ordered by file and line.
    */
   public function scanDirectory(string $subtheme_path, string $solo_path): array {
-    $functions = array_flip($this->soloFunctionNames($solo_path));
+    $functions = array_flip($this->soloFunctionNames());
     $solo_templates = array_flip($this->templateNames($solo_path));
     $findings = [];
 
@@ -122,6 +168,7 @@ final class SoloReadinessScanner {
           $findings[] = $this->finding(self::TYPE_FUNCTION_CALL, $relative, $line, $function . '() is a Solo function; Solo 2 moves Solo\'s PHP into solo_utilities.');
         }
       }
+      array_push($findings, ...$this->settingsUseFindings($relative, $contents));
       if ($is_php || $is_twig || $is_info) {
         foreach (preg_split('/\R/', $contents) ?: [] as $index => $text) {
           if (preg_match_all('~@solo/[A-Za-z0-9_./-]*~', $text, $matches)) {
@@ -153,26 +200,95 @@ final class SoloReadinessScanner {
   }
 
   /**
-   * Returns the names of Solo's procedural functions.
+   * Returns the names of Solo 1's procedural functions.
    *
    * @return string[]
-   *   Read from solo.theme and includes/*.inc, so there is no second list.
+   *   Read from the list this module ships, as Solo 2 has no such functions.
+   *
+   * @throws \RuntimeException
+   *   When the list is unreadable: an empty list would report every sub-theme
+   *   as clear.
    */
-  public function soloFunctionNames(string $solo_path): array {
+  public function soloFunctionNames(): array {
     if ($this->soloFunctions !== NULL) {
       return $this->soloFunctions;
     }
-    $names = [];
-    $files = glob($solo_path . '/includes/*.inc') ?: [];
-    $files[] = $solo_path . '/solo.theme';
-    foreach ($files as $file) {
-      $contents = is_file($file) ? file_get_contents($file) : FALSE;
-      if ($contents !== FALSE && preg_match_all('/^function\s+(\w+)\s*\(/m', $contents, $matches)) {
-        array_push($names, ...$matches[1]);
+    $file = $this->appRoot . '/' . $this->moduleList->getPath('solo_utilities') . '/config/map/solo1-function-names.yml';
+    $data = is_file($file) ? Yaml::decode((string) file_get_contents($file)) : NULL;
+    if (!is_array($data) || empty($data['functions'])) {
+      throw new \RuntimeException('The Solo 1 function list is missing from Solo Utilities: config/map/solo1-function-names.yml');
+    }
+    $this->soloFunctions = array_values($data['functions']);
+    return $this->soloFunctions;
+  }
+
+  /**
+   * Finds code that uses a Solo setting by a name the migration changes.
+   *
+   * Read one file at a time and line by line, so a key passed through a variable
+   * or set on another line is reported as "check by hand", not as clear.
+   *
+   * @return list<array{type: string, file: string, line: int, detail: string}>
+   *   The findings.
+   */
+  private function settingsUseFindings(string $relative, string $contents): array {
+    $is_php = (bool) preg_match('/\.(theme|php|inc|module)$/', $relative);
+    if (!$is_php && !str_ends_with($relative, '.twig')) {
+      return [];
+    }
+    $findings = [];
+    $names = implode('|', array_map(static fn(string $name): string => preg_quote($name, '/'), $this->detection->chainOnDisk()));
+    $object = '(?:[\'"](?:' . $names . ')\.settings[\'"]|\$\w+\s*\.\s*[\'"]\.settings[\'"])';
+    foreach (preg_split('/\R/', $contents) ?: [] as $index => $text) {
+      if ($names !== '' && preg_match('/\b(?:config|getEditable|drupal_config)\(\s*' . $object . '(.*)/', $text, $matches)) {
+        $key = preg_match('/^\s*\)\s*->\s*(?:get|set|clear)\(\s*[\'"]([a-z0-9_.]+)[\'"]|^\s*,\s*[\'"]([a-z0-9_.]+)[\'"]/', $matches[1], $found) ? ($found[1] ?: $found[2]) : NULL;
+        if ($key === NULL) {
+          $findings[] = $this->finding(self::TYPE_CONFIG_READ, $relative, $index + 1, 'Uses a Solo settings object directly; check every key it names against the settings map.');
+        }
+        elseif ($this->settingsMap->isOldName($key)) {
+          $findings[] = $this->finding(self::TYPE_CONFIG_READ, $relative, $index + 1, $key . ' is an old setting name; through config it returns NULL with no error after the migration.');
+        }
+      }
+      if ($is_php && preg_match_all('/\b(?:theme_get_setting|getSetting)\(\s*[\'"]([a-z0-9_.]+)[\'"]/', $text, $matches)) {
+        foreach ($matches[1] as $key) {
+          if ($this->settingsMap->isOldName($key)) {
+            $findings[] = $this->finding(self::TYPE_SETTINGS_CALL, $relative, $index + 1, $key . ' is an old setting name; change it, or install solo_utilities_compat until it is changed.');
+          }
+        }
       }
     }
-    $this->soloFunctions = array_values(array_unique($names));
-    return $this->soloFunctions;
+    if ($is_php && preg_match('/function\s+\w*form_system_theme_settings_alter\b|Hook\(\s*[\'"]form_system_theme_settings_alter[\'"]/', $contents)) {
+      foreach (token_get_all($contents) as $token) {
+        if (is_array($token) && $token[0] === T_CONSTANT_ENCAPSED_STRING && $this->settingsMap->isOldName(trim($token[1], '\'"'))) {
+          $findings[] = $this->finding(self::TYPE_FORM_ALTER, $relative, $token[2], trim($token[1], '\'"') . ' in a settings form alter is an old element name; the alter stops matching with no error.');
+        }
+      }
+    }
+    return $findings;
+  }
+
+  /**
+   * Finds config overrides of old setting names, never reading their values.
+   *
+   * @return list<array{type: string, file: string, line: int, detail: string}>
+   *   The findings.
+   */
+  private function overrideFindings(string $theme): array {
+    if (!$this->settingsMap->exists()) {
+      return [];
+    }
+    $name = $theme . '.settings';
+    $config = $this->configFactory->get($name);
+    if (!$config->hasOverrides()) {
+      return [];
+    }
+    $findings = [];
+    foreach ($this->settingsMap->rows() as $old => $row) {
+      if ($row['action'] !== 'keep_core' && $config->hasOverrides((string) $old)) {
+        $findings[] = $this->finding(self::TYPE_CONFIG_OVERRIDE, '(config override)', 0, $name . ':' . $old . ' is overridden, in settings.php or by a module; the override stops applying after the migration.');
+      }
+    }
+    return $findings;
   }
 
   /**

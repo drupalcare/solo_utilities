@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-use Drupal\solo_utilities\Service\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
 
 /**
  * @file
@@ -93,23 +93,11 @@ function solo_utilities_uninstall(): void {
     $config = $config_factory->getEditable("{$theme_name}.settings");
     $has_changes = FALSE;
 
-    if ($config->get('enable_custom_widths') !== NULL) {
-      $config->clear('enable_custom_widths');
-      $has_changes = TRUE;
-    }
-
-    // Guard entity access during uninstall.
-    if (\Drupal::entityTypeManager()->hasDefinition('node_type')) {
-      $content_types = \Drupal::entityTypeManager()
-        ->getStorage('node_type')
-        ->loadMultiple();
-
-      foreach ($content_types as $type) {
-        $key = "site_width_{$type->id()}";
-        if ($config->get($key) !== NULL) {
-          $config->clear($key);
-          $has_changes = TRUE;
-        }
+    // The width settings only this module acts on, by their new names.
+    foreach (['per_content_type_enabled', 'per_node_enabled', 'per_content_type'] as $key) {
+      if ($config->get("layout.width.$key") !== NULL) {
+        $config->clear("layout.width.$key");
+        $has_changes = TRUE;
       }
     }
 
