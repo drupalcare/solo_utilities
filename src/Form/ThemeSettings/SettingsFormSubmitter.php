@@ -16,7 +16,7 @@ use Drupal\file\FileInterface;
 use Drupal\file\FileUsage\FileUsageInterface;
 use Drupal\solo_utilities\Form\SettingsOptions;
 use Drupal\solo_utilities\Settings\SettingsCatalog;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Finishes saving the theme settings form, after core's own save.
@@ -56,7 +56,7 @@ final class SettingsFormSubmitter {
   /**
    * Constructs the submit handler.
    *
-   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $themeDetection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetectionInterface $themeDetection
    *   Names the edited theme.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Gives the editable settings object.
@@ -74,7 +74,7 @@ final class SettingsFormSubmitter {
    *   File usage, absent when the File module is not installed.
    */
   public function __construct(
-    protected SoloThemeDetection $themeDetection,
+    protected SoloThemeDetectionInterface $themeDetection,
     protected ConfigFactoryInterface $configFactory,
     protected SettingsCatalog $catalog,
     protected SettingsOptions $options,

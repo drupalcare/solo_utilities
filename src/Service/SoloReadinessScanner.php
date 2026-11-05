@@ -8,7 +8,7 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Drupal\solo_utilities\Upgrade\SettingsMap;
 
 /**
@@ -70,7 +70,7 @@ final class SoloReadinessScanner {
   private ?array $soloFunctions = NULL;
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly ExtensionList $themeList,
     private readonly ModuleHandlerInterface $moduleHandler,
     private readonly string $appRoot,

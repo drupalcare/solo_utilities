@@ -9,7 +9,7 @@ use Drupal\Core\Hook\Order\Order;
 use Drupal\solo_utilities\Feature\Breadcrumb;
 use Drupal\solo_utilities\Feature\MaintenancePage;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes the breadcrumb and maintenance page hooks to their features.
@@ -23,7 +23,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class PageElementHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $settingsReader,
     private readonly Breadcrumb $breadcrumb,
     private readonly MaintenancePage $maintenancePage,

@@ -6,6 +6,7 @@ namespace Drupal\solo_utilities\Css;
 
 use Drupal\solo_utilities\Security\CssValueValidator;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
+use Drupal\solo_utilities\Settings\SchemaBounds;
 use Drupal\solo_utilities\Settings\SettingsReader;
 
 /**
@@ -92,6 +93,7 @@ final class ThemeCssBuilder {
   public function __construct(
     private readonly SettingsReader $settingsReader,
     private readonly CssValueValidator $validator,
+    private readonly SchemaBounds $bounds,
   ) {}
 
   /**
@@ -199,7 +201,7 @@ final class ThemeCssBuilder {
     if (!$settings->bool('back_to_top.enabled')) {
       return [];
     }
-    $threshold = $this->clampedInteger($settings, 'back_to_top.scroll_threshold', 400, 200, 800, $refused);
+    $threshold = $this->clampedInteger($settings, 'back_to_top.scroll_threshold', 400, $refused);
     $rules = ['.solo-back-to-top-sentinel-wrapper{--solo-back-to-top-sentinel-height:' . $threshold . 'px}'];
 
     $declarations = [];
@@ -230,11 +232,11 @@ final class ThemeCssBuilder {
     if (!$settings->bool('preloader.enabled') && !$settings->bool('preloader.force_show')) {
       return [];
     }
-    $style = $settings->string('preloader.style', 'spinner');
+    $style = $settings->string('preloader.style');
 
     // The opacity belongs to the background only, so it never dims the text.
     $background = $this->hexOrNothing($settings, 'preloader.colors.background', $refused);
-    $opacity = $this->clampedInteger($settings, 'preloader.bg_opacity', 100, 0, 100, $refused);
+    $opacity = $this->clampedInteger($settings, 'preloader.bg_opacity', 100, $refused);
     $declarations = ['--solo-preloader-bg:' . ($background === NULL ? 'transparent' : ($this->validator->rgba($background, $opacity) ?? 'transparent'))];
 
     $text = $this->hexOrNothing($settings, 'preloader.colors.text', $refused);
@@ -242,13 +244,13 @@ final class ThemeCssBuilder {
       $declarations[] = '--r-tx:' . $text;
     }
     if ($style === 'logo' || $style === 'logo_text') {
-      $declarations[] = '--solo-preloader-logo-width:' . $this->clampedInteger($settings, 'preloader.logo.width', 160, 16, 800, $refused) . 'px';
-      $declarations[] = '--solo-preloader-logo-height:' . $this->clampedInteger($settings, 'preloader.logo.height', 80, 16, 600, $refused) . 'px';
+      $declarations[] = '--solo-preloader-logo-width:' . $this->clampedInteger($settings, 'preloader.logo.width', 160, $refused) . 'px';
+      $declarations[] = '--solo-preloader-logo-height:' . $this->clampedInteger($settings, 'preloader.logo.height', 80, $refused) . 'px';
       // A stored 0 means fully opaque, as in 1.x: a hidden logo is never wanted.
-      $declarations[] = '--solo-preloader-logo-opacity:' . $this->validator->alphaFromPercent($this->clampedInteger($settings, 'preloader.logo.opacity', 100, 0, 100, $refused) ?: 100);
+      $declarations[] = '--solo-preloader-logo-opacity:' . $this->validator->alphaFromPercent($this->clampedInteger($settings, 'preloader.logo.opacity', 100, $refused) ?: 100);
     }
     if ($style === 'text' || $style === 'logo_text') {
-      $declarations[] = '--solo-preloader-text-font-size:' . $this->clampedInteger($settings, 'preloader.text.font_size', 24, 12, 100, $refused) . 'px';
+      $declarations[] = '--solo-preloader-text-font-size:' . $this->clampedInteger($settings, 'preloader.text.font_size', 24, $refused) . 'px';
       $declarations[] = '--solo-preloader-text-line-height:1.2';
     }
     return $declarations;
@@ -342,7 +344,7 @@ final class ThemeCssBuilder {
   }
 
   /**
-   * An integer setting held to the range 1.x enforced.
+   * An integer setting held to the range the schema declares.
    *
    * Clamping an integer yields another integer, so it cannot carry anything
    * hostile. A value that is not an integer is refused and the default is used.
@@ -353,14 +355,10 @@ final class ThemeCssBuilder {
    *   The setting key.
    * @param int $default
    *   Used when the value is unset or refused.
-   * @param int $min
-   *   The lowest value output.
-   * @param int $max
-   *   The highest value output.
    * @param list<string> $refused
    *   Field names refused so far.
    */
-  private function clampedInteger(BoundThemeSettings $settings, string $field, int $default, int $min, int $max, array &$refused): int {
+  private function clampedInteger(BoundThemeSettings $settings, string $field, int $default, array &$refused): int {
     $value = $this->optionalValue($settings, $field);
     if ($value === NULL) {
       return $default;
@@ -370,7 +368,7 @@ final class ThemeCssBuilder {
       $refused[] = $field;
       return $default;
     }
-    return max($min, min($max, $integer));
+    return $this->bounds->clamp($field, $integer);
   }
 
 }

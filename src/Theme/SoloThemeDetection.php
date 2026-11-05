@@ -6,6 +6,7 @@ namespace Drupal\solo_utilities\Theme;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ThemeExtensionList;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -39,7 +40,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @api
  */
-final class SoloThemeDetection implements ContainerInjectionInterface {
+final class SoloThemeDetection implements SoloThemeDetectionInterface, ContainerInjectionInterface {
+
+  /**
+   * Remembered isInHierarchy() answers, by theme name.
+   *
+   * Keyed by name, never by "active" or "default": core switches the active
+   * theme mid-request, and a name always answers the same until a theme is
+   * installed or uninstalled (see resetCache()).
+   *
+   * @var array<string, bool>
+   */
+  private array $hierarchyCache = [];
+
+  /**
+   * Remembered familyNames() answers, by theme name.
+   *
+   * @var array<string, list<string>>
+   */
+  private array $familyCache = [];
 
   /**
    * Constructs the service.
@@ -140,6 +159,10 @@ final class SoloThemeDetection implements ContainerInjectionInterface {
       return FALSE;
     }
 
+    if (isset($this->hierarchyCache[$theme_name])) {
+      return $this->hierarchyCache[$theme_name];
+    }
+
     // A visited list, not recursion: an .info.yml pair naming each other as
     // base theme must end in "not Solo", never in a stack overflow.
     $visited = [];
@@ -154,7 +177,7 @@ final class SoloThemeDetection implements ContainerInjectionInterface {
       // Answer for Solo itself before touching the theme handler, so the result
       // does not depend on Solo being installed on this site.
       if ($name === 'solo') {
-        return TRUE;
+        return $this->hierarchyCache[$theme_name] = TRUE;
       }
 
       // ThemeHandler::getTheme() THROWS UnknownExtensionException for a theme
@@ -165,7 +188,7 @@ final class SoloThemeDetection implements ContainerInjectionInterface {
       }
     }
 
-    return FALSE;
+    return $this->hierarchyCache[$theme_name] = FALSE;
   }
 
   /**
@@ -194,6 +217,82 @@ final class SoloThemeDetection implements ContainerInjectionInterface {
     }
     sort($chain);
     return $chain;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function familyNames(string $theme): array {
+    if (isset($this->familyCache[$theme])) {
+      return $this->familyCache[$theme];
+    }
+    $found = $this->onDisk($theme);
+    if ($found === NULL) {
+      return [];
+    }
+    // Core fills base_themes root first; nearest first is its reverse.
+    return $this->familyCache[$theme] = [$theme, ...array_map('strval', array_reverse(array_keys($found->base_themes ?? [])))];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function depth(string $theme): ?int {
+    $found = $this->onDisk($theme);
+    if ($found === NULL) {
+      return NULL;
+    }
+    if ($theme === 'solo') {
+      return 0;
+    }
+    $position = array_search('solo', array_map('strval', array_keys($found->base_themes ?? [])), TRUE);
+    return $position === FALSE ? NULL : count($found->base_themes) - $position;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parentName(string $theme): string {
+    $base = $this->onDisk($theme)?->info['base theme'] ?? '';
+    return is_string($base) ? $base : '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasCompleteChain(string $theme): bool {
+    $found = $this->onDisk($theme);
+    return $found !== NULL && !in_array(NULL, $found->base_themes ?? [], TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function installedThemes(): array {
+    $themes = [];
+    foreach ($this->themeHandler->listInfo() as $name => $theme) {
+      if ($this->isInHierarchy((string) $name)) {
+        $label = $theme->info['name'] ?? $name;
+        $themes[(string) $name] = is_string($label) ? $label : (string) $name;
+      }
+    }
+    return $themes;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetCache(): void {
+    $this->hierarchyCache = [];
+    $this->familyCache = [];
+  }
+
+  /**
+   * The extension object of a theme on disk, or NULL when there is none.
+   */
+  private function onDisk(string $theme): ?Extension {
+    return $theme === '' ? NULL : ($this->themeList->getList()[$theme] ?? NULL);
   }
 
 }

@@ -7,6 +7,7 @@ namespace Drupal\solo_utilities\Form\ThemeSettings\Section;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Form\SettingsElementFactory;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
+use Drupal\solo_utilities\Settings\SchemaBounds;
 
 /**
  * The Popup Login Block section.
@@ -21,6 +22,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
 
   public function __construct(
     private readonly SettingsElementFactory $elements,
+    private readonly SchemaBounds $bounds,
   ) {}
 
   /**
@@ -69,7 +71,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#parents" => ['popup_login', 'link_text'],
         "#type" => "textfield",
         "#title" => $this->t("You can change the login word."),
-        "#default_value" => $settings->get('popup_login.link_text') ?? "Login",
+        "#default_value" => $settings->get('popup_login.link_text'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -91,9 +93,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "number",
         "#title" => $this->t("Animation duration (milliseconds)"),
         "#description" => $this->t("Duration of open/close animations in milliseconds. Default: 300ms"),
-        "#default_value" => $settings->get('popup_login.animation_duration') ?? 300,
-        "#min" => 0,
-        "#max" => 5000,
+        "#default_value" => $settings->get('popup_login.animation_duration'),
         "#step" => 50,
         "#field_suffix" => $this->t("ms"),
         "#states" => [
@@ -102,6 +102,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
           ],
         ],
       ];
+      $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__animation_duration"] = $this->bounds->applyTo($form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__animation_duration"], 'popup_login.animation_duration');
 
       // Z-index setting - ALWAYS VISIBLE when popup is enabled.
       $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__z_index"] = [
@@ -109,15 +110,14 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "number",
         "#title" => $this->t("Z-index"),
         "#description" => $this->t("The z-index value for the popup overlay. Adjust if the popup appears behind other elements. Default: 10000"),
-        "#default_value" => $settings->get('popup_login.z_index') ?? 10000,
-        "#min" => 1,
-        "#max" => 999999,
+        "#default_value" => $settings->get('popup_login.z_index'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
           ],
         ],
       ];
+      $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__z_index"] = $this->bounds->applyTo($form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__z_index"], 'popup_login.z_index');
 
       // Overlay opacity - ALWAYS VISIBLE when popup is enabled.
       $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__overlay_opacity"] = [
@@ -125,9 +125,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "number",
         "#title" => $this->t("Overlay opacity"),
         "#description" => $this->t("The opacity of the background overlay (0-100). Default: 50%"),
-        "#default_value" => $settings->get('popup_login.overlay_opacity') ?? 50,
-        "#min" => 0,
-        "#max" => 100,
+        "#default_value" => $settings->get('popup_login.overlay_opacity'),
         "#field_suffix" => "%",
         "#states" => [
           "visible" => [
@@ -135,6 +133,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
           ],
         ],
       ];
+      $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__overlay_opacity"] = $this->bounds->applyTo($form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__overlay_opacity"], 'popup_login.overlay_opacity');
 
       // Custom trigger selectors - ALWAYS VISIBLE when popup is enabled.
       $form["solo_settings"]["settings_{$region}"]["advanced_settings"]["popup_login__custom_triggers"] = [
@@ -142,7 +141,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "textfield",
         "#title" => $this->t("Custom trigger selectors"),
         "#description" => $this->t("Additional CSS selectors for elements that should trigger the login popup. Separate multiple selectors with commas. Example: .my-login-button, #custom-login-link"),
-        "#default_value" => $settings->get('popup_login.custom_triggers') ?? "",
+        "#default_value" => $settings->get('popup_login.custom_triggers'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -156,7 +155,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Use inline styles for display property"),
         "#description" => $this->t("How popup visibility is managed: checked uses <code>style.display</code> directly, unchecked uses CSS classes. Animation, z-index and other settings always work via CSS variables. Only change this if you experience conflicts with other modules."),
-        "#default_value" => $settings->get('popup_login.use_inline_styles') ?? FALSE,
+        "#default_value" => $settings->get('popup_login.use_inline_styles'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -178,7 +177,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Close on Escape key"),
         "#description" => $this->t("Allow users to close the popup by pressing the Escape key. Recommended for accessibility."),
-        "#default_value" => $settings->get('popup_login.close_on_escape') ?? TRUE,
+        "#default_value" => $settings->get('popup_login.close_on_escape'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -192,7 +191,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Close on outside click"),
         "#description" => $this->t("Close the popup when clicking outside of the login form. Recommended for better UX."),
-        "#default_value" => $settings->get('popup_login.close_on_outside_click') ?? TRUE,
+        "#default_value" => $settings->get('popup_login.close_on_outside_click'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -206,7 +205,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Enable focus trap"),
         "#description" => $this->t("Trap keyboard focus within the popup for better accessibility. Recommended for WCAG 2.1 compliance."),
-        "#default_value" => $settings->get('popup_login.focus_trap') ?? TRUE,
+        "#default_value" => $settings->get('popup_login.focus_trap'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -220,7 +219,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Announce to screen readers"),
         "#description" => $this->t("Announce popup state changes to screen reader users for better accessibility. Recommended for WCAG 2.1 compliance."),
-        "#default_value" => $settings->get('popup_login.announce_to_screen_readers') ?? TRUE,
+        "#default_value" => $settings->get('popup_login.announce_to_screen_readers'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],
@@ -234,7 +233,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
         "#type" => "checkbox",
         "#title" => $this->t("Return focus on close"),
         "#description" => $this->t("Return keyboard focus to the element that triggered the popup when it closes. Recommended for accessibility."),
-        "#default_value" => $settings->get('popup_login.return_focus_on_close') ?? TRUE,
+        "#default_value" => $settings->get('popup_login.return_focus_on_close'),
         "#states" => [
           "visible" => [
             ":input[name='popup_login[enabled]']" => ["checked" => TRUE],

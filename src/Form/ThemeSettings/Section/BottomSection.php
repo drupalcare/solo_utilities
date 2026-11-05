@@ -129,7 +129,7 @@ final class BottomSection implements SettingsSectionInterface {
             "#parents" => ['region_groups', 'bottom', 'aria_landmark'],
             "#type" => "checkbox",
             "#title" => $this->t("Enable ARIA Landmark for Bottom Container"),
-            "#default_value" => $settings->get('region_groups.bottom.aria_landmark') ?? 0,
+            "#default_value" => $settings->get('region_groups.bottom.aria_landmark'),
             "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the bottom container for improved accessibility. Enable only if this region consistently contains important, navigable content."),
           ];
 
@@ -163,7 +163,7 @@ final class BottomSection implements SettingsSectionInterface {
             "#title" => $this->t("Region Block Alignment Option"),
             "#type" => "select",
             "#options" => $this->options->alignment(),
-            "#default_value" => $settings->get("regions.{$region}.alignment") ?? "region-left",
+            "#default_value" => $settings->get("regions.{$region}.alignment"),
             "#description" => $this->t("Block content is left-aligned by default. This aligns blocks to the center or right within this region, through region-level configuration. Large screens only."),
           ];
 

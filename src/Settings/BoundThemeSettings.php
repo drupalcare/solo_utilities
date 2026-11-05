@@ -23,6 +23,7 @@ final class BoundThemeSettings implements CacheableDependencyInterface {
   public function __construct(
     private readonly ThemeSettingsProvider $provider,
     private readonly string $theme,
+    private readonly SettingsCatalog $catalog,
   ) {}
 
   /**
@@ -33,15 +34,21 @@ final class BoundThemeSettings implements CacheableDependencyInterface {
   }
 
   /**
-   * The stored value, or $default when the key is unset.
+   * The stored value, else Solo's shipped default, else $default.
+   *
+   * The shipped default (config/install/solo.settings.yml) owns the value of a
+   * key that is unset, so callers do not repeat it. $default is only for keys
+   * the install file has no default for.
    *
    * @param string $key
    *   The setting key; dots address nested values.
    * @param mixed $default
-   *   Returned when the stored value is NULL.
+   *   Returned when neither a stored value nor a shipped default exists.
    */
   public function get(string $key, mixed $default = NULL): mixed {
-    return $this->provider->getSetting($key, $this->theme) ?? $default;
+    return $this->provider->getSetting($key, $this->theme)
+      ?? $this->catalog->defaultAt($key)
+      ?? $default;
   }
 
   /**

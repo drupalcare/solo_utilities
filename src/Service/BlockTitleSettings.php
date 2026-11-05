@@ -9,7 +9,7 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\block\BlockInterface;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Reads and stores the block title settings of the Solo block title feature.
@@ -26,7 +26,7 @@ final class BlockTitleSettings implements ContainerInjectionInterface {
 
   public function __construct(
     private readonly SettingsReader $themeSettings,
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
   ) {}
 
   /**

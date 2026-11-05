@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\block\BlockInterface;
 use Drupal\solo_utilities\Context\RequestContext;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Prepares block templates: logo, logo text, menu region and page title flag.
@@ -20,7 +20,7 @@ final class BlockBranding {
 
   public function __construct(
     private readonly RequestContext $requestContext,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 

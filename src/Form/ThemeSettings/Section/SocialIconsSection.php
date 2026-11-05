@@ -6,6 +6,7 @@ namespace Drupal\solo_utilities\Form\ThemeSettings\Section;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
+use Drupal\solo_utilities\Settings\SchemaBounds;
 
 /**
  * The Social Media Links section.
@@ -17,6 +18,10 @@ use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
 final class SocialIconsSection implements SettingsSectionInterface {
 
   use StringTranslationTrait;
+
+  public function __construct(
+    private readonly SchemaBounds $bounds,
+  ) {}
 
   /**
    * {@inheritdoc}
@@ -61,7 +66,6 @@ final class SocialIconsSection implements SettingsSectionInterface {
       "#type" => "textfield",
       // Long enough for a var() reference; 7 only fitted a hex color, which made
       // the "enter var(--name)" advice impossible to follow.
-      "#maxlength" => 40,
       "#size" => 20,
       "#title" => $this->t("Change Social Media Default Colors"),
       "#description" => $this->t("A hex color such as #1877f2, an rgb() value, transparent, currentcolor, or a custom property reference such as var(--solo-fb). A bare property name like --solo-fb will not work: browsers ignore it and the icons stay gray. Leave empty to use each network's default color."),
@@ -72,6 +76,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
         "data-drupal-selector" => "solo-color-picker",
       ],
     ];
+    $form["solo_settings"]["settings_social_icons"]["general_settings"]["social_icons__color"] = $this->bounds->applyTo($form["solo_settings"]["settings_social_icons"]["general_settings"]["social_icons__color"], 'social_icons.color');
 
     $form["solo_settings"]["settings_social_icons"]["general_settings"]["social_icons__enabled"] = [
       "#parents" => ['social_icons', 'enabled'],

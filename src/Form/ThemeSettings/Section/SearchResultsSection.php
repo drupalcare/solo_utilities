@@ -64,7 +64,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
           "disable_keywords" => $this->t("Disable Keywords filter"),
           "disable_types" => $this->t('Enable “Limit by content type” control'),
         ],
-        "#default_value" => $settings->get('search.disabled_filters') ?? [],
+        "#default_value" => $settings->get('search.disabled_filters'),
       ];
 
       // Display Options Tab.
@@ -80,7 +80,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
         "#parents" => ['search', 'teaser_mode'],
         "#type" => "checkbox",
         "#title" => $this->t("Use Teaser Mode for Search Results"),
-        "#default_value" => $settings->get('search.teaser_mode') ?? 0,
+        "#default_value" => $settings->get('search.teaser_mode'),
         "#description" => $this->t("Enable this option to display search results using the teaser view mode."),
       ];
 
@@ -98,7 +98,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
         "#type" => "checkboxes",
         "#title" => $this->t("Content Types to Display in Search Results"),
         "#options" => $this->options->contentTypes(),
-        "#default_value" => $settings->get('search.result_content_types') ?? [],
+        "#default_value" => $settings->get('search.result_content_types'),
         "#description" => $this->t("Allow site builder to select which content types can be searched across the site. The chosen content types will apply to both the search form on the page and the Drupal Core Search Blocks."),
         "#states" => [
           // Show this field only if "Disable Types" is selected.

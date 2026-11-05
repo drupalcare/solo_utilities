@@ -100,13 +100,13 @@ final class Preloader {
     if (!$settings->bool('preloader.enabled')) {
       return FALSE;
     }
-    if ($settings->bool('preloader.disable_authenticated', TRUE)) {
+    if ($settings->bool('preloader.disable_authenticated')) {
       $cache->addCacheContexts([RequestContext::CACHE_CONTEXT_ROLES]);
       if (!$this->requestContext->isAnonymous()) {
         return FALSE;
       }
     }
-    if ($settings->bool('preloader.disable_admin_routes', TRUE)) {
+    if ($settings->bool('preloader.disable_admin_routes')) {
       $cache->addCacheContexts([RequestContext::CACHE_CONTEXT_ROUTE, RequestContext::CACHE_CONTEXT_PATH]);
       if ($this->requestContext->isAdminOrEditorRoute()) {
         return FALSE;
@@ -133,10 +133,10 @@ final class Preloader {
    */
   private function config(BoundThemeSettings $settings): array {
     $force_show = $settings->bool('preloader.force_show');
-    $transition = $settings->string('preloader.transition', 'fade');
+    $transition = $settings->string('preloader.transition');
 
     return [
-      'style' => $settings->string('preloader.style', 'spinner'),
+      'style' => $settings->string('preloader.style'),
       'spinner_show_percent' => $settings->bool('preloader.spinner_show_percent'),
       'max_display_seconds' => max(3, min(60, $this->intOr($settings, 'preloader.max_display_seconds', 8))),
       'r_bg' => $settings->string('preloader.colors.background') ?: '#ffffff',
@@ -151,7 +151,7 @@ final class Preloader {
       'text_animate_effect' => $settings->string('preloader.text.animate_effect'),
       'transition' => in_array($transition, self::TRANSITIONS, TRUE) ? $transition : 'fade',
       // Force show is for testing, so it always hides on DOM ready.
-      'hide_on' => $force_show || $settings->string('preloader.hide_on', 'dom_ready') === 'dom_ready' ? 'dom_ready' : 'load',
+      'hide_on' => $force_show || $settings->string('preloader.hide_on') === 'dom_ready' ? 'dom_ready' : 'load',
       'force_show' => $force_show,
     ];
   }

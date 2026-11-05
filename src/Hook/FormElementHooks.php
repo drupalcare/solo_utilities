@@ -10,7 +10,7 @@ use Drupal\Core\Hook\Order\Order;
 use Drupal\solo_utilities\Feature\FormDecorator;
 use Drupal\solo_utilities\Feature\SearchResult;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes form preprocess and form alter hooks to the features that own them.
@@ -23,7 +23,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class FormElementHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $settingsReader,
     private readonly FormDecorator $forms,
     private readonly SearchResult $search,

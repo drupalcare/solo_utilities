@@ -8,7 +8,7 @@ use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Hook\Order\Order;
 use Drupal\solo_utilities\Feature\Suggestions;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes theme suggestion hooks to the feature that owns them.
@@ -20,7 +20,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class SuggestionHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $settingsReader,
     private readonly Suggestions $suggestions,
   ) {}

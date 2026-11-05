@@ -13,7 +13,7 @@ use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Form\SettingsOptions;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * The Predefined Color Schemes section.
@@ -28,7 +28,7 @@ final class ColorSchemesSection implements SettingsSectionInterface {
 
   public function __construct(
     private readonly SettingsOptions $options,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly ExtensionPathResolver $pathResolver,
   ) {}
 

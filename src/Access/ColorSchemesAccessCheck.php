@@ -7,7 +7,7 @@ namespace Drupal\solo_utilities\Access;
 use Drupal\Core\Access\AccessCheckInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Component\Routing\Route;
 
 /**
@@ -20,10 +20,10 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
   /**
    * Constructs the access check.
    *
-   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $themeDetection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetectionInterface $themeDetection
    *   The Solo theme detection.
    */
-  public function __construct(protected SoloThemeDetection $themeDetection) {
+  public function __construct(protected SoloThemeDetectionInterface $themeDetection) {
   }
 
   /**

@@ -44,16 +44,16 @@ final class CommentPreprocessor {
   public function preprocessComment(array &$variables, BoundThemeSettings $settings): void {
     /** @var \Drupal\comment\CommentInterface $comment */
     $comment = $variables['elements']['#comment'];
-    $show_date = $settings->bool('comments.show_date', TRUE);
+    $show_date = $settings->bool('comments.show_date');
     $date_format = $settings->string('comments.date_format', 'medium');
 
-    $variables['heading_first'] = $settings->bool('comments.heading_first', TRUE);
-    $variables['show_permalink'] = $settings->bool('comments.show_permalink', TRUE);
-    $variables['show_author'] = $settings->bool('comments.show_author', TRUE);
+    $variables['heading_first'] = $settings->bool('comments.heading_first');
+    $variables['show_permalink'] = $settings->bool('comments.show_permalink');
+    $variables['show_author'] = $settings->bool('comments.show_author');
     $variables['show_date'] = $show_date;
-    $variables['show_picture'] = $settings->bool('comments.show_picture', TRUE);
-    $variables['show_new_indicator'] = $settings->bool('comments.show_new_indicator', TRUE);
-    $variables['title_tag'] = $settings->string('comments.title_tag', 'h3');
+    $variables['show_picture'] = $settings->bool('comments.show_picture');
+    $variables['show_new_indicator'] = $settings->bool('comments.show_new_indicator');
+    $variables['title_tag'] = $settings->string('comments.title_tag');
 
     $created = $comment->getCreatedTime();
     $time_ago = $this->t('@time ago', [
@@ -108,7 +108,7 @@ final class CommentPreprocessor {
       }
       $cache->addCacheContexts(['user']);
     }
-    $variables['comment_form_position'] = $settings->string('comments.form_position', 'before');
+    $variables['comment_form_position'] = $settings->string('comments.form_position');
     $cache->applyTo($variables);
   }
 

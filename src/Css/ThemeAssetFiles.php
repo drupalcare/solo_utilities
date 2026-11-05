@@ -8,7 +8,7 @@ use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\File\Exception\FileException;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -30,7 +30,7 @@ final class ThemeAssetFiles {
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
     private readonly ThemeCssBuilder $builder,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly CacheTagsInvalidatorInterface $cacheTagsInvalidator,
     private readonly LoggerInterface $logger,
   ) {}

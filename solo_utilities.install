@@ -78,18 +78,12 @@ function solo_utilities_uninstall(): void {
    * Theme config cleanup (must NOT touch schema-dependent services).
    * --------------------------------------------------------------------------
    */
-  $theme_handler = \Drupal::service('theme_handler');
-  $themes = $theme_handler->listInfo();
   $config_factory = \Drupal::configFactory();
 
   $detection = \Drupal::classResolver(SoloThemeDetection::class);
 
-  foreach (array_keys($themes) as $theme_name) {
-    // The hierarchy walk has one home; see SoloThemeDetection.
-    if (!$detection->isInHierarchy($theme_name)) {
-      continue;
-    }
-
+  // The hierarchy walk has one home; see SoloThemeDetection.
+  foreach (array_keys($detection->installedThemes()) as $theme_name) {
     $config = $config_factory->getEditable("{$theme_name}.settings");
     $has_changes = FALSE;
 

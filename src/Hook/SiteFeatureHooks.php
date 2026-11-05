@@ -17,7 +17,7 @@ use Drupal\solo_utilities\Feature\FormDecorator;
 use Drupal\solo_utilities\Service\BlockTitleSettings;
 use Drupal\solo_utilities\Service\ReadmeRenderer;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -30,7 +30,7 @@ final class SiteFeatureHooks {
   use StringTranslationTrait;
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $themeSettings,
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly RequestStack $requestStack,

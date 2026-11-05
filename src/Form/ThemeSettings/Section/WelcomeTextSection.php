@@ -61,7 +61,7 @@ final class WelcomeTextSection implements SettingsSectionInterface {
         "#parents" => ['regions', 'welcome_text', 'aria_landmark'],
         "#type" => "checkbox",
         "#title" => $this->t("Enable ARIA Landmark for Welcome Region"),
-        "#default_value" => $settings->get('regions.welcome_text.aria_landmark') ?? 0,
+        "#default_value" => $settings->get('regions.welcome_text.aria_landmark'),
         "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the welcome region for improved accessibility. Enable only if this region consistently contains important, navigable content."),
       ];
 

@@ -95,7 +95,7 @@ final class BackToTop {
    */
   private function config(BoundThemeSettings $settings): array {
     return [
-      'scroll_threshold' => max(200, min(800, $settings->int('back_to_top.scroll_threshold', 400))),
+      'scroll_threshold' => max(200, min(800, $settings->int('back_to_top.scroll_threshold'))),
       'position' => $this->allowed($settings->string('back_to_top.position'), self::POSITIONS),
       'style' => $this->allowed($settings->string('back_to_top.style'), self::STYLES),
       'icon' => $this->allowed($settings->string('back_to_top.icon'), self::ICONS),

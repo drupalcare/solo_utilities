@@ -7,7 +7,7 @@ namespace Drupal\solo_utilities\Hook;
 use Drupal\Core\Config\ConfigInstallerInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Update\UpdateRegistry;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Drupal\solo_utilities\Upgrade\SettingsMap;
 use Drupal\solo_utilities\Upgrade\SettingsMigrator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -25,7 +25,7 @@ final class SettingsUpgradeHooks {
   private const SCHEMA_TYPE = 'solo_theme_settings';
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsMap $map,
     private readonly SettingsMigrator $migrator,
     private readonly ConfigInstallerInterface $configInstaller,
@@ -42,12 +42,25 @@ final class SettingsUpgradeHooks {
    */
   #[Hook('themes_installed')]
   public function themesInstalled(array $theme_list): void {
+    // First, before the sync return: answers remembered before this install
+    // are stale whether or not the migration runs.
+    $this->detection->resetCache();
     if ($this->configInstaller->isSyncing()) {
       return;
     }
     foreach (array_intersect($theme_list, $this->detection->chainOnDisk()) as $theme) {
       $this->migrator->tryMigrate($theme, TRUE);
     }
+  }
+
+  /**
+   * Implements hook_themes_uninstalled().
+   *
+   * Forgets remembered theme answers; a removed theme must not still be Solo.
+   */
+  #[Hook('themes_uninstalled')]
+  public function themesUninstalled(array $themes): void {
+    $this->detection->resetCache();
   }
 
   /**

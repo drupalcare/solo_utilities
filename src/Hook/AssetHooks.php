@@ -9,7 +9,7 @@ use Drupal\solo_utilities\Asset\AssetAttacher;
 use Drupal\solo_utilities\Css\ThemeLibraryRegistrar;
 use Drupal\solo_utilities\Feature\MenuDebugNotice;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes asset hooks to the services that own them.
@@ -19,7 +19,7 @@ final class AssetHooks {
   public function __construct(
     private readonly ThemeLibraryRegistrar $registrar,
     private readonly AssetAttacher $attacher,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly MenuDebugNotice $menuDebugNotice,
     private readonly SettingsReader $settingsReader,
   ) {}

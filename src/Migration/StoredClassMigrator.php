@@ -20,7 +20,7 @@ use Drupal\Core\Entity\SynchronizableInterface;
 use Drupal\layout_builder\InlineBlockUsageInterface;
 use Drupal\layout_builder\Section;
 use Drupal\layout_builder\SectionListInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Renames Solo 1 classes and ids held in configuration and content.
@@ -120,7 +120,7 @@ final class StoredClassMigrator {
     private readonly ConfigFactoryInterface $configFactory,
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly EntityFieldManagerInterface $entityFieldManager,
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly Connection $database,
     private readonly TimeInterface $time,
     private readonly ?InlineBlockUsageInterface $inlineBlockUsage = NULL,
@@ -138,7 +138,7 @@ final class StoredClassMigrator {
       \Drupal::configFactory(),
       \Drupal::entityTypeManager(),
       \Drupal::service('entity_field.manager'),
-      \Drupal::service(SoloThemeDetection::class),
+      \Drupal::service(SoloThemeDetectionInterface::class),
       \Drupal::database(),
       \Drupal::time(),
       \Drupal::hasService('inline_block.usage') ? \Drupal::service('inline_block.usage') : NULL,

@@ -7,7 +7,7 @@ namespace Drupal\solo_utilities\Hook;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormBuilder;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes the theme settings form to its builder.
@@ -15,7 +15,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class SettingsHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly SettingsFormBuilder $builder,
   ) {}
 

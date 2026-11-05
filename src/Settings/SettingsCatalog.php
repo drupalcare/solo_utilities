@@ -226,6 +226,46 @@ final class SettingsCatalog {
   }
 
   /**
+   * Returns the shipped default of one setting, found by its dotted path.
+   *
+   * This is the single owner of a default: readers that find a key unset fall
+   * back to this value, not to a literal of their own.
+   *
+   * @param string $path
+   *   A dotted path such as `preloader.max_display_seconds`.
+   *
+   * @return mixed
+   *   The default, or NULL when the install file declares none for the path.
+   *   A default that is itself FALSE, 0, an empty string or an empty array is
+   *   returned as is.
+   */
+  public function defaultAt(string $path): mixed {
+    $node = $this->loadDefaults();
+    foreach (explode('.', $path) as $segment) {
+      if (!is_array($node) || !array_key_exists($segment, $node)) {
+        return NULL;
+      }
+      $node = $node[$segment];
+    }
+    return $node;
+  }
+
+  /**
+   * Returns the config constraints the schema declares for one setting.
+   *
+   * @param string $path
+   *   A dotted path such as `preloader.max_display_seconds`.
+   *
+   * @return array<string, mixed>
+   *   Constraint name to its options, such as `['Range' => ['min' => 3,
+   *   'max' => 60]]`. Empty when the path is unknown or has none.
+   */
+  public function constraintsAt(string $path): array {
+    $constraints = $this->nodeAt($path)['constraints'] ?? NULL;
+    return is_array($constraints) ? $constraints : [];
+  }
+
+  /**
    * Returns the schema definition node at a dotted path.
    *
    * @param string $path

@@ -17,7 +17,7 @@ use Drupal\solo_utilities\Migration\ClassMigrator;
 use Drupal\solo_utilities\Migration\RollbackLog;
 use Drupal\solo_utilities\Migration\SoloClassMap;
 use Drupal\solo_utilities\Migration\StoredClassMigrator;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Drush\Attributes as CLI;
 use Drush\Commands\DrushCommands;
 use Drupal\user\UserInterface;
@@ -35,7 +35,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
     private readonly ConfigFactoryInterface $configFactory,
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly EntityFieldManagerInterface $entityFieldManager,
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly ThemeExtensionList $themeList,
     private readonly FileSystemInterface $fileSystem,
     private readonly Connection $database,
@@ -54,7 +54,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
       $container->get('config.factory'),
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
-      $container->get(SoloThemeDetection::class),
+      $container->get(SoloThemeDetectionInterface::class),
       $container->get('extension.list.theme'),
       $container->get('file_system'),
       $container->get('database'),

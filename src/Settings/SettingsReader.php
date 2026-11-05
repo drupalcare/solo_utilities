@@ -26,6 +26,7 @@ final class SettingsReader {
   public function __construct(
     private readonly ThemeSettingsProvider $provider,
     private readonly ConfigFactoryInterface $configFactory,
+    private readonly SettingsCatalog $catalog,
   ) {}
 
   /**
@@ -49,7 +50,7 @@ final class SettingsReader {
     if ($theme === '') {
       throw new \InvalidArgumentException('Theme settings can only be read for a named theme.');
     }
-    return new BoundThemeSettings($this->provider, $theme);
+    return new BoundThemeSettings($this->provider, $theme, $this->catalog);
   }
 
   /**

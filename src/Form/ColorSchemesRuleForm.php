@@ -11,7 +11,7 @@ use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -44,7 +44,7 @@ class ColorSchemesRuleForm extends EntityForm {
    *   The context repository service.
    * @param \Drupal\Core\Extension\ThemeHandlerInterface $themeHandler
    *   The theme handler, to list installed themes.
-   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $detection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetectionInterface $detection
    *   The one home of the Solo theme hierarchy question.
    * @param \Drupal\solo_utilities\Form\SettingsOptions $settingsOptions
    *   The one home of the color scheme option lists.
@@ -53,7 +53,7 @@ class ColorSchemesRuleForm extends EntityForm {
     ExecutableManagerInterface $condition_plugin_manager,
     ContextRepositoryInterface $context_repository,
     protected ThemeHandlerInterface $themeHandler,
-    protected SoloThemeDetection $detection,
+    protected SoloThemeDetectionInterface $detection,
     protected SettingsOptions $settingsOptions,
   ) {
     $this->conditionPluginManager = $condition_plugin_manager;
@@ -68,7 +68,7 @@ class ColorSchemesRuleForm extends EntityForm {
       $container->get('plugin.manager.condition'),
       $container->get('context.repository'),
       $container->get('theme_handler'),
-      $container->get(SoloThemeDetection::class),
+      $container->get(SoloThemeDetectionInterface::class),
       $container->get(SettingsOptions::class),
     );
   }
@@ -290,16 +290,7 @@ class ColorSchemesRuleForm extends EntityForm {
    *   An associative array of theme machine names and their readable names.
    */
   protected function getSoloAndSubThemes() {
-    $all_themes = $this->themeHandler->listInfo();
-    $solo_themes = [];
-
-    foreach ($all_themes as $theme_key => $theme_info) {
-      if ($this->detection->isInHierarchy($theme_key)) {
-        $solo_themes[$theme_key] = $theme_info->info['name'];
-      }
-    }
-
-    return $solo_themes;
+    return $this->detection->installedThemes();
   }
 
   /**

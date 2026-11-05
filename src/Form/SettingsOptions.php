@@ -7,6 +7,7 @@ namespace Drupal\solo_utilities\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ThemeExtensionList;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * The one home of the option lists on the theme settings form.
@@ -21,6 +22,7 @@ final class SettingsOptions {
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly ThemeExtensionList $themeList,
     private readonly string $appRoot,
+    private readonly SoloThemeDetectionInterface $detection,
   ) {}
 
   /**
@@ -800,7 +802,10 @@ final class SettingsOptions {
       'menu--primary-sidebar-menu-template-hover.html.twig' => $this->t('Sidebar menu (hover)'),
       'menu--primary-sidebar-menu-template-click.html.twig' => $this->t('Sidebar menu (click)'),
     ];
-    $names = [$theme, ...array_keys($this->themeList->get($theme)->base_themes ?? [])];
+    // familyNames() is nearest-first; this lookup was always theme, then its
+    // bases root-first, so the bases are reversed to keep that order.
+    $family = $this->detection->familyNames($theme);
+    $names = [$theme, ...array_reverse(array_slice($family, 1))];
     $found = [];
     foreach ($names as $name) {
       foreach (glob($this->appRoot . '/' . $this->themeList->getPath($name) . '/templates/navigation/menu--*.html.twig') ?: [] as $file) {

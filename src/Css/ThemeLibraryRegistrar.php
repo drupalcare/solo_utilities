@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\solo_utilities\Css;
 
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Defines one library per Solo theme for its generated stylesheets.
@@ -58,7 +58,7 @@ final class ThemeLibraryRegistrar {
   public function __construct(
     private readonly ThemeCssBuilder $builder,
     private readonly ThemeAssetFiles $files,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
   ) {}
 
   /**

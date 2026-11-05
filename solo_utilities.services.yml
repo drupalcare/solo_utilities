@@ -60,6 +60,8 @@ services:
       - '@config.factory'
       - '@extension.list.theme'
 
+  Drupal\solo_utilities\Theme\SoloThemeDetectionInterface: '@Drupal\solo_utilities\Theme\SoloThemeDetection'
+
   Drupal\solo_utilities\Service\BlockTitleSettings: {}
   Drupal\solo_utilities\Service\NodeWidthForm: {}
   Drupal\solo_utilities\Service\ReadmeRenderer: {}
@@ -70,6 +72,7 @@ services:
       - '@config.typed'
       - '@extension.path.resolver'
       - '%app.root%'
+  Drupal\solo_utilities\Settings\SchemaBounds: {}
   Drupal\solo_utilities\Security\CssValueValidator: {}
   Drupal\solo_utilities\Security\UrlSafety: {}
   Drupal\solo_utilities\Context\RequestContext: {}
@@ -100,6 +103,7 @@ services:
       - '@entity_type.manager'
       - '@extension.list.theme'
       - '%app.root%'
+      - '@Drupal\solo_utilities\Theme\SoloThemeDetection'
   Drupal\solo_utilities\Form\SettingsElementFactory: {}
   Drupal\solo_utilities\Form\ThemeSettings\SettingsFormValidator: {}
   Drupal\solo_utilities\Form\ThemeSettings\SettingsFormSubmitter:

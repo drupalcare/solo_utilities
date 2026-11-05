@@ -124,7 +124,7 @@ final class FooterSection implements SettingsSectionInterface {
             "#parents" => ['region_groups', 'footer', 'aria_landmark'],
             "#type" => "checkbox",
             "#title" => $this->t("Enable ARIA Landmark for Footer Container"),
-            "#default_value" => $settings->get('region_groups.footer.aria_landmark') ?? 0,
+            "#default_value" => $settings->get('region_groups.footer.aria_landmark'),
             "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the footer container for improved accessibility. Enable only if this region consistently contains important, navigable content."),
           ];
 
@@ -158,7 +158,7 @@ final class FooterSection implements SettingsSectionInterface {
             "#title" => $this->t("Region Block Alignment Option"),
             "#type" => "select",
             "#options" => $this->options->alignment(),
-            "#default_value" => $settings->get("regions.{$region}.alignment") ?? "region-left",
+            "#default_value" => $settings->get("regions.{$region}.alignment"),
             "#description" => $this->t("Block content is left-aligned by default. This aligns blocks to the center or right within this region, through region-level configuration. Large screens only."),
           ];
 

@@ -214,7 +214,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
           "normal" => $this->t("Normal - Major events (recommended)"),
           "verbose" => $this->t("Verbose - Everything"),
         ],
-        "#default_value" => $settings->get('menus.debug.verbosity') ?? "normal",
+        "#default_value" => $settings->get('menus.debug.verbosity'),
         "#states" => [
           "visible" => [
             ":input[name='menus[debug][enabled]']" => ["checked" => TRUE],

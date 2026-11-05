@@ -9,7 +9,8 @@ use Drupal\solo_utilities\Form\SettingsElementFactory;
 use Drupal\solo_utilities\Form\SettingsOptions;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Settings\SchemaBounds;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * The Global Site section.
@@ -25,7 +26,8 @@ final class GlobalSiteSection implements SettingsSectionInterface {
   public function __construct(
     private readonly SettingsElementFactory $elements,
     private readonly SettingsOptions $options,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
+    private readonly SchemaBounds $bounds,
   ) {}
 
   /**
@@ -87,7 +89,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Global Website Width - Solo Theme"),
       "#type" => "select",
       "#options" => $this->options->siteWidth(),
-      "#default_value" => $settings->get('layout.width.global') ?? "sw-1600",
+      "#default_value" => $settings->get('layout.width.global'),
       "#description" => $this->t("Adjust the entire website's width, in pixels or rem units."),
     ];
 
@@ -116,7 +118,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       ];
 
       $site_widths = $settings->array('layout.width.per_content_type');
-      $global_width = $settings->get('layout.width.global') ?? "sw-1600";
+      $global_width = $settings->get('layout.width.global');
       foreach ($content_types as $type => $label) {
         $override = $site_widths[$type] ?? NULL;
         $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["content_type_widths"]["width_" . $type] = [
@@ -159,7 +161,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Website's Breakpoints - Solo Theme"),
       "#type" => "select",
       "#options" => $this->options->siteBreakpoints(),
-      "#default_value" => $settings->get('layout.breakpoints.page') ?? "sb-992",
+      "#default_value" => $settings->get('layout.breakpoints.page'),
       "#description" => $this->t("Use them to adjust the global layout for a particular screen or device size."),
     ];
 
@@ -176,7 +178,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Menu's Breakpoints - Solo Theme"),
       "#type" => "select",
       "#options" => $this->options->menuBreakpoints(),
-      "#default_value" => $settings->get('layout.breakpoints.menu') ?? "mn-992",
+      "#default_value" => $settings->get('layout.breakpoints.menu'),
       "#description" => $this->t("Adjust the global layout for any responsive menu on a specific screen or device size."),
     ];
 
@@ -185,7 +187,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Website Region's Spaces"),
       "#type" => "select",
       "#options" => $this->options->siteGlobalRegionsGap(),
-      "#default_value" => $settings->get('layout.regions_gap') ?? "16",
+      "#default_value" => $settings->get('layout.regions_gap'),
       "#description" => $this->t("Adjust the entire website's padding, in pixels or rem units."),
     ];
   }
@@ -212,7 +214,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Website's Font Size"),
       "#type" => "select",
       "#options" => $this->options->siteGlobalFontSize(),
-      "#default_value" => $settings->get('typography.font_size') ?? "16",
+      "#default_value" => $settings->get('typography.font_size'),
       "#description" => $this->t("Adjust the entire website's font size, in pixels or rem units."),
     ];
 
@@ -221,7 +223,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Choose the node date format."),
       "#type" => "select",
       "#options" => $this->options->siteNodeDateFormat(),
-      "#default_value" => $settings->get('typography.node_date_format') ?? "solo_date_l",
+      "#default_value" => $settings->get('typography.node_date_format'),
       "#description" => $this->t("Select a custom format for the node creation date. Choose '- None -' to use the default format provided by Drupal core or contributed modules."),
     ];
 
@@ -237,7 +239,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['typography', 'reading_mode_content_types'],
       "#type" => "select",
       "#title" => $this->t("Reading Mode (45rem/720px)"),
-      "#default_value" => $settings->get('typography.reading_mode_content_types') ?? "",
+      "#default_value" => $settings->get('typography.reading_mode_content_types'),
       "#options" => $this->options->contentTypes(),
       "#multiple" => TRUE,
       "#description" => $this->t("Sets the maximum width of the content region to 45rem/720px for the chosen content types, for both Text Formatted Long and Text Formatted Long with Summary. Default/Full view mode only. A common guideline for comfortable reading is 60 to 75 characters per line."),
@@ -314,7 +316,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "checkbox",
       "#title" => $this->t("Display comment subject before author information"),
       "#description" => $this->t("The comment subject (heading) appears before the author name and date, so screen reader users can navigate comments by heading. <strong>Recommended for accessibility compliance.</strong>"),
-      "#default_value" => $settings->get('comments.heading_first') ?? TRUE,
+      "#default_value" => $settings->get('comments.heading_first'),
     ];
 
     // Comment form position fieldset.
@@ -329,7 +331,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "radios",
       "#title" => $this->t("Comment form position"),
       "#description" => $this->t("Whether the 'Add new comment' form appears before or after the existing comments. After is useful when visitors should read the discussion before adding their own comment."),
-      "#default_value" => $settings->get('comments.form_position') ?? "before",
+      "#default_value" => $settings->get('comments.form_position'),
       "#options" => [
         "before" => $this->t("Before comments (default)"),
         "after" => $this->t("After comments"),
@@ -347,28 +349,28 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['comments', 'show_author'],
       "#type" => "checkbox",
       "#title" => $this->t("Show author name"),
-      "#default_value" => $settings->get('comments.show_author') ?? TRUE,
+      "#default_value" => $settings->get('comments.show_author'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_visibility"]["comments__show_date"] = [
       "#parents" => ['comments', 'show_date'],
       "#type" => "checkbox",
       "#title" => $this->t("Show comment date"),
-      "#default_value" => $settings->get('comments.show_date') ?? TRUE,
+      "#default_value" => $settings->get('comments.show_date'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_visibility"]["comments__show_picture"] = [
       "#parents" => ['comments', 'show_picture'],
       "#type" => "checkbox",
       "#title" => $this->t("Show user picture"),
-      "#default_value" => $settings->get('comments.show_picture') ?? TRUE,
+      "#default_value" => $settings->get('comments.show_picture'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_visibility"]["comments__show_permalink"] = [
       "#parents" => ['comments', 'show_permalink'],
       "#type" => "checkbox",
       "#title" => $this->t("Show permalink"),
-      "#default_value" => $settings->get('comments.show_permalink') ?? TRUE,
+      "#default_value" => $settings->get('comments.show_permalink'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_visibility"]["comments__show_new_indicator"] = [
@@ -376,7 +378,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "checkbox",
       "#title" => $this->t("Show new comment indicator"),
       "#description" => $this->t("Displays a 'New' badge for comments posted since the user's last visit."),
-      "#default_value" => $settings->get('comments.show_new_indicator') ?? TRUE,
+      "#default_value" => $settings->get('comments.show_new_indicator'),
     ];
 
     // Comment date format fieldset.
@@ -392,7 +394,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Comment date format"),
       "#description" => $this->t("Select the format for displaying comment dates. You can create custom date formats at <a href='/admin/config/regional/date-time'>Date and time formats</a>."),
       "#options" => $date_format_options,
-      "#default_value" => $settings->get('comments.date_format') ?? 'solo_relative',
+      "#default_value" => $settings->get('comments.date_format'),
     ];
 
     // Comment title settings fieldset.
@@ -413,7 +415,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         "h5" => $this->t("H5 - Fifth level"),
         "h6" => $this->t("H6 - Sixth level"),
       ],
-      "#default_value" => $settings->get('comments.title_tag') ?? "h3",
+      "#default_value" => $settings->get('comments.title_tag'),
     ];
   }
 
@@ -520,7 +522,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "select",
       "#title" => $this->t("Menu Animation Speed"),
       "#description" => $this->t("Controls how fast the menu opens/closes. Applies to all menus."),
-      "#default_value" => $settings->get('menus.toggle_speed') ?? "normal",
+      "#default_value" => $settings->get('menus.toggle_speed'),
       "#options" => [
         "fast" => $this->t("Fast"),
         "normal" => $this->t("Normal"),
@@ -553,7 +555,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'checkboxes',
       '#title' => $this->t('Arrow-key navigation for menus'),
       '#description' => $this->t('Every Solo menu already works with the keyboard: Tab moves through the links, Enter or Space opens and closes a submenu, and Escape closes it. Select menus that should also move between items with the arrow keys, Home and End. Only applies to menus using Solo templates.'),
-      '#default_value' => $settings->get('menus.keyboard_navigation') ?? [],
+      '#default_value' => $settings->get('menus.keyboard_navigation'),
       '#options' => $menu_options,
     ];
   }
@@ -580,7 +582,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'enabled'],
       '#type' => 'checkbox',
       '#title' => $this->t('Enable preloader'),
-      '#default_value' => $settings->get('preloader.enabled') ?? FALSE,
+      '#default_value' => $settings->get('preloader.enabled'),
       '#description' => $this->t('Show a brief loading overlay. Disabled by default.'),
       '#id' => 'edit-preloader-enabled',
     ];
@@ -597,20 +599,19 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'number',
       '#title' => $this->t('Max display time (seconds)'),
       '#weight' => -20,
-      '#default_value' => $settings->get('preloader.max_display_seconds') ?? 8,
-      '#min' => 3,
-      '#max' => 60,
+      '#default_value' => $settings->get('preloader.max_display_seconds'),
       '#step' => 1,
       '#field_suffix' => $this->t('sec'),
       '#description' => $this->t("Fallback only: the preloader hides as soon as the page has loaded (for example, at 2 seconds on a 2-second load). This value is the maximum time to show it if the load event never fires or is delayed."),
     ];
+    $form["solo_settings"]["settings_global_misc"]["preloader"]["visibility"]["preloader__max_display_seconds"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["preloader"]["visibility"]["preloader__max_display_seconds"], 'preloader.max_display_seconds');
 
     $form["solo_settings"]["settings_global_misc"]["preloader"]["visibility"]["preloader__hide_on"] = [
       "#parents" => ['preloader', 'hide_on'],
       '#type' => 'radios',
       '#title' => $this->t('Hide preloader when'),
       '#weight' => -19,
-      '#default_value' => $settings->get('preloader.hide_on') ?? 'dom_ready',
+      '#default_value' => $settings->get('preloader.hide_on'),
       '#options' => [
         'dom_ready' => $this->t('Page appears (recommended)'),
         'load' => $this->t('Page fully loaded (images, scripts, etc.)'),
@@ -622,7 +623,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'force_show'],
       '#type' => 'checkbox',
       '#title' => $this->t('Force show for testing'),
-      '#default_value' => $settings->get('preloader.force_show') ?? FALSE,
+      '#default_value' => $settings->get('preloader.force_show'),
       '#description' => $this->t('Show the preloader on every page for 30 seconds (logged in, admin, any path). Use this to test logo, text size, and colors. Uncheck when done.'),
       '#weight' => -10,
       '#id' => 'edit-preloader-force-show',
@@ -633,7 +634,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'disable_authenticated'],
       '#type' => 'checkbox',
       '#title' => $this->t('Disable for authenticated users'),
-      '#default_value' => $settings->get('preloader.disable_authenticated') ?? TRUE,
+      '#default_value' => $settings->get('preloader.disable_authenticated'),
       '#description' => $this->t('Do not show the preloader to logged-in users. Recommended for editors.'),
     ];
 
@@ -641,7 +642,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'disable_admin_routes'],
       '#type' => 'checkbox',
       '#title' => $this->t('Disable on admin routes'),
-      '#default_value' => $settings->get('preloader.disable_admin_routes') ?? TRUE,
+      '#default_value' => $settings->get('preloader.disable_admin_routes'),
       '#description' => $this->t('Do not show on /admin, layout builder, content editing, etc.'),
     ];
 
@@ -649,7 +650,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'path_rules'],
       '#type' => 'textarea',
       '#title' => $this->t('Path include/exclude rules'),
-      '#default_value' => $settings->get('preloader.path_rules') ?? '',
+      '#default_value' => $settings->get('preloader.path_rules'),
       '#description' => $this->t('One path per line. Leave empty to use the default visibility above. <dl class="solo-deflist"><dt>Exclude</dt><dd>Prefix with a minus sign to hide the preloader on that path (e.g. <code>-/contact</code>, <code>-/about</code>).</dd><dt>Include only</dt><dd>List paths without a prefix to show the preloader only on those paths (e.g. <code>/</code> for front page only, or <code>/</code> and <code>/products</code>).</dd></dl>'),
       '#rows' => 4,
     ];
@@ -673,7 +674,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         'logo' => $this->t('Logo'),
         'logo_text' => $this->t('Logo + text'),
       ],
-      '#default_value' => $settings->get('preloader.style') ?? 'spinner',
+      '#default_value' => $settings->get('preloader.style'),
       '#description' => $this->t('Spinner is lightest and shows immediately; progress bar shows an animated bar centered on the page; text and logo can wait on fonts or images.'),
     ];
 
@@ -690,7 +691,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         'zoom_out' => $this->t('Zoom out'),
         'blur' => $this->t('Blur'),
       ],
-      '#default_value' => $settings->get('preloader.transition') ?? 'fade',
+      '#default_value' => $settings->get('preloader.transition'),
       '#description' => $this->t('How the preloader disappears when the page is ready. All effects include a fade; slide/zoom/blur add motion.'),
     ];
 
@@ -698,7 +699,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'spinner_show_percent'],
       '#type' => 'checkbox',
       '#title' => $this->t('Show percentage (0%–100%) inside spinner'),
-      '#default_value' => $settings->get('preloader.spinner_show_percent') ?? FALSE,
+      '#default_value' => $settings->get('preloader.spinner_show_percent'),
       '#description' => $this->t('Estimated progress only (not real load %). Adds one timer and a small text update; minimal extra load.'),
       '#states' => ['visible' => [':input#edit-preloader-style' => ['value' => 'spinner']]],
     ];
@@ -708,7 +709,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'textfield',
       '#title' => $this->t('Text'),
       '#id' => 'edit-preloader-text',
-      '#default_value' => $settings->get('preloader.text.value') ?? '',
+      '#default_value' => $settings->get('preloader.text.value'),
       '#description' => $this->t('Shown when style is "Text" or "Logo + text".'),
       '#states' => [
         'visible' => [
@@ -725,7 +726,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'select',
       '#title' => $this->t('Text Font'),
       '#options' => $this->options->nameTitleGoogleFont(),
-      '#default_value' => $settings->get('preloader.text.font') ?? '',
+      '#default_value' => $settings->get('preloader.text.font'),
       '#description' => $this->t('Optional. For fastest display, leave at "None"—custom fonts load from the network and can delay the preloader.'),
       '#states' => [
         'visible' => [
@@ -743,7 +744,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#title' => $this->t('Text animation effect'),
       '#description' => $this->t('Gradient text animation. Same options as Site Name and Page Title. For best performance leave at "None"—animation CSS can delay the preloader. Choose an effect only if you want the look.'),
       '#options' => $this->options->animateSiteName(),
-      '#default_value' => $settings->get('preloader.text.animate_effect') ?? '',
+      '#default_value' => $settings->get('preloader.text.animate_effect'),
       '#states' => [
         'visible' => [
           ':input#edit-preloader-style' => [
@@ -758,9 +759,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'text', 'font_size'],
       '#type' => 'number',
       '#title' => $this->t('Text size (px)'),
-      '#default_value' => $settings->get('preloader.text.font_size') ?? 24,
-      '#min' => 12,
-      '#max' => 124,
+      '#default_value' => $settings->get('preloader.text.font_size'),
       '#step' => 1,
       '#field_suffix' => 'px',
       '#states' => [
@@ -772,12 +771,13 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         ],
       ],
     ];
+    $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__text__font_size"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__text__font_size"], 'preloader.text.font_size');
 
     $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__use_theme"] = [
       "#parents" => ['preloader', 'logo', 'use_theme'],
       '#type' => 'checkbox',
       '#title' => $this->t('Use logo supplied by the theme'),
-      '#default_value' => $settings->get('preloader.logo.use_theme') ?? TRUE,
+      '#default_value' => $settings->get('preloader.logo.use_theme'),
       '#description' => $this->t('When checked, the preloader uses the same logo as the site (theme settings). Uncheck to set a custom path below.'),
       '#states' => [
         'visible' => [
@@ -795,7 +795,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'textfield',
       '#title' => $this->t('Path to custom logo'),
       '#id' => 'edit-preloader-logo-url',
-      '#default_value' => $settings->get('preloader.logo.url') ?? '',
+      '#default_value' => $settings->get('preloader.logo.url'),
       '#description' => $this->t('Examples: logo.svg (for a file in the public filesystem), public://logo.svg, or themes/contrib/solo/logo.svg. Only used when "Use logo supplied by the theme" is unchecked.'),
       '#states' => [
         'visible' => [
@@ -812,9 +812,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'logo', 'width'],
       '#type' => 'number',
       '#title' => $this->t('Logo width (px)'),
-      '#default_value' => $settings->get('preloader.logo.width') ?? 160,
-      '#min' => 16,
-      '#max' => 800,
+      '#default_value' => $settings->get('preloader.logo.width'),
       '#step' => 1,
       '#field_suffix' => 'px',
       '#states' => [
@@ -826,14 +824,13 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         ],
       ],
     ];
+    $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__width"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__width"], 'preloader.logo.width');
 
     $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__height"] = [
       "#parents" => ['preloader', 'logo', 'height'],
       '#type' => 'number',
       '#title' => $this->t('Logo height (px)'),
-      '#default_value' => $settings->get('preloader.logo.height') ?? 80,
-      '#min' => 16,
-      '#max' => 600,
+      '#default_value' => $settings->get('preloader.logo.height'),
       '#step' => 1,
       '#field_suffix' => 'px',
       '#states' => [
@@ -845,14 +842,13 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         ],
       ],
     ];
+    $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__height"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__height"], 'preloader.logo.height');
 
     $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__opacity"] = [
       "#parents" => ['preloader', 'logo', 'opacity'],
       '#type' => 'number',
       '#title' => $this->t('Logo opacity (%)'),
-      '#default_value' => $settings->get('preloader.logo.opacity') ?? 100,
-      '#min' => 0,
-      '#max' => 100,
+      '#default_value' => $settings->get('preloader.logo.opacity'),
       '#step' => 1,
       '#field_suffix' => '%',
       '#states' => [
@@ -864,6 +860,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         ],
       ],
     ];
+    $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__opacity"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__logo__opacity"], 'preloader.logo.opacity');
 
     $preloader_app = &$form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"];
     // Order: text color, background color, background opacity (opacity is merged with bg as rgba in CSS).
@@ -881,13 +878,12 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['preloader', 'bg_opacity'],
       '#type' => 'number',
       '#title' => $this->t('Background opacity'),
-      '#min' => 0,
-      '#max' => 100,
-      '#default_value' => $settings->get('preloader.bg_opacity') ?? 100,
+      '#default_value' => $settings->get('preloader.bg_opacity'),
       '#description' => $this->t('0–100. Combined with background color as rgba.'),
       '#id' => 'edit-preloader-bg-opacity',
       '#states' => ['visible' => [':input#edit-preloader-enabled' => ['checked' => TRUE]]],
     ];
+    $preloader_app["preloader__bg_opacity"] = $this->bounds->applyTo($preloader_app["preloader__bg_opacity"], 'preloader.bg_opacity');
 
     $form["solo_settings"]["settings_global_misc"]["preloader"]["help_performance"] = [
       "#markup" => $this->t("<details class='solo-help'><summary>Preloader performance</summary><div class='solo-help__body'><p><strong>For best performance</strong>, keep the preloader light: use the <em>Spinner</em> style and leave text font and animation at default (none).</p><p>Custom Google fonts and gradient text animation add extra requests and can delay the preloader from appearing. You can still use them if you prefer the look; they will apply after their resources load.</p></div></details>"),
@@ -916,7 +912,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['back_to_top', 'enabled'],
       '#type' => 'checkbox',
       '#title' => $this->t('Enable back to top'),
-      '#default_value' => $settings->get('back_to_top.enabled') ?? FALSE,
+      '#default_value' => $settings->get('back_to_top.enabled'),
       '#description' => $this->t('Show the button after the user scrolls down.'),
       '#id' => 'edit-back-to-top-enabled',
     ];
@@ -931,7 +927,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['back_to_top', 'disable_admin_routes'],
       '#type' => 'checkbox',
       '#title' => $this->t('Disable on admin routes'),
-      '#default_value' => $settings->get('back_to_top.disable_admin_routes') ?? TRUE,
+      '#default_value' => $settings->get('back_to_top.disable_admin_routes'),
       '#description' => $this->t('Recommended. Editors should not see the button in the admin UI.'),
     ];
 
@@ -939,7 +935,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['back_to_top', 'disable_authenticated'],
       '#type' => 'checkbox',
       '#title' => $this->t('Disable for authenticated users'),
-      '#default_value' => $settings->get('back_to_top.disable_authenticated') ?? FALSE,
+      '#default_value' => $settings->get('back_to_top.disable_authenticated'),
       '#description' => $this->t('Optional. Some site owners prefer a cleaner UX for editors.'),
     ];
 
@@ -947,7 +943,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['back_to_top', 'hide_small_screens'],
       '#type' => 'checkbox',
       '#title' => $this->t('Hide on small screens (&lt;768px)'),
-      '#default_value' => $settings->get('back_to_top.hide_small_screens') ?? FALSE,
+      '#default_value' => $settings->get('back_to_top.hide_small_screens'),
       '#description' => $this->t('Optional. Mobile users often do not need it.'),
     ];
 
@@ -955,12 +951,11 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#parents" => ['back_to_top', 'scroll_threshold'],
       '#type' => 'number',
       '#title' => $this->t('Show after scroll distance (px)'),
-      '#default_value' => $settings->get('back_to_top.scroll_threshold') ?? 400,
-      '#min' => 200,
-      '#max' => 800,
+      '#default_value' => $settings->get('back_to_top.scroll_threshold'),
       '#step' => 50,
       '#description' => $this->t('Button appears after the user scrolls this many pixels down (200–800).'),
     ];
+    $form["solo_settings"]["settings_global_misc"]["back_to_top"]["visibility"]["back_to_top__scroll_threshold"] = $this->bounds->applyTo($form["solo_settings"]["settings_global_misc"]["back_to_top"]["visibility"]["back_to_top__scroll_threshold"], 'back_to_top.scroll_threshold');
 
     $form["solo_settings"]["settings_global_misc"]["back_to_top"]["position"] = [
       '#type' => 'fieldset',
@@ -976,7 +971,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         'bottom-right' => $this->t('Bottom right'),
         'bottom-left' => $this->t('Bottom left'),
       ],
-      '#default_value' => $settings->get('back_to_top.position') ?? 'bottom-right',
+      '#default_value' => $settings->get('back_to_top.position'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["back_to_top"]["style"] = [
@@ -993,7 +988,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         'solid' => $this->t('Solid circle'),
         'outline' => $this->t('Minimal outline'),
       ],
-      '#default_value' => $settings->get('back_to_top.style') ?? 'solid',
+      '#default_value' => $settings->get('back_to_top.style'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["back_to_top"]["style"]["back_to_top__icon"] = [
@@ -1005,7 +1000,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
         'chevron-up' => $this->t('Chevron up'),
         'arrow-minimal' => $this->t('Arrow (minimal)'),
       ],
-      '#default_value' => $settings->get('back_to_top.icon') ?? 'arrow-up',
+      '#default_value' => $settings->get('back_to_top.icon'),
     ];
 
     $back_to_top_style = &$form["solo_settings"]["settings_global_misc"]["back_to_top"]["style"];

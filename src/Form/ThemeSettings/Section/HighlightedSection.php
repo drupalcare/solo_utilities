@@ -60,7 +60,7 @@ final class HighlightedSection implements SettingsSectionInterface {
         "#parents" => ['regions', 'highlighted', 'aria_landmark'],
         "#type" => "checkbox",
         "#title" => $this->t("Enable ARIA Landmark for Highlighted Region"),
-        "#default_value" => $settings->get('regions.highlighted.aria_landmark') ?? 0,
+        "#default_value" => $settings->get('regions.highlighted.aria_landmark'),
         "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the highlighted region for improved accessibility. Enable only if this region consistently contains important, navigable content."),
       ];
       $form["solo_settings"]["settings_{$region}"]["region_configuration"]["classes"] = $this->elements->cssClasses($settings, $region);

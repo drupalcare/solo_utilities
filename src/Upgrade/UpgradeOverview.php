@@ -9,7 +9,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\solo_utilities\Layout\RegionInventory;
 use Drupal\solo_utilities\Service\SoloReadinessScanner;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,7 +36,7 @@ final class UpgradeOverview {
     private readonly SettingsMigrator $migrator,
     private readonly SoloReadinessScanner $scanner,
     private readonly RegionInventory $regions,
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly ExtensionList $themeList,
     private readonly ThemeHandlerInterface $themeHandler,
     private readonly ModuleHandlerInterface $moduleHandler,
@@ -52,17 +52,16 @@ final class UpgradeOverview {
   public function themes(): array {
     $list = $this->themeList->getList();
     $names = $this->detection->chainOnDisk();
-    $depth = static fn(string $name): int => count($list[$name]->base_themes ?? []);
+    $depth = fn(string $name): int => $this->detection->depth($name) ?? 0;
     usort($names, static fn(string $a, string $b): int => $depth($a) <=> $depth($b) ?: $a <=> $b);
 
     $default = $this->detection->defaultThemeName();
     $themes = [];
     foreach ($names as $name) {
-      $base = $list[$name]->info['base theme'] ?? '';
       $themes[] = [
         'name' => $name,
         'label' => (string) ($list[$name]->info['name'] ?? $name),
-        'base' => is_string($base) ? $base : '',
+        'base' => $this->detection->parentName($name),
         'default' => $name === $default,
         'installed' => $this->themeHandler->themeExists($name),
         'regions' => $this->regionRows($name),

@@ -14,7 +14,7 @@ use Drupal\solo_utilities\Layout\LayoutResolver;
 use Drupal\solo_utilities\Layout\RegionInventory;
 use Drupal\solo_utilities\Settings\SettingsCatalog;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Builds the theme settings form for the edited theme.
@@ -131,7 +131,7 @@ final class SettingsFormBuilder {
   /**
    * Constructs the builder.
    *
-   * @param \Drupal\solo_utilities\Theme\SoloThemeDetection $themeDetection
+   * @param \Drupal\solo_utilities\Theme\SoloThemeDetectionInterface $themeDetection
    *   Names the edited theme.
    * @param \Drupal\solo_utilities\Settings\SettingsReader $settingsReader
    *   Reads the edited theme's settings.
@@ -151,7 +151,7 @@ final class SettingsFormBuilder {
    *   Finds Solo's folder, where the navigation's icons are.
    */
   public function __construct(
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly SettingsReader $settingsReader,
     private readonly SettingsCatalog $catalog,
     private readonly RegionInventory $regionInventory,

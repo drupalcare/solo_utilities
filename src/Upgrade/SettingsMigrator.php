@@ -15,7 +15,7 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -44,7 +44,7 @@ final class SettingsMigrator {
   private const DEFAULT_COLLECTION = StorageInterface::DEFAULT_COLLECTION;
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsMap $map,
     private readonly StorageInterface $storage,
     private readonly ConfigFactoryInterface $configFactory,
@@ -752,8 +752,7 @@ final class SettingsMigrator {
     if (!$this->themeList->exists($prefix)) {
       return FALSE;
     }
-    $theme = $this->themeList->getList()[$prefix] ?? NULL;
-    return !in_array(NULL, $theme->base_themes ?? [], TRUE);
+    return $this->detection->hasCompleteChain($prefix);
   }
 
   /**

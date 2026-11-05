@@ -7,6 +7,7 @@ namespace Drupal\solo_utilities\Form;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Layout\LayoutResolver;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
+use Drupal\solo_utilities\Settings\SchemaBounds;
 
 /**
  * The one home of the element shapes the settings sections repeat.
@@ -22,6 +23,7 @@ final class SettingsElementFactory {
 
   public function __construct(
     private readonly SettingsOptions $options,
+    private readonly SchemaBounds $bounds,
   ) {}
 
   /**
@@ -50,10 +52,9 @@ final class SettingsElementFactory {
    *   The element.
    */
   public function colorSwatch(BoundThemeSettings $settings, string $path, string|\Stringable $label): array {
-    return [
+    return $this->bounds->applyTo([
       '#type' => 'textfield',
       '#parents' => $this->parents($path),
-      '#maxlength' => 7,
       '#size' => 10,
       '#title' => $label,
       '#default_value' => $settings->get($path),
@@ -63,7 +64,7 @@ final class SettingsElementFactory {
       '#wrapper_attributes' => [
         'data-drupal-selector' => 'solo-color-picker',
       ],
-    ];
+    ], $path);
   }
 
   /**

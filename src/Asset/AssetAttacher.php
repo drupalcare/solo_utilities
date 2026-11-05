@@ -16,7 +16,7 @@ use Drupal\solo_utilities\Css\ThemeLibraryRegistrar;
 use Drupal\solo_utilities\Security\CssValueValidator;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -46,7 +46,7 @@ final class AssetAttacher {
 
   public function __construct(
     private readonly SettingsReader $settingsReader,
-    private readonly SoloThemeDetection $themeDetection,
+    private readonly SoloThemeDetectionInterface $themeDetection,
     private readonly ThemeCssBuilder $builder,
     private readonly ThemeAssetFiles $files,
     private readonly ThemeLibraryRegistrar $registrar,

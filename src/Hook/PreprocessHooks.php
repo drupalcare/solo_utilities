@@ -11,7 +11,7 @@ use Drupal\solo_utilities\Feature\HtmlPreprocessor;
 use Drupal\solo_utilities\Feature\PagePreprocessor;
 use Drupal\solo_utilities\Feature\Preloader;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes preprocess hooks to the features that own them.
@@ -25,7 +25,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class PreprocessHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $settingsReader,
     private readonly HtmlPreprocessor $htmlPreprocessor,
     private readonly PagePreprocessor $pagePreprocessor,

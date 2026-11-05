@@ -12,7 +12,7 @@ use Drupal\solo_utilities\Feature\MenuTemplates;
 use Drupal\solo_utilities\Feature\SearchResult;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes content and menu preprocess hooks to the features that own them.
@@ -24,7 +24,7 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 final class ContentHooks {
 
   public function __construct(
-    private readonly SoloThemeDetection $detection,
+    private readonly SoloThemeDetectionInterface $detection,
     private readonly SettingsReader $settingsReader,
     private readonly ContentPreprocessor $content,
     private readonly CommentPreprocessor $comments,

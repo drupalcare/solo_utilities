@@ -11,7 +11,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Security\CssValueValidator;
 use Drupal\solo_utilities\Security\UrlSafety;
 use Drupal\solo_utilities\Settings\SettingsReader;
-use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Validates the theme settings form.
@@ -33,7 +33,7 @@ final class SettingsFormValidator {
   public const PREVIOUS_COPYRIGHT = 'solo_utilities_previous_copyright';
 
   public function __construct(
-    protected SoloThemeDetection $themeDetection,
+    protected SoloThemeDetectionInterface $themeDetection,
     protected SettingsReader $settingsReader,
     protected UrlSafety $urlSafety,
     protected CssValueValidator $cssValues,
