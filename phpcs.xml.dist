@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ruleset name="solo_utilities">
+  <description>Drupal + DrupalPractice coding standards for Solo Utilities.</description>
+
+  <file>.</file>
+
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*.css</exclude-pattern>
+  <exclude-pattern>*.svg</exclude-pattern>
+  <exclude-pattern>*.md</exclude-pattern>
+  <exclude-pattern>*.yml</exclude-pattern>
+  <exclude-pattern>*.json</exclude-pattern>
+
+  <arg name="extensions" value="php,module,theme,inc,install"/>
+  <arg name="colors"/>
+  <arg value="np"/>
+
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+</ruleset>

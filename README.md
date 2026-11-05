@@ -1,60 +1,51 @@
 # Solo Utilities
 
-Solo Utilities is a module designed to extend the Solo theme with additional
-features and customization options. The initial release of Solo Utilities
-introduces the ability to set custom widths for individual nodes, giving site
-builders and content creators more control over the presentation of their
-content. Future updates will include new features to further extend the Solo
-theme.
+Solo Utilities is the module behind the Solo theme. It holds all of Solo's PHP logic, adds custom widths for individual nodes, and provides the Drush commands and the upgrade page that move a site from Solo 1 to Solo 2. It is for site builders who use Solo and for developers who maintain a Solo sub-theme.
 
-## Table of Contents
+## Table of contents
 
-1. [Features](#features)
-2. [Requirements](#requirements)
-3. [Installation](#installation)
-4. [Configuration](#configuration)
-5. [Usage](#usage)
-6. [Public API](#public-api)
-7. [Future Plans](#future-plans)
-8. [Maintainers](#maintainers)
-9. [License](#license)
+- Overview
+- Requirements
+- Installation
+- Configuration
+- Usage
+- Troubleshooting
+- Changelog
+- Maintainers
+- License
 
-## Features
+## Overview
 
-- **Custom Node Widths**: Set custom widths for individual nodes to tailor the
-  display of your content.
-- **Create a Solo sub-theme with one command**: `drush solo:subtheme my_theme`
-  (Drush 12 or later). See [Create a sub-theme](#create-a-sub-theme).
-- **Future Enhancements**: Solo Utilities will be updated with new features
-  that extend the Solo theme.
+- **Custom node widths**: Set custom widths for individual nodes to tailor the display of your content.
+- **Create a Solo sub-theme with one command**: `drush solo:subtheme my_theme` (Drush 12 or later). See [Create a sub-theme](#create-a-sub-theme).
+- **Solo 1 to Solo 2 upgrade tools**: a readiness check (`drush solo:preflight`), the Solo upgrade page, a settings restore (`drush solo:settings-restore`) and a class and id renamer (`drush solo:migrate-classes`).
+- **Compatibility sub-module**: `solo_utilities_compat` lets custom code that reads Solo settings by their old names, or calls the Solo 1 helper functions, keep working. Install it only when `drush solo:preflight` reports a call.
 
 ## Requirements
 
-- **Solo theme**: Solo 2 requires this module and holds no PHP logic of its
-  own. Solo's upgrade steps are in the Solo README, under "Upgrading from Solo 1".
-- **Node module**: Core Drupal module that must be enabled.
+- **Drupal core** `^11.3 || ^12` and **PHP** 8.3 or later.
+- **Node module**: Core module that must be enabled.
+- **Solo theme**: Solo 2 requires this module and holds no PHP logic of its own. Solo's upgrade steps are in the Solo README, under "Upgrading from Solo 1".
 
 ## Installation
 
-1. **Download the module**: Place the Solo Utilities module in the
-   `modules/custom` directory of your Drupal installation.
+1. **Download the module**: Run `composer require drupal/solo_utilities`, or place the Solo Utilities module in the `modules/custom` directory of your Drupal installation. Installing the Solo theme with Composer brings this module with it.
 2. **Enable the module**:
    - **Using Drush**: Run `drush en solo_utilities -y` in the command line.
-   - **Using Drupal Admin Interface**: Navigate to **Extend**, find the **Solo
-     Utilities** module, enable it, and save the configuration.
+   - **Using Drupal Admin Interface**: Navigate to **Extend**, find the **Solo Utilities** module, enable it, and save the configuration.
 
 ## Configuration
 
 1. Ensure the Solo theme is active and configured correctly.
 2. Navigate to the theme settings of the Solo theme.
-3. If the Solo Utilities module is enabled, you will see an option to enable
-   custom widths for individual nodes.
+3. If the Solo Utilities module is enabled, you will see an option to enable custom widths for individual nodes.
 4. Configure the settings as needed.
 
 ## Usage
 
-1. When creating or editing a node, you will see a dropdown to select a custom
-   width for the node.
+### Set a custom width on a node
+
+1. When creating or editing a node, you will see a dropdown to select a custom width for the node.
 2. Choose the desired width or select **None** to use the default width.
 
 ### Create a sub-theme
@@ -171,7 +162,7 @@ A value is restored only when it still holds what the run wrote; anything
 changed since is listed as a conflict and left. For a full undo, restore your
 database backup.
 
-## Public API
+### Public API
 
 Only the following is public API. Every other class is marked `@internal` and
 may change in any release.
@@ -186,11 +177,17 @@ may change in any release.
 The routes, permissions, library names and block third-party setting keys
 (`solo_block_title_visibility`, `solo_block_title_tag`) are kept as they are.
 
-## Future Plans
+## Troubleshooting
 
-Solo Utilities is designed to be a foundational module for extending the Solo
-theme. Future updates will include additional features and improvements to
-further extend the capabilities of the Solo theme.
+- **Solo shows default settings after an update.** Solo 2 does not read the old setting names. Move the settings to the new names from the Solo upgrade page, or run `drush updatedb` again. To go back to Solo 1, use `drush solo:settings-restore` before you roll the code back.
+- **`drush solo:preflight` exits with 1.** It listed code that needs a change. The exit code is 0 when nothing needs a change.
+- **`drush solo:migrate-classes --apply --content` refuses to run.** Content changes need `--backup-confirmed` and `--report`. Take a database backup first.
+- **`drush solo:subtheme` refuses a name.** The machine name must follow the rules in [Create a sub-theme](#create-a-sub-theme), and the command never overwrites an existing folder.
+- Report anything else in the [issue queue](https://www.drupal.org/project/issues/solo_utilities).
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Maintainers
 
@@ -198,4 +195,4 @@ further extend the capabilities of the Solo theme.
 
 ## License
 
-This project is licensed under the [GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html).
+GPL-2.0-or-later. See [LICENSE.txt](./LICENSE.txt).
