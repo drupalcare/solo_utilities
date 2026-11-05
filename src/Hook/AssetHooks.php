@@ -36,6 +36,17 @@ final class AssetHooks {
   }
 
   /**
+   * Implements hook_css_alter().
+   *
+   * @param array<string, array<string, mixed>> $css
+   *   The CSS assets keyed by data.
+   */
+  #[Hook('css_alter')]
+  public function cssAlter(array &$css): void {
+    $this->registrar->moveAfterThemes($css);
+  }
+
+  /**
    * Implements hook_page_attachments().
    *
    * @param array<string, mixed> $attachments

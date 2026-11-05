@@ -60,6 +60,18 @@ final class ThemeAssetFiles {
   }
 
   /**
+   * The URI of the typed inline CSS box.
+   *
+   * @param string $theme
+   *   The theme machine name.
+   * @param string $css
+   *   The file's content.
+   */
+  public function inlineCssUri(string $theme, string $css): string {
+    return $this->uri($theme, 'inline', 'css', $css);
+  }
+
+  /**
    * The URI of the typed script.
    *
    * @param string $theme
@@ -79,6 +91,20 @@ final class ThemeAssetFiles {
    */
   public function exists(string $uri): bool {
     return file_exists($uri);
+  }
+
+  /**
+   * Whether a URI names a stylesheet this class generates, for any theme.
+   *
+   * Matches the shape uri() gives a settings, custom or inline stylesheet, so a
+   * file anything else puts in the same directory is never claimed.
+   *
+   * @param string $uri
+   *   A stylesheet URI or path.
+   */
+  public function isGeneratedStylesheet(string $uri): bool {
+    $pattern = '#^' . preg_quote($this->directory(''), '#') . '[a-z0-9_]+/(settings|custom|inline)\.[0-9a-f]{' . self::HASH_LENGTH . '}\.css$#D';
+    return preg_match($pattern, $uri) === 1;
   }
 
   /**
@@ -108,11 +134,12 @@ final class ThemeAssetFiles {
     $changed = FALSE;
     $settings = $this->sync($theme, 'settings', 'css', $assets->settingsCss, $changed);
     $custom_css = $this->sync($theme, 'custom', 'css', $assets->customCss, $changed);
+    $inline_css = $this->sync($theme, 'inline', 'css', $assets->inlineCss, $changed);
     $custom_js = $this->sync($theme, 'custom', 'js', $assets->customJs, $changed);
     if ($changed) {
       $this->invalidateLibraries();
     }
-    return $settings && $custom_css && $custom_js;
+    return $settings && $custom_css && $inline_css && $custom_js;
   }
 
   /**
@@ -128,6 +155,7 @@ final class ThemeAssetFiles {
     $changed = FALSE;
     $this->removeOthers($theme, 'settings', 'css', NULL, $changed);
     $this->removeOthers($theme, 'custom', 'css', NULL, $changed);
+    $this->removeOthers($theme, 'inline', 'css', NULL, $changed);
     $this->removeOthers($theme, 'custom', 'js', NULL, $changed);
     if ($changed) {
       $this->invalidateLibraries();

@@ -23,43 +23,49 @@ use Drupal\solo_utilities\Settings\SettingsReader;
 final class ThemeCssBuilder {
 
   /**
-   * The selector of each region, from the ids and classes in Solo's templates.
+   * The selector of each region: the class its element always carries.
    *
-   * These replace 1.x's `style` attribute on the same element, which outranked
-   * every stylesheet. The `#page-wrapper` prefix keeps these rules above the
-   * color schemes, which set the same properties on `.page-wrapper`.
+   * These replace 1.x's `style` attribute on the same element. Each class is
+   * printed on that one element only in Solo's templates (`page.html.twig`,
+   * `partials/`). The rules load after every theme stylesheet (GROUP in
+   * ThemeLibraryRegistrar), so a selector as strong as the strongest scheme or
+   * Solo rule on the same element wins; each form below is the lowest that
+   * does, checked by solo/scripts/check-cascade.py (P1, P2), which reads this
+   * constant. `.breadcrumb` is a generic class, so it is limited to the direct
+   * child of the page wrapper. The page title matches the strongest scheme
+   * rule on it (`.solo-page div.solo-page-title.solo-container--single`).
    */
   public const REGION_SELECTORS = [
-    'page_wrapper' => '#solo-page-wrapper',
-    'popup_login_block' => '#solo-page-wrapper #solo-popup-login-block',
-    'fixed_search_block' => '#solo-page-wrapper #solo-fixed-search-block',
-    'header' => '#solo-page-wrapper #solo-header',
-    'primary_sidebar_menu' => '#solo-page-wrapper #solo-primary-sidebar-menu',
-    'primary_menu' => '#solo-page-wrapper #solo-primary-menu',
-    'welcome_text' => '#solo-page-wrapper #solo-welcome-text',
-    'top_container' => '#solo-page-wrapper #solo-top-container',
-    'top_first' => '#solo-page-wrapper .solo-region-box__inner--top-first',
-    'top_second' => '#solo-page-wrapper .solo-region-box__inner--top-second',
-    'top_third' => '#solo-page-wrapper .solo-region-box__inner--top-third',
-    'highlighted' => '#solo-page-wrapper #solo-highlighted',
-    'system_messages' => '#solo-page-wrapper #solo-system-messages',
-    'page_title' => '#solo-page-wrapper #solo-page-title',
-    'breadcrumb' => '#solo-page-wrapper #solo-breadcrumb',
-    'main_container' => '#solo-page-wrapper #solo-main-container',
-    'sidebar_first' => '#solo-page-wrapper .solo-region-box__inner--sidebar-first',
-    'content' => '#solo-page-wrapper .solo-region-box__inner--content',
-    'sidebar_second' => '#solo-page-wrapper .solo-region-box__inner--sidebar-second',
-    'bottom_container' => '#solo-page-wrapper #solo-bottom-container',
-    'bottom_first' => '#solo-page-wrapper .solo-region-box__inner--bottom-first',
-    'bottom_second' => '#solo-page-wrapper .solo-region-box__inner--bottom-second',
-    'bottom_third' => '#solo-page-wrapper .solo-region-box__inner--bottom-third',
-    'bottom_fourth' => '#solo-page-wrapper .solo-region-box__inner--bottom-fourth',
-    'footer_container' => '#solo-page-wrapper #solo-footer-container',
-    'footer_first' => '#solo-page-wrapper .solo-region-box__inner--footer-first',
-    'footer_second' => '#solo-page-wrapper .solo-region-box__inner--footer-second',
-    'footer_third' => '#solo-page-wrapper .solo-region-box__inner--footer-third',
-    'footer_menu' => '#solo-page-wrapper #solo-footer-menu',
-    'credit_copyright' => '#solo-page-wrapper #solo-copyright',
+    'page_wrapper' => '.solo-page',
+    'popup_login_block' => '.solo-popup-login',
+    'fixed_search_block' => '.solo-fixed-search',
+    'header' => '.solo-page .solo-header',
+    'primary_sidebar_menu' => '.solo-primary-sidebar-menu',
+    'primary_menu' => '.solo-primary-menu',
+    'welcome_text' => '.solo-welcome-text',
+    'top_container' => '.solo-container--top',
+    'top_first' => '.solo-page .solo-region-box__inner--top-first',
+    'top_second' => '.solo-page .solo-region-box__inner--top-second',
+    'top_third' => '.solo-page .solo-region-box__inner--top-third',
+    'highlighted' => '.solo-highlighted',
+    'system_messages' => '.solo-system-messages',
+    'page_title' => '.solo-page div.solo-page-title.solo-container--single',
+    'breadcrumb' => ':where(.solo-page) > .breadcrumb',
+    'main_container' => '.solo-container--main',
+    'sidebar_first' => '.solo-page .solo-region-box__inner--sidebar-first',
+    'content' => '.solo-page .solo-region-box__inner--content',
+    'sidebar_second' => '.solo-page .solo-region-box__inner--sidebar-second',
+    'bottom_container' => '.solo-container--bottom',
+    'bottom_first' => '.solo-page .solo-region-box__inner--bottom-first',
+    'bottom_second' => '.solo-page .solo-region-box__inner--bottom-second',
+    'bottom_third' => '.solo-page .solo-region-box__inner--bottom-third',
+    'bottom_fourth' => '.solo-page .solo-region-box__inner--bottom-fourth',
+    'footer_container' => '.solo-container--footer',
+    'footer_first' => '.solo-page .solo-region-box__inner--footer-first',
+    'footer_second' => '.solo-page .solo-region-box__inner--footer-second',
+    'footer_third' => '.solo-page .solo-region-box__inner--footer-third',
+    'footer_menu' => '.solo-footer-nav',
+    'credit_copyright' => '.solo-copyright',
   ];
 
   /**
@@ -107,6 +113,7 @@ final class ThemeCssBuilder {
     return new GeneratedAssets(
       implode("\n", $rules),
       $this->typedText($settings, 'custom_code.css_file', $refused),
+      $this->inlineCss($settings, $refused),
       $this->typedText($settings, 'custom_code.js_file', $refused),
       $preloader === [] ? '' : '#solo-preloader{' . implode(';', $preloader) . '}',
       $refused,
@@ -267,6 +274,30 @@ final class ThemeCssBuilder {
       return '';
     }
     return $text;
+  }
+
+  /**
+   * Reads the typed CSS box, checked and minified.
+   *
+   * It was a style tag, where text that can end the tag must not pass, so the
+   * same check applies now that it is a file: a refused box emits nothing and
+   * its field name is reported.
+   *
+   * @param \Drupal\solo_utilities\Settings\BoundThemeSettings $settings
+   *   The theme's settings.
+   * @param list<string> $refused
+   *   Field names refused so far.
+   */
+  private function inlineCss(BoundThemeSettings $settings, array &$refused): string {
+    $css = $settings->string('custom_code.inline_css');
+    if ($css === '') {
+      return '';
+    }
+    if (!$this->validator->isSafeStylesheet($css)) {
+      $refused[] = 'custom_code.inline_css';
+      return '';
+    }
+    return $this->minify($css);
   }
 
   /**

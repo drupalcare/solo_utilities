@@ -59,7 +59,7 @@ final class AssetAttacher {
   ) {}
 
   /**
-   * Attaches the generated stylesheets, typed script and typed inline CSS.
+   * Attaches the generated stylesheets (typed inline CSS included) and script.
    *
    * When the file a page needs is absent, it is rebuilt, and this response gets
    * the rules inline so the page keeps its look and stays 200 even when the
@@ -80,16 +80,6 @@ final class AssetAttacher {
 
     $this->attachStylesheets($build, $theme, $assets);
     $this->attachCustomScript($build, $theme, $assets);
-
-    $inline = $settings->string('custom_code.inline_css');
-    if ($inline !== '') {
-      if ($this->validator->isSafeStylesheet($inline)) {
-        $this->attachStyleTag($build, 'inline_css', $this->builder->minify($inline), ['id' => 'solo-css-injector']);
-      }
-      else {
-        $this->logRefused($theme, 'custom_code.inline_css');
-      }
-    }
   }
 
   /**
@@ -217,6 +207,12 @@ final class AssetAttacher {
     }
     if ($assets->settingsCss !== '') {
       $this->attachStyleTag($build, 'solo_settings_css', $assets->settingsCss);
+    }
+    // For this one response the typed box prints in the head, before every
+    // stylesheet, as it did before it had a file. The next request uses the
+    // file. The id stays so a site's own selector on it keeps working.
+    if ($assets->inlineCss !== '') {
+      $this->attachStyleTag($build, 'inline_css', $assets->inlineCss, ['id' => 'solo-css-injector']);
     }
   }
 

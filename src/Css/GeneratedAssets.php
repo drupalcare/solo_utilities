@@ -20,6 +20,8 @@ final class GeneratedAssets {
    *   Rules built from validated values; goes in settings.<hash>.css.
    * @param string $customCss
    *   The stylesheet the site builder typed; goes in custom.<hash>.css.
+   * @param string $inlineCss
+   *   The typed CSS box, checked and minified; goes in inline.<hash>.css.
    * @param string $customJs
    *   The script the site builder typed; goes in custom.<hash>.js.
    * @param string $preloaderCss
@@ -31,6 +33,7 @@ final class GeneratedAssets {
   public function __construct(
     public readonly string $settingsCss,
     public readonly string $customCss,
+    public readonly string $inlineCss,
     public readonly string $customJs,
     public readonly string $preloaderCss,
     public readonly array $refusedFields,
