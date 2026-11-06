@@ -43,6 +43,7 @@ TOP_ORDER = ['layout', 'regions', 'region_groups', 'color_scheme', 'typography',
 PREPROCESS = 'includes/_solo_theme_preprocess.inc'
 # Install defaults for 2.0-only keys (no 1.x install value): the one owner of those values.
 DEFAULTS_SRC = os.path.join(HERE, 'solo-2.0-defaults.yml')
+CHANGED_SRC = os.path.join(HERE, 'solo-2.0-changed-defaults.yml')
 # Config constraints (Range/Length/Regex) the schema carries: the one owner of every bound the form and CSS enforce.
 CONSTRAINTS_SRC = os.path.join(HERE, 'solo-2.0-constraints.yml')
 # Type overrides (label, text_format): the one owner of every leaf typed other than the 1.x schema says.
@@ -223,10 +224,10 @@ def map_install(install, by_old):
     return ordered(tree, ('features', 'logo', 'favicon')), dropped, errors
 
 
-def read_defaults_2():
-    """Return OrderedDict path -> raw scalar from the 2.0-only defaults file."""
+def read_defaults_2(src=DEFAULTS_SRC):
+    """Return OrderedDict path -> raw scalar from the 2.0-only defaults file (or the changed-defaults file)."""
     out = OrderedDict()
-    for number, line in enumerate(open(DEFAULTS_SRC).read().split('\n'), 1):
+    for number, line in enumerate(open(src).read().split('\n'), 1):
         if not line.strip() or line.lstrip().startswith('#'):
             continue
         m = re.match(r'^([a-z_0-9]+(?:\.[a-z_0-9]+)+): (.+?)\s*$', line)
@@ -488,6 +489,23 @@ def constraint_default_errors(tree, install_text):
     return out
 
 
+def apply_changed(tree, changed, label, required):
+    """Set each deliberately changed 1.x default where the path exists; required: every path must exist."""
+    errors, flat = [], flatten(tree)
+    for path, raw in changed.items():
+        if path not in flat:
+            if required:
+                errors.append('CHANGED DEFAULT: %s is not a 1.x default in %s' % (path, label))
+            continue
+        if flat[path] == raw:
+            errors.append('CHANGED DEFAULT: %s already is %s in %s; nothing changes' % (path, raw, label))
+        node = tree
+        for part in path.split('.')[:-1]:
+            node = node[part]
+        node[path.split('.')[-1]] = raw
+    return errors
+
+
 def merge_defaults_2(tree, defaults):
     """Add the 2.0-only defaults to the mapped install tree (a path already there is a conflict)."""
     for path, raw in defaults.items():
@@ -629,7 +647,7 @@ def emit_variables(groups, commit):
     return '\n'.join(lines) + '\n'
 
 
-def verify_install(label, old, new_text, by_old, schema_leaves, extra=None):
+def verify_install(label, old, new_text, by_old, schema_leaves, extra=None, changed=None):
     """Return (preserved, transformed, errors): every kept default must read back identical."""
     errors, preserved, transformed = [], 0, 0
     new = flatten(parse_nested(new_text))
@@ -644,6 +662,10 @@ def verify_install(label, old, new_text, by_old, schema_leaves, extra=None):
             expect[row['new']] = scheme_value(val)
             transformed += 1
     expect.update(extra or {})
+    for path, val in (changed or {}).items():
+        if path in expect:
+            expect[path] = val
+            transformed += 1
     for path, val in expect.items():
         if new.get(path) != val:
             errors.append('%s: VALUE CHANGED at %s' % (label, path))
@@ -877,7 +899,11 @@ def generate(src, files, rows=None):
     leaf_types = leaf_type_map(tree)
     e1 += defaults_2_errors(defaults_2, leaf_types)
     inst_new = merge_defaults_2(inst_new, defaults_2)
+    changed = read_defaults_2(CHANGED_SRC)
+    e1 += defaults_2_errors(changed, leaf_types)
+    e1 += apply_changed(inst_new, changed, 'install', True)
     st_new, st_dropped, e2 = map_install(st_old, by_old)
+    e2 += apply_changed(st_new, changed, 'starter_install', False)
     texts = OrderedDict()
     texts['schema'] = emit_schema(tree)
     texts['starter_schema'] = emit_starter_schema()
@@ -888,8 +914,8 @@ def generate(src, files, rows=None):
     texts['map_copy'] = open(cm.OUT).read() if os.path.exists(cm.OUT) else ''
     texts['defaults_copy'] = open(DEFAULTS_SRC).read()
     texts['compat_rules'] = emit_compat_php(compat_rules, constraint_rules) if not errors else ''
-    p1, t1, e4 = verify_install('install', inst_old, texts['install'], by_old, leaf_paths, defaults_2)
-    p2, t2, e5 = verify_install('starter_install', st_old, texts['starter_install'], by_old, leaf_paths)
+    p1, t1, e4 = verify_install('install', inst_old, texts['install'], by_old, leaf_paths, defaults_2, changed)
+    p2, t2, e5 = verify_install('starter_install', st_old, texts['starter_install'], by_old, leaf_paths, None, changed)
     errors += e1 + e2 + e3 + e4 + e5 + constraint_default_errors(tree, texts['install'])
     expected = sum(1 for r in rows if r['action'] in ('move', 'scheme_name', 'map_template_assignments')) + 4
     if leaves != expected:
@@ -970,6 +996,8 @@ def self_test(src, files):
     except SystemExit as exc:
         conflict = [str(exc)]
     expect('2.0 default duplicates a 1.x default', conflict, 'set twice')
+    expect('changed default on a path 1.x does not have', apply_changed(OrderedDict([('layout', OrderedDict([('regions_gap', "'16'")]))]), OrderedDict([('layout.zz_gap', "'20'")]), 'install', True), 'is not a 1.x default')
+    expect('changed default equal to the 1.x value', apply_changed(OrderedDict([('layout', OrderedDict([('regions_gap', "'16'")]))]), OrderedDict([('layout.regions_gap', "'16'")]), 'install', True), 'nothing changes')
     stray2 = texts['install'].replace('search:\n', 'search:\n  zz_extra: 1\n', 1)
     expect('install has a key neither source owns', verify_install('install', inst_old, stray2, by_old, leaves, read_defaults_2())[2], 'EXTRA key')
     ctypes = leaf_type_map(schema_tree(rows, parse_schema(cm.show(cm.SOURCES['schema']))))

@@ -1,0 +1,24 @@
+# Install defaults that Solo 2.0 deliberately changes from their 1.x value.
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which applies each value to
+# solo/config/install/solo.settings.yml and solo/solo_subtheme/config/install/solo_subtheme.settings.yml
+# wherever the path exists. Every path must be a 1.x default in solo.settings.yml, and the value must differ from it.
+# Format: one `settings.path: yaml-scalar` per line, same as solo-2.0-defaults.yml.
+# A new site starts with the social icons off and no links (they pointed to the maintainer's accounts).
+social_icons.enabled: false
+social_icons.links.facebook: ''
+social_icons.links.twitter: ''
+social_icons.links.bluesky: ''
+social_icons.links.pinterest: ''
+social_icons.links.linkedin: ''
+social_icons.links.instagram: ''
+social_icons.links.youtube: ''
+social_icons.links.snapchat: ''
+social_icons.links.reddit: ''
+social_icons.links.tiktok: ''
+social_icons.links.whatsapp: ''
+social_icons.links.threads: ''
+social_icons.links.drupal: ''
+social_icons.links.mastodon: ''
+social_icons.links.telegram: ''
+social_icons.links.rss: ''
+social_icons.links.email: ''
