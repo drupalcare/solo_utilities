@@ -87,7 +87,7 @@ RULES = [
     (r'site_inline_items_on', 'layout.inline_field_items', 'move'),
     (r'site_opacity_onscroll_on', 'layout.reveal_on_scroll', 'move'),
     (r'site_login_page_on', 'layout.centered_login_page', 'move'),
-    # Colour scheme.
+    # Color scheme.
     (r'theme_category', 'color_scheme.category', 'move'),
     (r'predefined_current_theme', 'color_scheme.name', 'scheme_name'),
     (r'color_coded_system_tabs', 'color_scheme.colored_system_tabs', 'move'),
