@@ -17,6 +17,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * event for an existing object. A first save does not, so a read earlier in the
  * same request can build from old values; the next page compares the bytes
  * through AssetAttacher and corrects the file.
+ *
+ * @internal
  */
 final class ThemeSettingsSaveSubscriber implements EventSubscriberInterface {
 

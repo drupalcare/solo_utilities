@@ -13,6 +13,8 @@ use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
  * priority sets their order. A section reads settings only through the context,
  * so it cannot read the wrong theme, and gives every element #parents with its
  * full stored path.
+ *
+ * @internal
  */
 interface SettingsSectionInterface {
 

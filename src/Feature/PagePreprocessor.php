@@ -136,9 +136,6 @@ final class PagePreprocessor {
     if ($settings->array('menus.keyboard_navigation') !== []) {
       $variables['#attached']['drupalSettings']['solo']['keyboardMenus'] = $keyboard_menus;
     }
-    if ($keyboard_menus !== []) {
-      $variables['#attached']['library'][] = 'solo/solo-menu-keyboard';
-    }
     $page_breakpoint = $settings->string('layout.breakpoints.page');
     if ($page_breakpoint !== '') {
       $variables['#attached']['library'][] = 'solo/solo-global-breakpoints-' . $page_breakpoint;
@@ -146,6 +143,11 @@ final class PagePreprocessor {
     $menu_breakpoint = $settings->string('layout.breakpoints.menu');
     if ($menu_breakpoint !== '') {
       $variables['#attached']['library'][] = 'solo/solo-menu-breakpoints-' . $menu_breakpoint;
+    }
+    // After the breakpoint libraries, as in 1.x: it carries a stylesheet too,
+    // and the attach order sets the order of equal-weight stylesheets.
+    if ($keyboard_menus !== []) {
+      $variables['#attached']['library'][] = 'solo/solo-menu-keyboard';
     }
     if (!$settings->bool('regions.system_messages.disable_dark')) {
       $variables['#attached']['library'][] = 'solo/solo-system-messages-dark';

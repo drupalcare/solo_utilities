@@ -2,6 +2,14 @@ solo_utilities_test_sub.settings:
   type: config_object
   label: 'Solo Utilities test sub-theme settings'
   mapping:
-    enable_custom_node_width:
-      type: boolean
-      label: 'Enable custom node width'
+    layout:
+      type: mapping
+      label: 'Layout'
+      mapping:
+        width:
+          type: mapping
+          label: 'Width'
+          mapping:
+            per_node_enabled:
+              type: boolean
+              label: 'Per-node width'

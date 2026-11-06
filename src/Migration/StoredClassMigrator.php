@@ -127,25 +127,6 @@ final class StoredClassMigrator {
   ) {}
 
   /**
-   * Builds the migrator from the container and Solo's class map.
-   *
-   * @throws \RuntimeException
-   *   When the class map cannot be read.
-   */
-  public static function fromContainer(): self {
-    return new self(
-      SoloClassMap::migrator(),
-      \Drupal::configFactory(),
-      \Drupal::entityTypeManager(),
-      \Drupal::service('entity_field.manager'),
-      \Drupal::service(SoloThemeDetectionInterface::class),
-      \Drupal::database(),
-      \Drupal::time(),
-      \Drupal::hasService('inline_block.usage') ? \Drupal::service('inline_block.usage') : NULL,
-    );
-  }
-
-  /**
    * Renames classes in the inline CSS setting of Solo and its sub-themes.
    *
    * @param bool $apply

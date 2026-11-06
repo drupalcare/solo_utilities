@@ -14,6 +14,8 @@ namespace Drupal\solo_utilities\Migration;
  * links are resolved before a path is compared with a boundary, and every
  * prefix comparison appends a directory separator, so `/x/web2` never counts
  * as inside `/x/web`.
+ *
+ * @internal
  */
 final class ClassMigrationPaths {
 

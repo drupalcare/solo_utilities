@@ -57,7 +57,7 @@ final class BlockTitleVisibilityMigrator {
    * Determines if block title visibility feature is enabled in theme settings.
    *
    * Checks if the current default theme is part of the Solo theme hierarchy
-   * and if the enable_block_title_visibility setting is enabled.
+   * and if the blocks.title_visibility_enabled setting is enabled.
    *
    * @return bool
    *   TRUE if the feature is enabled and theme is Solo-based, FALSE otherwise.
@@ -67,7 +67,7 @@ final class BlockTitleVisibilityMigrator {
     if (!$this->detection->isInHierarchy($theme)) {
       return FALSE;
     }
-    return $this->themeSettings->forTheme($theme)->bool('enable_block_title_visibility');
+    return $this->themeSettings->forTheme($theme)->bool('blocks.title_visibility_enabled');
   }
 
   /**

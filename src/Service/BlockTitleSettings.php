@@ -33,7 +33,7 @@ final class BlockTitleSettings implements ContainerInjectionInterface {
    * Whether the feature is on in the default front-end theme.
    *
    * TRUE if the default theme is Solo or a Solo sub-theme and its
-   * 'enable_block_title_visibility' setting is on. The default theme is read
+   * 'blocks.title_visibility_enabled' setting is on. The default theme is read
    * on purpose: block forms render under the admin theme.
    */
   public function isEnabled(): bool {
@@ -41,7 +41,7 @@ final class BlockTitleSettings implements ContainerInjectionInterface {
     if (!$this->detection->isInHierarchy($theme_name)) {
       return FALSE;
     }
-    return $this->themeSettings->forTheme($theme_name)->bool('enable_block_title_visibility');
+    return $this->themeSettings->forTheme($theme_name)->bool('blocks.title_visibility_enabled');
   }
 
   /**

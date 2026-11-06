@@ -209,6 +209,11 @@ final class SubthemeGenerator {
       if ($contents === FALSE) {
         throw new \RuntimeException(sprintf('Cannot read %s.', $path));
       }
+      // Core records the starterkit it copied as "generator: solo_subtheme:N"
+      // in the new info file. That line is provenance, not a missed rename.
+      if (str_ends_with($file->getBasename(), '.info.yml')) {
+        $contents = (string) preg_replace('/^generator:.*$/m', '', $contents);
+      }
       if (preg_match(self::STARTER_NAME_PATTERN, $file->getBasename() . "\n" . $contents) === 1) {
         $leftovers[] = substr($path, strlen($directory) + 1);
       }

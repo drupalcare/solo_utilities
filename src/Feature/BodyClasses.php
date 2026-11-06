@@ -57,10 +57,12 @@ final class BodyClasses {
     if ($route === 'entity.user.canonical') {
       $classes[] = 'solo-body--user-profile';
     }
-    if ($route === 'entity.node.canonical' && ($node_id = $this->requestContext->routeEntity('node')?->id())) {
+    // Every route with a node or term parameter (view, edit, revisions), as
+    // in 1.x, so sub-theme CSS keyed on .path-node-N keeps working there.
+    if ($node_id = $this->requestContext->routeEntity('node')?->id()) {
       $classes[] = 'path-node-' . $node_id;
     }
-    if ($route === 'entity.taxonomy_term.canonical' && ($term = $this->requestContext->routeEntity('taxonomy_term'))) {
+    if ($term = $this->requestContext->routeEntity('taxonomy_term')) {
       if ($term->id()) {
         $classes[] = 'path-taxonomy-term-' . $term->id();
       }

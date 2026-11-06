@@ -5,4 +5,5 @@
 Drupal\solo_utilities\ColorSchemesRuleInterface
 Drupal\solo_utilities\Entity\ColorSchemesRule
 Drupal\solo_utilities\Entity\NodeWidth
-Drupal\solo_utilities\Service\SoloThemeDetection
+Drupal\solo_utilities\Theme\SoloThemeDetection
+Drupal\solo_utilities\Theme\SoloThemeDetectionInterface

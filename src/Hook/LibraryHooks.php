@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *
  * Kept apart from AssetHooks on purpose: this runs inside core's library
  * parse, so it depends on nothing that itself needs library discovery.
+ *
+ * @internal
  */
 final class LibraryHooks {
 

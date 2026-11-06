@@ -10,8 +10,8 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\solo_utilities\Access\ColorSchemesAccessCheck;
-use Drupal\solo_utilities\Hook\SoloUtilitiesHooks;
-use Drupal\solo_utilities\Service\SoloThemeDetection;
+use Drupal\solo_utilities\Hook\PreprocessHooks;
+use Drupal\solo_utilities\Theme\SoloThemeDetection;
 use Drupal\Tests\user\Traits\UserCreationTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -153,9 +153,9 @@ class SoloThemeDetectionTest extends KernelTestBase {
   public function testUnknownDefaultThemeDoesNotThrow(): void {
     $this->setDefaultTheme('a_theme_that_is_not_installed');
     $this->assertFalse($this->detection()->isDefault());
-    // The page hook that took every page down in 1.0.7.
+    // The page hook that took every page down in 1.0.7 (now PreprocessHooks).
     $variables = [];
-    $this->container->get(SoloUtilitiesHooks::class)->preprocessPage($variables);
+    $this->container->get(PreprocessHooks::class)->preprocessPage($variables);
     $this->assertSame([], $variables);
   }
 
@@ -203,7 +203,7 @@ class SoloThemeDetectionTest extends KernelTestBase {
    */
   public function testNodeWidthFieldShowsUnderAdminTheme(): void {
     $this->setDefaultTheme('solo_utilities_test_sub');
-    $this->config('solo_utilities_test_sub.settings')->set('enable_custom_node_width', TRUE)->save();
+    $this->config('solo_utilities_test_sub.settings')->set('layout', ['width' => ['per_node_enabled' => TRUE]])->save();
     $this->activate('claro');
 
     $form = $this->alterNodeForm();

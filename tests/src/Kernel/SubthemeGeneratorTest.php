@@ -55,7 +55,10 @@ class SubthemeGeneratorTest extends KernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
-    $this->workDir = sys_get_temp_dir() . '/solo-subtheme-test-' . bin2hex(random_bytes(6));
+    // The generator only writes inside the Drupal root, so the scratch folder
+    // lives under sites/simpletest, where test runs already write.
+    $this->workDir = $this->root . '/sites/simpletest/solo-subtheme-test-' . bin2hex(random_bytes(6));
+    (new Filesystem())->mkdir($this->workDir);
     $this->generator = $this->container->get('solo_utilities.subtheme_generator');
   }
 
@@ -65,6 +68,21 @@ class SubthemeGeneratorTest extends KernelTestBase {
   protected function tearDown(): void {
     (new Filesystem())->remove($this->workDir);
     parent::tearDown();
+  }
+
+  /**
+   * A parent folder outside the Drupal root is refused before anything is written.
+   */
+  public function testParentOutsideTheRootIsRefused(): void {
+    $outside = sys_get_temp_dir() . '/solo-subtheme-outside-' . bin2hex(random_bytes(6));
+    try {
+      $this->generator->generate('my_site', 'My Site', $this->workDir, $outside);
+      $this->fail('A parent outside the Drupal root was accepted.');
+    }
+    catch (\RuntimeException $e) {
+      $this->assertStringContainsString('outside the Drupal root', $e->getMessage());
+    }
+    $this->assertDirectoryDoesNotExist($outside . '/my_site');
   }
 
   /**
@@ -88,9 +106,12 @@ class SubthemeGeneratorTest extends KernelTestBase {
 
   /**
    * Every spelling of the starter's name is replaced, in names and contents.
+   *
+   * Core's generate-theme command copies the starterkit it discovers by
+   * machine name, so this runs against the starter shipped in Solo.
    */
   public function testEveryStarterSpellingIsReplaced(): void {
-    $starter = $this->createFixtureStarter();
+    $starter = $this->shippedStarter();
 
     $leftovers = $this->generator->generate('my_site', 'My Site', $starter, $this->workDir);
 
@@ -100,28 +121,33 @@ class SubthemeGeneratorTest extends KernelTestBase {
     $this->assertFileExists($theme . '/my_site.libraries.yml');
     $this->assertFileExists($theme . '/css/my-site-style.css');
     $this->assertFileExists($theme . '/js/my-site-script.js');
-    $this->assertFileExists($theme . '/src/Hook/MySiteHooks.php');
     $this->assertFileDoesNotExist($theme . '/README.md', 'The hand-rename README is removed.');
+    $this->assertFileDoesNotExist($theme . '/src/StarterKit.php', 'The starterkit class is not copied.');
 
-    $this->assertStringContainsString("name: My Site\n", (string) file_get_contents($theme . '/my_site.info.yml'));
-    $this->assertStringContainsString('my_site/my-site-global', (string) file_get_contents($theme . '/my_site.info.yml'));
+    $info = (string) file_get_contents($theme . '/my_site.info.yml');
+    $this->assertMatchesRegularExpression("/^name: '?My Site'?$/m", $info);
+    $this->assertStringContainsString('my_site/my-site-global', $info);
     $this->assertStringContainsString("my-site-global:\n", (string) file_get_contents($theme . '/my_site.libraries.yml'));
     $this->assertStringContainsString('Drupal.behaviors.mySite', (string) file_get_contents($theme . '/js/my-site-script.js'));
-    $this->assertStringContainsString("label: 'My Site settings'", (string) file_get_contents($theme . '/config/schema/my_site.schema.yml'));
-    $this->assertStringContainsString('namespace Drupal\my_site\Hook;', (string) file_get_contents($theme . '/src/Hook/MySiteHooks.php'));
-    $this->assertStringContainsString('class MySiteHooks', (string) file_get_contents($theme . '/src/Hook/MySiteHooks.php'));
+    $this->assertStringContainsString('my_site.settings:', (string) file_get_contents($theme . '/config/schema/my_site.schema.yml'));
   }
 
   /**
    * A spelling the generator does not know is reported, not kept silently.
+   *
+   * The generator's own provenance line in the info file is not a leftover.
    */
   public function testUnknownSpellingIsReported(): void {
-    $starter = $this->createFixtureStarter();
-    file_put_contents($starter . '/templates/notes.txt', 'Built on the SOLO SUBTHEME starter.');
-
+    $starter = $this->shippedStarter();
     $leftovers = $this->generator->generate('my_site', 'My Site', $starter, $this->workDir);
+    $this->assertSame([], $leftovers);
+    $theme = $this->workDir . '/my_site';
+    $this->assertMatchesRegularExpression('/^generator: .*solo_subtheme/m', (string) file_get_contents($theme . '/my_site.info.yml'), 'Core records the starterkit; the scan must not count it.');
 
-    $this->assertSame(['templates/notes.txt'], $leftovers);
+    // A spelling added after generation is found by the same scan.
+    file_put_contents($theme . '/templates/notes.txt', 'Built on the SOLO SUBTHEME starter.');
+    $scan = new \ReflectionMethod($this->generator, 'leftovers');
+    $this->assertSame(['templates/notes.txt'], $scan->invoke($this->generator, $theme));
   }
 
   /**
@@ -129,6 +155,9 @@ class SubthemeGeneratorTest extends KernelTestBase {
    */
   public function testExistingDestinationIsRefused(): void {
     $starter = $this->createFixtureStarter();
+    // Control: the folder passes the starterkit check, so only the
+    // existing destination can refuse it.
+    $this->assertFileExists($starter . '/solo_subtheme.starterkit.yml');
     mkdir($this->workDir . '/my_site');
     file_put_contents($this->workDir . '/my_site/keep.txt', 'mine');
 
@@ -146,17 +175,24 @@ class SubthemeGeneratorTest extends KernelTestBase {
    * The starter shipped in Solo renames completely, when Solo is present.
    */
   public function testShippedStarterRenamesCompletely(): void {
-    try {
-      $starter = $this->generator->starterPath();
-    }
-    catch (\RuntimeException $e) {
-      $this->markTestSkipped('The Solo theme is not available: ' . $e->getMessage());
-    }
+    $starter = $this->shippedStarter();
 
     $leftovers = $this->generator->generate('my_site', 'My Site', $starter, $this->workDir);
 
     $this->assertSame([], $leftovers, 'Every file of the shipped starter is renamed.');
     $this->assertFileExists($this->workDir . '/my_site/my_site.info.yml');
+  }
+
+  /**
+   * The starter shipped in Solo, or a skip when Solo is not on disk.
+   */
+  private function shippedStarter(): string {
+    try {
+      return $this->generator->starterPath();
+    }
+    catch (\RuntimeException $e) {
+      $this->markTestSkipped('The Solo theme is not available: ' . $e->getMessage());
+    }
   }
 
   /**
@@ -176,6 +212,7 @@ class SubthemeGeneratorTest extends KernelTestBase {
       'config/schema/solo_subtheme.schema.yml' => "solo_subtheme.settings:\n  type: mapping\n  label: 'Solo sub-theme settings'\n",
       'src/Hook/SoloSubthemeHooks.php' => "<?php\n\nnamespace Drupal\\solo_subtheme\\Hook;\n\nclass SoloSubthemeHooks {}\n",
       'templates/README.txt' => "Templates go here.\n",
+      'solo_subtheme.starterkit.yml' => "ignore: []\n",
     ];
     $filesystem = new Filesystem();
     foreach ($files as $path => $contents) {

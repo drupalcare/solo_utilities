@@ -13,6 +13,8 @@ use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes asset hooks to the services that own them.
+ *
+ * @internal
  */
 final class AssetHooks {
 

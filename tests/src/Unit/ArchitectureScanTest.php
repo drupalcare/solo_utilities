@@ -12,7 +12,8 @@ use PHPUnit\Framework\TestCase;
  *
  * 1. No static \Drupal:: call in src/ (injection only). One named exception:
  *    config entities cannot take constructor injection.
- * 2. One module: no modules/ directory, one services file.
+ * 2. One module and one sub-module: modules/ holds only solo_utilities_compat,
+ *    and the module root has one services file.
  * 3. No #[LegacyHook] anywhere: the ^11.3 floor discovers class hooks.
  * 4. Every hook_update_N() / hook_post_update_NAME() docblock is one summary
  *    line, because drush updb prints all of it in one table cell. A
@@ -109,11 +110,15 @@ class ArchitectureScanTest extends TestCase {
   }
 
   /**
-   * One module: no sub-modules, one services file, no LegacyHook.
+   * One sub-module (compat), one root services file, no LegacyHook.
    */
   public function testOneModuleOneServicesFile(): void {
     $root = dirname(__DIR__, 3);
-    $this->assertDirectoryDoesNotExist($root . '/modules', 'A sub-module directory exists.');
+    // The only sub-module is solo_utilities_compat (AGENTS.md); a second one is
+    // a decision, so it must be added here.
+    $sub_modules = array_map('basename', glob($root . '/modules/*', GLOB_ONLYDIR) ?: []);
+    $this->assertSame(['solo_utilities_compat'], $sub_modules, 'The sub-modules are exactly solo_utilities_compat.');
+    $this->assertFileExists($root . '/modules/solo_utilities_compat/solo_utilities_compat.info.yml');
     $this->assertCount(1, glob($root . '/*.services.yml') ?: [], 'Exactly one services file.');
     $this->assertSame([], glob($root . '/*/*.info.yml') ?: [], 'A nested info file means a sub-module.');
     foreach (['solo_utilities.module', 'solo_utilities.install'] as $name) {

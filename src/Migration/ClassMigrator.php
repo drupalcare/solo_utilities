@@ -42,6 +42,8 @@ namespace Drupal\solo_utilities\Migration;
  * 8. Context-dependent tokens and removed classes are reported only.
  * 9. SCSS/Less nesting built from a theme class (`&__x`, `#{}`) is reported.
  * 10. A second run changes nothing.
+ *
+ * @internal
  */
 final class ClassMigrator {
 

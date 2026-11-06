@@ -11,6 +11,8 @@ use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
  * Routes the theme settings form to its builder.
+ *
+ * @internal
  */
 final class SettingsHooks {
 

@@ -59,17 +59,17 @@ final class CssValueValidator {
    * A color as an "r, g, b" triplet, from a 3 or 6 digit hex or a triplet.
    *
    * 1.x turned #fff into 255,15,0, as it read two digits from a short hex. A
-   * short hex is expanded first here.
+   * short hex is expanded first here. The leading "#" is optional, as in 1.x.
    */
   public function rgbTriplet(mixed $value): ?string {
     if (!is_string($value)) {
       return NULL;
     }
     $value = trim($value);
-    if (preg_match('/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/D', $value, $short) === 1) {
+    if (preg_match('/^#?([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/D', $value, $short) === 1) {
       $value = '#' . $short[1] . $short[1] . $short[2] . $short[2] . $short[3] . $short[3];
     }
-    if (preg_match('/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/D', $value, $hex) === 1) {
+    if (preg_match('/^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/D', $value, $hex) === 1) {
       return sprintf('%d, %d, %d', hexdec($hex[1]), hexdec($hex[2]), hexdec($hex[3]));
     }
     if (preg_match('/^(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})$/D', $value, $parts) !== 1) {

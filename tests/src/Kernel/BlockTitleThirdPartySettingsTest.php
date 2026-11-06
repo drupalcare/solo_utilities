@@ -8,6 +8,7 @@ use Drupal\block\Entity\Block;
 use Drupal\Core\Config\Schema\SchemaCheckTrait;
 use Drupal\Core\Form\FormState;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\solo_utilities\Service\BlockTitleSettings;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -152,17 +153,18 @@ class BlockTitleThirdPartySettingsTest extends KernelTestBase {
   }
 
   /**
-   * The read helper prefers third-party and falls back to the legacy place.
+   * The read service prefers third-party and falls back to the legacy place.
    */
   public function testReadHelperFallsBackToLegacy(): void {
     $this->writeLegacyBlock('read');
     $block = Block::load('read');
-    $this->assertSame('h3', solo_utilities__block_title_setting($block, 'solo_block_title_tag'));
+    $settings = $this->container->get(BlockTitleSettings::class);
+    $this->assertSame('h3', $settings->get($block, 'solo_block_title_tag'));
 
     $block->setThirdPartySetting('solo_utilities', 'solo_block_title_tag', 'h5');
-    $this->assertSame('h5', solo_utilities__block_title_setting($block, 'solo_block_title_tag'));
+    $this->assertSame('h5', $settings->get($block, 'solo_block_title_tag'));
 
-    $this->assertNull(solo_utilities__block_title_setting($block, 'not_a_setting'));
+    $this->assertNull($settings->get($block, 'not_a_setting'));
   }
 
 }

@@ -20,6 +20,8 @@ use Drupal\Core\Extension\ExtensionPathResolver;
  *
  * Twig variable names keep their 1.x spelling (decision D1); the variable list
  * says where each one now comes from.
+ *
+ * @internal
  */
 final class SettingsCatalog {
 

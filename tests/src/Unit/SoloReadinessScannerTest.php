@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\solo_utilities\Unit;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\solo_utilities\Service\SoloReadinessScanner;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
+use Drupal\solo_utilities\Upgrade\SettingsMap;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +22,9 @@ use PHPUnit\Framework\TestCase;
  * PHP, includes a Solo template, overrides a Solo library or copies a Solo
  * template must be listed with the file and line. The fixtures are written to
  * a temporary directory, because a .info.yml inside a module's own tree would
- * be discovered by core as a real theme.
+ * be discovered by core as a real theme. Solo 2 ships no PHP functions, so the
+ * function names come from the list this module ships; the fixture root holds
+ * a copy of that list.
  *
  * @license SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -39,8 +44,7 @@ class SoloReadinessScannerTest extends TestCase {
   protected function setUp(): void {
     parent::setUp();
     $this->root = sys_get_temp_dir() . '/solo_scanner_' . bin2hex(random_bytes(6));
-    $this->write('solo/solo.theme', "<?php\n\nfunction solo_helper_a() {}\n\nfunction _solo_private_b(\$x) {}\n");
-    $this->write('solo/includes/_inc.inc', "<?php\n\nfunction solo_in_include() {}\n");
+    $this->write('solo_utilities/config/map/solo1-function-names.yml', "functions:\n  - solo_helper_a\n  - _solo_private_b\n  - solo_in_include\n");
     $this->write('solo/templates/page.html.twig', '{{ page }}');
     $this->write('solo/templates/layout/block.html.twig', '{{ content }}');
 
@@ -92,12 +96,21 @@ class SoloReadinessScannerTest extends TestCase {
   }
 
   /**
-   * Solo's function names come from its files; nothing is listed twice.
+   * Solo 1's function names come from the list the module ships.
    */
-  public function testFunctionNamesAreReadFromSolo(): void {
-    $names = $this->scanner()->soloFunctionNames($this->root . '/solo');
+  public function testFunctionNamesAreReadFromTheShippedList(): void {
+    $names = $this->scanner()->soloFunctionNames();
     sort($names);
     $this->assertSame(['_solo_private_b', 'solo_helper_a', 'solo_in_include'], $names);
+  }
+
+  /**
+   * A missing list is an error, never an empty list that reports all clear.
+   */
+  public function testMissingFunctionListThrows(): void {
+    unlink($this->root . '/solo_utilities/config/map/solo1-function-names.yml');
+    $this->expectException(\RuntimeException::class);
+    $this->scanner()->soloFunctionNames();
   }
 
   /**
@@ -110,14 +123,19 @@ class SoloReadinessScannerTest extends TestCase {
   }
 
   /**
-   * Builds the scanner; scanDirectory() needs none of the services.
+   * Builds the scanner; scanDirectory() needs only the function list path.
    */
   private function scanner(): SoloReadinessScanner {
+    $module_list = $this->createMock(ExtensionList::class);
+    $module_list->method('getPath')->with('solo_utilities')->willReturn('solo_utilities');
     return new SoloReadinessScanner(
-      $this->createMock(ThemeHandlerInterface::class),
+      $this->createMock(SoloThemeDetectionInterface::class),
       $this->createMock(ExtensionList::class),
       $this->createMock(ModuleHandlerInterface::class),
       $this->root,
+      new SettingsMap($this->createMock(CacheBackendInterface::class)),
+      $this->createMock(ConfigFactoryInterface::class),
+      $module_list,
     );
   }
 

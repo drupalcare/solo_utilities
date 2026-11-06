@@ -7,6 +7,12 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 ### Changed
 - Comments: a relative comment date ("5 minutes ago") now expires from the render cache when its text would change, instead of staying frozen.
 - Comments: the heading level and the form position settings only accept the values the settings form offers (a Choice constraint in Solo's schema), because the heading level is printed as a tag name.
+- The per-node width field on the node form and the block title visibility options read Solo 2's setting names (`layout.width.per_node_enabled`, `blocks.title_visibility_enabled`). Before, they read the 1.x names, so turning either setting on in Solo 2 had no effect.
+- `drush solo:subtheme` no longer warns that the new theme's info file still names the starter: the `generator:` line core writes there records where the theme came from and is not a missed rename.
+- Body classes: `path-node-N`, `path-taxonomy-term-N` and `path-vocabulary-X` are added on every page that carries the node or term (edit form, revisions), as in 1.x. Before, only the view page had them.
+- The menu keyboard library is attached after the breakpoint libraries again, as in 1.x.
+- A popup login background color stored without its `#` is read again, as in 1.x.
+- `StoredClassMigrator::fromContainer()` is removed; the post-update builds the migrator from its services. Classes that are not public API are marked `@internal`.
 
 - The preloader's inline critical CSS hides the preloader when scripting is off, so a visitor without JavaScript never sees a page stuck behind it.
 - `drush solo:migrate-classes --content` renames an id only in a same-page link (`href="#id"`); a link to an old id on another page or site is listed as `other-page-link` for review instead of being renamed.
@@ -21,7 +27,7 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 ### Changed (sub-theme generator and entity definition)
 
 - `drush solo:subtheme` keeps its name, arguments and options, and now runs core's `generate-theme` command on Solo's `solo_subtheme` starterkit (the theme ships `solo_subtheme.starterkit.yml` and a `StarterKit` class).
-- The Color Schemes Rule entity type is declared by its attribute only; the Drupal 10 annotation is gone.
+- The Color Schemes Rule and Node Width entity types are declared by their attributes only; the Drupal 10 annotations are gone.
 
 ### Changed (Color Schemes Rules)
 

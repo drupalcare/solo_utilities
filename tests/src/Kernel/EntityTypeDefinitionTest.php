@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\solo_utilities\Kernel;
 
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
-use Drupal\Core\Plugin\Discovery\AttributeClassDiscovery;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -21,10 +17,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * threw PluginNotFoundException. Nothing went red because the suite had only
  * ever run on Drupal 11 and 12, where the attribute is read.
  *
- * Both entity classes now carry the attribute AND the annotation, which is two
- * copies of one definition. The first test proves the entity types exist on
- * whichever core runs it; the second reads each copy with its own discovery
- * and fails if they disagree, so the copies cannot drift apart unseen.
+ * The module now requires Drupal ^11.3 || ^12, so the attribute is the one
+ * definition; PluginAnnotationParityTest (Unit) keeps a stray annotation out.
+ * This test proves the entity types exist on whichever core runs it, and that
+ * the update installs them on a site that missed them.
  *
  * @group solo_utilities
  *
@@ -73,37 +69,6 @@ class EntityTypeDefinitionTest extends KernelTestBase {
   }
 
   /**
-   * The annotation and the attribute describe the same entity types.
-   */
-  public function testAnnotationAndAttributeAgree(): void {
-    if (!class_exists('Drupal\Core\Entity\Attribute\EntityType')) {
-      $this->markTestSkipped('This core has no entity-type attribute classes; only the annotation is read here.');
-    }
-    $namespaces = new \ArrayObject([
-      'Drupal\solo_utilities' => $this->container->get('extension.list.module')->getPath('solo_utilities') . '/src',
-    ]);
-    $annotated = (new AnnotatedClassDiscovery('Entity', $namespaces, 'Drupal\Core\Entity\Annotation\EntityType'))->getDefinitions();
-    $attributed = (new AttributeClassDiscovery('Entity', $namespaces, 'Drupal\Core\Entity\Attribute\EntityType'))->getDefinitions();
-
-    $expected = array_keys(self::ENTITY_TYPES);
-    sort($expected);
-    $annotated_ids = array_keys($annotated);
-    sort($annotated_ids);
-    $attributed_ids = array_keys($attributed);
-    sort($attributed_ids);
-    $this->assertSame($expected, $annotated_ids, 'Every entity class carries the annotation Drupal 10 reads.');
-    $this->assertSame($expected, $attributed_ids, 'Every entity class carries the attribute newer core reads.');
-
-    foreach ($expected as $id) {
-      $this->assertSame(
-        $this->normalize($attributed[$id]),
-        $this->normalize($annotated[$id]),
-        "The $id annotation and attribute agree on every property.",
-      );
-    }
-  }
-
-  /**
    * The update installs the entity types a 1.0.7 install on Drupal 10 missed.
    *
    * Such a site has the hook_schema() table but neither entity type installed,
@@ -133,31 +98,6 @@ class EntityTypeDefinitionTest extends KernelTestBase {
 
     // Running it again changes nothing.
     $this->assertSame('Both Solo Utilities entity types were already installed.', solo_utilities_update_8003());
-  }
-
-  /**
-   * Flattens an entity type definition to comparable scalars and arrays.
-   *
-   * The annotation defaults the optional labels (label_collection,
-   * label_singular, label_plural) to '' where the attribute defaults them to
-   * NULL. Core reads both through `?:`, so they mean the same thing, and both
-   * are normalised to NULL here; every other value must match exactly.
-   *
-   * @return array<string, mixed>
-   *   Every instance property, labels cast to string, '' read as NULL.
-   */
-  private function normalize(EntityTypeInterface $definition): array {
-    $values = [];
-    foreach ((new \ReflectionObject($definition))->getProperties() as $property) {
-      if ($property->isStatic() || $property->getName() === 'stringTranslation') {
-        continue;
-      }
-      $value = $property->getValue($definition);
-      $value = $value instanceof TranslatableMarkup ? (string) $value : $value;
-      $values[$property->getName()] = $value === '' ? NULL : $value;
-    }
-    ksort($values);
-    return $values;
   }
 
 }

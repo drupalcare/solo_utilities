@@ -89,7 +89,7 @@ final class SiteFeatureHooks {
   private function addNodeWidthField(array &$form, FormStateInterface $form_state): void {
     if ($this->detection->isDefault()) {
       $default_theme = $this->detection->defaultThemeName();
-      if ($this->themeSettings->forTheme($default_theme)->bool('enable_custom_node_width')) {
+      if ($this->themeSettings->forTheme($default_theme)->bool('layout.width.per_node_enabled')) {
         /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
         $form_object = $form_state->getFormObject();
         $node = $form_object->getEntity();

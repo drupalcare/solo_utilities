@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Drupal\Tests\solo_utilities\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Covers the Solo theme-hierarchy helpers against unknown theme names.
  *
- * WHY THIS EXISTS. solo_utilities__is_solo_in_theme_hierarchy() called
+ * WHY THIS EXISTS. The 1.x hierarchy helper (now SoloThemeDetection) called
  * ThemeHandler::getTheme() on whatever name it was handed. That method THROWS
  * UnknownExtensionException for a theme it does not know, so an unknown name
  * did not produce FALSE — it produced an uncaught exception, and because the
@@ -52,6 +53,13 @@ class SoloThemeHierarchyTest extends KernelTestBase {
   }
 
   /**
+   * The detection service that owns the hierarchy questions.
+   */
+  private function detection(): SoloThemeDetectionInterface {
+    return $this->container->get(SoloThemeDetectionInterface::class);
+  }
+
+  /**
    * An unknown default theme yields FALSE rather than a 500.
    *
    * This is the regression: before the guard, this call raised
@@ -63,7 +71,7 @@ class SoloThemeHierarchyTest extends KernelTestBase {
       ->save();
 
     $this->assertFalse(
-      solo_utilities__is_solo_or_sub_in_hierarchy_active(),
+      $this->detection()->isDefault(),
       'An uninstalled default theme is simply not in the Solo hierarchy.'
     );
   }
@@ -73,7 +81,7 @@ class SoloThemeHierarchyTest extends KernelTestBase {
    */
   public function testUnknownThemeNameDoesNotThrow(): void {
     $this->assertFalse(
-      solo_utilities__is_solo_in_theme_hierarchy('a_theme_that_is_not_installed'),
+      $this->detection()->isInHierarchy('a_theme_that_is_not_installed'),
       'An unknown theme name answers FALSE.'
     );
   }
@@ -83,7 +91,7 @@ class SoloThemeHierarchyTest extends KernelTestBase {
    */
   public function testSoloIsInItsOwnHierarchy(): void {
     $this->assertTrue(
-      solo_utilities__is_solo_in_theme_hierarchy('solo'),
+      $this->detection()->isInHierarchy('solo'),
       'Solo is trivially in the Solo hierarchy.'
     );
   }
@@ -95,9 +103,9 @@ class SoloThemeHierarchyTest extends KernelTestBase {
    * malformed.
    */
   public function testEmptyAndNonStringNamesReturnFalse(): void {
-    $this->assertFalse(solo_utilities__is_solo_in_theme_hierarchy(''), 'Empty string.');
-    $this->assertFalse(solo_utilities__is_solo_in_theme_hierarchy(NULL), 'NULL.');
-    $this->assertFalse(solo_utilities__is_solo_in_theme_hierarchy(['solo']), 'Array.');
+    $this->assertFalse($this->detection()->isInHierarchy(''), 'Empty string.');
+    $this->assertFalse($this->detection()->isInHierarchy(NULL), 'NULL.');
+    $this->assertFalse($this->detection()->isInHierarchy(['solo']), 'Array.');
   }
 
   /**
@@ -114,7 +122,7 @@ class SoloThemeHierarchyTest extends KernelTestBase {
       'Stark really is installed, so the next assertion tests the walk, not the guard.'
     );
     $this->assertFalse(
-      solo_utilities__is_solo_in_theme_hierarchy('stark'),
+      $this->detection()->isInHierarchy('stark'),
       'Stark is installed and is not in the Solo hierarchy.'
     );
   }

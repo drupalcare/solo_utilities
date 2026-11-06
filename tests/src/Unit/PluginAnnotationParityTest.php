@@ -8,16 +8,18 @@ use Drupal\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Every plugin or entity attribute in src/ has the annotation beside it.
+ * Every plugin or entity definition is an attribute; no orphan annotation.
  *
- * WHY THIS EXISTS. This module claims ^10. Drupal 10 discovers entity types
- * from annotations only (and every plugin type on 10.0 and 10.1), so a class
- * that carries only a #[...] definition attribute does not exist there. 1.0.7
- * shipped exactly that for both entity types. This scan goes red on any class
- * in src/ that repeats the mistake, for any plugin type, on any core.
+ * WHY THIS EXISTS. The module requires Drupal ^11.3 || ^12, so the attribute is
+ * the one definition core reads: annotation discovery is gone in Drupal 12 and
+ * an annotation without its attribute would be a class that does not exist
+ * there. The old rule (an annotation beside every attribute, for Drupal 10)
+ * no longer applies; this scan keeps the single-source rule instead. It goes
+ * red on a class whose docblock carries a definition annotation that its
+ * attributes do not repeat, and on a scan that sees fewer than two attributed
+ * classes (a moved directory or a broken pattern).
  *
- * It reads source rather than booting Drupal so that it runs everywhere, and
- * it was proven red against the 1.0.7 entity classes before it was trusted.
+ * It reads source rather than booting Drupal so that it runs everywhere.
  *
  * @group solo_utilities
  *
@@ -34,30 +36,63 @@ class PluginAnnotationParityTest extends UnitTestCase {
   ];
 
   /**
-   * Each attributed plugin class also carries the matching annotation.
+   * Each attributed class has its attribute; no annotation stands alone.
    */
-  public function testEveryDefinitionAttributeHasAnAnnotation(): void {
+  public function testEveryDefinitionAnnotationHasItsAttribute(): void {
     $src = dirname(__DIR__, 3) . '/src';
     $this->assertDirectoryExists($src);
     $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src, \FilesystemIterator::SKIP_DOTS));
 
     $attributed = [];
-    $missing = [];
+    $orphans = [];
     foreach ($iterator as $file) {
       if ($file->getExtension() !== 'php') {
         continue;
       }
-      foreach ($this->definitionAttributes((string) file_get_contents($file->getPathname())) as [$short, $docblock]) {
+      $source = (string) file_get_contents($file->getPathname());
+      $shorts = [];
+      foreach ($this->definitionAttributes($source) as [$short, $docblock]) {
+        $shorts[] = $short;
         $attributed[] = $file->getFilename() . ' #[' . $short . ']';
-        if (!preg_match('/@' . preg_quote($short, '/') . '\s*\(/', $docblock)) {
-          $missing[] = substr($file->getPathname(), strlen($src) + 1) . ' has #[' . $short . '] but no @' . $short . '(...) annotation';
+      }
+      foreach ($this->classDocblockAnnotations($source) as $annotation) {
+        if (!in_array($annotation, $shorts, TRUE)) {
+          $orphans[] = substr($file->getPathname(), strlen($src) + 1) . ' has @' . $annotation . '(...) but no #[' . $annotation . '] attribute';
         }
       }
     }
     // A scan that finds nothing proves nothing: both entity classes are
     // attributed, so the scan must see at least those two.
     $this->assertGreaterThanOrEqual(2, count($attributed), 'The scan sees the attributed classes: ' . implode(', ', $attributed));
-    $this->assertSame([], $missing, 'Drupal 10 cannot discover these classes.');
+    $this->assertSame([], $orphans, 'Drupal 12 cannot discover these classes.');
+  }
+
+  /**
+   * The scan can go red: an annotation with no attribute is reported.
+   */
+  public function testScanDetectsSeededOrphanAnnotation(): void {
+    $this->assertSame(['ContentEntityType'], $this->classDocblockAnnotations("<?php\n/**\n * X.\n *\n * @api\n *\n * @ContentEntityType(\n *   id = \"x\",\n *   label = @Translation(\"X\"),\n * )\n */\n#[Foo]\nclass A {}\n"));
+    $this->assertSame([], $this->classDocblockAnnotations("<?php\n/**\n * X, uses @Translation(\"a\") inline.\n *\n * @api\n */\nclass B {}\n"));
+  }
+
+  /**
+   * Annotation names that start a line of the class docblock, with a call.
+   *
+   * @return list<string>
+   *   Annotation short names.
+   */
+  private function classDocblockAnnotations(string $source): array {
+    if (!preg_match('/^(?:final\s+|abstract\s+|readonly\s+)*class\s+\w+/m', $source, $class, PREG_OFFSET_CAPTURE)) {
+      return [];
+    }
+    $head = substr($source, 0, $class[0][1]);
+    $end = strrpos($head, '*/');
+    $start = $end === FALSE ? FALSE : strrpos(substr($head, 0, $end), '/**');
+    if ($start === FALSE) {
+      return [];
+    }
+    preg_match_all('/^\s*\*\s*@(\w+)\(/m', substr($head, $start, $end - $start), $found);
+    return $found[1];
   }
 
   /**

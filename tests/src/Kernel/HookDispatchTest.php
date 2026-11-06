@@ -68,8 +68,8 @@ class HookDispatchTest extends KernelTestBase {
     foreach ($hooks as $hook) {
       $this->assertNotContains('solo_utilities_' . $hook, $defined, $hook);
     }
-    // Control: a forwarder that must stay callable is still there.
-    $this->assertContains('solo_utilities__is_solo_in_theme_hierarchy', $defined);
+    // Control: the node form submit callback cached forms still name.
+    $this->assertContains('solo_utilities__node_form_submit', $defined);
   }
 
 }

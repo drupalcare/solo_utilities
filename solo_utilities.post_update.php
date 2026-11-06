@@ -8,9 +8,11 @@
 declare(strict_types=1);
 
 use Drupal\Core\Utility\UpdateException;
+use Drupal\solo_utilities\Migration\SoloClassMap;
 use Drupal\solo_utilities\Migration\StoredClassMigrator;
 use Drupal\solo_utilities\Settings\ChoiceNormalizer;
 use Drupal\solo_utilities\Theme\SoloThemeDetection;
+use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Drupal\solo_utilities\Upgrade\SettingsMigrator;
 
 /**
@@ -74,7 +76,17 @@ function solo_utilities_post_update_rename_classes_in_inline_css(): string {
   // text formats and content are the site's and change only through
   // drush solo:migrate-classes, which reports before it writes.
   try {
-    $rows = StoredClassMigrator::fromContainer()->inlineCss(TRUE);
+    $migrator = new StoredClassMigrator(
+      SoloClassMap::migrator(),
+      \Drupal::configFactory(),
+      \Drupal::entityTypeManager(),
+      \Drupal::service('entity_field.manager'),
+      \Drupal::service(SoloThemeDetectionInterface::class),
+      \Drupal::database(),
+      \Drupal::time(),
+      \Drupal::hasService('inline_block.usage') ? \Drupal::service('inline_block.usage') : NULL,
+    );
+    $rows = $migrator->inlineCss(TRUE);
   }
   catch (\RuntimeException $e) {
     throw new UpdateException('Solo inline CSS classes were not renamed: ' . $e->getMessage() . ' Nothing was changed; run updates again.');

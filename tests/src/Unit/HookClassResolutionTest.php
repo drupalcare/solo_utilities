@@ -25,10 +25,10 @@ use PHPUnit\Framework\TestCase;
  * WHAT THIS ENFORCES. No \Drupal::service() call in *.module or *.inc names a
  * class in the Drupal\solo_utilities namespace. Core services, such as
  * ThemeSettingsProvider, are not flagged: `use` statements are resolved, so
- * the check is about the namespace, not the name. It covers all seven
- * wrappers, including those the kernel test does not invoke.
+ * the check is about the namespace, not the name. It covers both
+ * wrappers, including any the kernel test does not invoke.
  *
- * Red-proofed against the 1.0.8 .module: 7 calls flagged. Reads files as
+ * Red-proofed against the 1.0.8 .module: 7 calls flagged (the .module now has 2 wrappers). Reads files as
  * text, so it runs on every core version.
  *
  * @group solo_utilities
@@ -41,10 +41,11 @@ class HookClassResolutionTest extends TestCase {
   /**
    * The number of classResolver() wrappers in the .module.
    *
-   * The helper forwarders: README, hierarchy, default theme, node submit,
-   * block feature flag, block entity builder, block title setting.
+   * The two callbacks cached forms store by name: the node form submit handler
+   * and the block form entity builder. The other helpers moved to hook classes
+   * and to solo_utilities_compat.
    */
-  private const EXPECTED_WRAPPERS = 7;
+  private const EXPECTED_WRAPPERS = 2;
 
   /**
    * Procedural module files: the .module and any .inc in the module root.
