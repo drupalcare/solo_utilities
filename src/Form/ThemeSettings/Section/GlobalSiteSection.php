@@ -334,10 +334,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#title" => $this->t("Comment form position"),
       "#description" => $this->t("Whether the 'Add new comment' form appears before or after the existing comments. After is useful when visitors should read the discussion before adding their own comment."),
       "#default_value" => $settings->get('comments.form_position'),
-      "#options" => [
-        "before" => $this->t("Before comments (default)"),
-        "after" => $this->t("After comments"),
-      ],
+      "#options" => $this->options->commentFormPositions(),
     ];
 
     // Comment visibility fieldset.
@@ -410,13 +407,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "select",
       "#title" => $this->t("Heading level"),
       "#description" => $this->t("The HTML heading tag for comment subjects. Choose based on your page structure for proper document outline and accessibility."),
-      "#options" => [
-        "h2" => $this->t("H2 - Second level"),
-        "h3" => $this->t("H3 - Third level (default)"),
-        "h4" => $this->t("H4 - Fourth level"),
-        "h5" => $this->t("H5 - Fifth level"),
-        "h6" => $this->t("H6 - Sixth level"),
-      ],
+      "#options" => $this->options->commentTitleTags(),
       "#default_value" => $settings->get('comments.title_tag'),
     ];
   }

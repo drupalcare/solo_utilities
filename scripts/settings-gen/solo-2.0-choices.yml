@@ -11,3 +11,5 @@ layout.breakpoints.menu: menuBreakpoints
 layout.mobile_order: mobileLayout
 region_groups.*.rounded: rounded
 menus.primary.megamenu.layout: megamenuLayouts
+comments.title_tag: commentTitleTags
+comments.form_position: commentFormPositions

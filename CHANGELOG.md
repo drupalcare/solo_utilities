@@ -5,6 +5,8 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 ## [2.0.0] - Unreleased
 
 ### Changed
+- Comments: a relative comment date ("5 minutes ago") now expires from the render cache when its text would change, instead of staying frozen.
+- Comments: the heading level and the form position settings only accept the values the settings form offers (a Choice constraint in Solo's schema), because the heading level is printed as a tag name.
 
 - The preloader's inline critical CSS hides the preloader when scripting is off, so a visitor without JavaScript never sees a page stuck behind it.
 - `drush solo:migrate-classes --content` renames an id only in a same-page link (`href="#id"`); a link to an old id on another page or site is listed as `other-page-link` for review instead of being renamed.

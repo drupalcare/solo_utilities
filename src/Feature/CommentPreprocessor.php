@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\solo_utilities\Feature;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -56,12 +57,16 @@ final class CommentPreprocessor {
     $variables['title_tag'] = $settings->string('comments.title_tag');
 
     $created = $comment->getCreatedTime();
-    $time_ago = $this->t('@time ago', [
-      '@time' => $this->dateFormatter->formatInterval($this->time->getRequestTime() - $created),
-    ]);
+    // The object form carries how long "5 minutes ago" stays true.
+    $diff = $this->dateFormatter->formatDiff($created, $this->time->getRequestTime(), ['return_as_object' => TRUE]);
+    $time_ago = $this->t('@time ago', ['@time' => $diff->getString()]);
+    $relative_max_age = NULL;
     if ($show_date) {
       $is_relative = $date_format === 'solo_relative' || $date_format === 'relative';
       $variables['formatted_date'] = $is_relative ? $time_ago : $this->dateFormatter->format($created, $date_format);
+      if ($is_relative) {
+        $relative_max_age = $diff->getCacheMaxAge();
+      }
       // For the datetime attribute of the time element.
       $variables['datetime'] = $this->dateFormatter->format($created, 'custom', 'c');
     }
@@ -85,6 +90,7 @@ final class CommentPreprocessor {
     CacheableMetadata::createFromRenderArray($variables)
       ->addCacheableDependency($settings)
       ->addCacheTags(['comment_list'])
+      ->mergeCacheMaxAge($relative_max_age ?? Cache::PERMANENT)
       ->applyTo($variables);
   }
 
