@@ -51,7 +51,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       // Popup Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["popup_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Popup Configuration"),
+        "#title" => $this->t("Popup configuration"),
         "#group" => "popup_login_tabs",
         "#weight" => -10,
         "#id" => "edit-popup-configuration",
@@ -62,7 +62,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["popup_configuration"]["popup_login__enabled"] = [
         "#parents" => ['popup_login', 'enabled'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to login via a popup block."),
+        "#title" => $this->t("Log in via a popup block"),
         "#description" => $this->t("Instead of redirecting users to a separate login page, a popup block with the login fields appears on the current page. <strong><a href='/admin/structure/block'>The User Login Block Must Be Enabled</a></strong>."),
         "#default_value" => $settings->get('popup_login.enabled'),
       ];
@@ -70,7 +70,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["popup_configuration"]["popup_login__link_text"] = [
         "#parents" => ['popup_login', 'link_text'],
         "#type" => "textfield",
-        "#title" => $this->t("You can change the login word."),
+        "#title" => $this->t("You can change the login word"),
         "#default_value" => $settings->get('popup_login.link_text'),
         "#states" => [
           "visible" => [
@@ -82,7 +82,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       // Advanced Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["advanced_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Advanced Settings"),
+        "#title" => $this->t("Advanced settings"),
         "#group" => "popup_login_tabs",
         "#weight" => -8,
       ];
@@ -166,7 +166,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       // Accessibility & Behavior Tab.
       $form["solo_settings"]["settings_{$region}"]["accessibility_behavior"] = [
         "#type" => "details",
-        "#title" => $this->t("Accessibility & Behavior"),
+        "#title" => $this->t("Accessibility & behavior"),
         "#group" => "popup_login_tabs",
         "#weight" => -6,
       ];
@@ -244,7 +244,7 @@ final class PopupLoginSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "popup_login_tabs",
         "#weight" => -4,
         '#attributes' => [

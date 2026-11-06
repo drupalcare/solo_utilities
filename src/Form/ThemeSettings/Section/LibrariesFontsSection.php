@@ -204,7 +204,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $settings = $context->settings;
     $form["solo_settings"]["settings_libraries_fonts"] = [
       "#type" => "details",
-      "#title" => $this->t("Libraries & Fonts"),
+      "#title" => $this->t("Libraries & fonts"),
     ];
 
     // Create vertical tabs container.
@@ -216,7 +216,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     // W3.CSS Library Tab.
     $form["solo_settings"]["settings_libraries_fonts"]["w3css_library"] = [
       "#type" => "details",
-      "#title" => $this->t("W3.CSS Library"),
+      "#title" => $this->t("W3.CSS library"),
       "#group" => "libraries_fonts_tabs",
       "#weight" => -10,
       "#id" => "edit-w3css-library",
@@ -225,14 +225,14 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["w3css_library"]["typography__load_w3css"] = [
       "#parents" => ['typography', 'load_w3css'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to load the W3.CSS library locally."),
+      "#title" => $this->t("Load the W3.CSS library locally"),
       "#default_value" => $settings->get('typography.load_w3css'),
     ];
 
     // Font Libraries Tab.
     $form["solo_settings"]["settings_libraries_fonts"]["font_libraries"] = [
       "#type" => "details",
-      "#title" => $this->t("Font Libraries"),
+      "#title" => $this->t("Font libraries"),
       "#group" => "libraries_fonts_tabs",
       "#weight" => -8,
     ];
@@ -240,7 +240,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["font_libraries"]["typography__fonts__local"] = [
       "#parents" => ['typography', 'fonts', 'local'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to load Google fonts locally (Global and Heading Fonts only)."),
+      "#title" => $this->t("Load Google fonts locally (global and heading fonts only)"),
       "#description"   => $this->t("Any font you choose for the site, heading or special fonts has a CSS class you can apply to any HTML tag. <a target='_blank' rel='noopener' href='https://www.drupal.org/node/2866181#change-font'>Documentation on drupal.org</a>."),
       "#default_value" => $settings->get('typography.fonts.local'),
     ];
@@ -248,7 +248,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["font_libraries"]["typography__fonts__icon_library"] = [
       "#parents" => ['typography', 'fonts', 'icon_library'],
       "#type" => "select",
-      "#title" => $this->t("Select Font Awesome Library"),
+      "#title" => $this->t("Select Font Awesome library"),
       "#default_value" => $settings->get('typography.fonts.icon_library'),
       "#options" => [
         0 => $this->t("None"),
@@ -262,7 +262,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     // Global Site Fonts Tab.
     $form["solo_settings"]["settings_libraries_fonts"]["global_fonts"] = [
       "#type" => "details",
-      "#title" => $this->t("Global Site Fonts"),
+      "#title" => $this->t("Global site fonts"),
       "#group" => "libraries_fonts_tabs",
       "#weight" => -6,
     ];
@@ -270,7 +270,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["global_fonts"]["typography__fonts__global"] = [
       "#parents" => ['typography', 'fonts', 'global'],
       "#type" => "select",
-      "#title" => $this->t("Global Site Fonts"),
+      "#title" => $this->t("Global site fonts"),
       "#description"   => $this->t("The site font, applied to the whole website. Each of the 50 fonts has a CSS class you can apply to any HTML tag; Open Sans, for example, uses <code>open-sans</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/192'>Live demo of all available fonts</a>."),
       "#options" => $this->options->globalFont(),
       "#default_value" => $settings->get('typography.fonts.global'),
@@ -279,7 +279,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     // Heading Fonts Tab.
     $form["solo_settings"]["settings_libraries_fonts"]["heading_fonts"] = [
       "#type" => "details",
-      "#title" => $this->t("Heading Fonts"),
+      "#title" => $this->t("Heading fonts"),
       "#group" => "libraries_fonts_tabs",
       "#weight" => -4,
     ];
@@ -287,7 +287,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["heading_fonts"]["typography__fonts__heading"] = [
       "#parents" => ['typography', 'fonts', 'heading'],
       "#type" => "select",
-      "#title" => $this->t("Heading Fonts"),
+      "#title" => $this->t("Heading fonts"),
       "#description"   => $this->t("The heading font, applied to h1, h2 and h3 only. Each of the 26 fonts has a CSS class you can apply to any h1, h2 or h3 tag; Open Sans, for example, uses <code>open-sans</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/193'>Live demo of all available fonts</a>."),
       "#options" => $this->options->headingFont(),
       "#default_value" => $settings->get('typography.fonts.heading'),
@@ -296,7 +296,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     // Special Fonts Tab.
     $form["solo_settings"]["settings_libraries_fonts"]["special_fonts"] = [
       "#type" => "details",
-      "#title" => $this->t("Special Fonts"),
+      "#title" => $this->t("Special fonts"),
       "#group" => "libraries_fonts_tabs",
       "#weight" => -2,
     ];
@@ -304,7 +304,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["special_fonts"]["typography__fonts__special"] = [
       "#parents" => ['typography', 'fonts', 'special'],
       "#type" => "select",
-      "#title" => $this->t("Special Fonts"),
+      "#title" => $this->t("Special fonts"),
       "#description"   => $this->t("Imported only: not applied to any HTML tag by default. Each of the 25 fonts has a CSS class you can apply to any HTML tag; Open Sans, for example, uses <code>open-sans</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/191'>Live demo of all available fonts</a>."),
       "#options" => $this->options->specialFont(),
       "#default_value" => $settings->get('typography.fonts.special'),

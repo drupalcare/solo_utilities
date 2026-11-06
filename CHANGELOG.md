@@ -5,6 +5,7 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 ## [2.0.0] - Unreleased
 
 ### Changed
+- Text follows the drupal.org standards: the module description begins with a verb, settings form titles are in sentence case without "Tick this box to", settings say "content" instead of "node" and "site" instead of "Drupal", "YouTube" and "LinkedIn" are spelled as the brands spell them, and the README follows the drupal.org README template.
 - Comments: a relative comment date ("5 minutes ago") now expires from the render cache when its text would change, instead of staying frozen.
 - Comments: the heading level and the form position settings only accept the values the settings form offers (a Choice constraint in Solo's schema), because the heading level is printed as a tag name.
 - The per-node width field on the node form and the block title visibility options read Solo 2's setting names (`layout.width.per_node_enabled`, `blocks.title_visibility_enabled`). Before, they read the 1.x names, so turning either setting on in Solo 2 had no effect.

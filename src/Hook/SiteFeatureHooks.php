@@ -116,7 +116,7 @@ final class SiteFeatureHooks {
           ];
           $form['custom_node_width'] = [
             '#type' => 'select',
-            '#title' => $this->t('Custom Width'),
+            '#title' => $this->t('Custom width'),
             '#options' => $width_options,
             '#default_value' => $current_width_class,
             '#attributes' => [

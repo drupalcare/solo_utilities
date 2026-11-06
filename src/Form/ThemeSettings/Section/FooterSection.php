@@ -37,7 +37,7 @@ final class FooterSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_footer_container"] = [
         "#type" => "details",
-        "#title" => $this->t("Footer Containers"),
+        "#title" => $this->t("Footer containers"),
         "#description"   => $this->t("<p>The settings for @region_label.</p>", ["@region_label" => $region_label]),
       ];
 
@@ -56,7 +56,7 @@ final class FooterSection implements SettingsSectionInterface {
           // Layout Settings Tab.
           $form["solo_settings"]["settings_footer_container"]["layout_settings"] = [
             "#type" => "details",
-            "#title" => $this->t("Layout Settings"),
+            "#title" => $this->t("Layout settings"),
             "#group" => "footer_container_tabs",
             "#weight" => -10,
             "#id" => "edit-footer-layout-settings",
@@ -70,7 +70,7 @@ final class FooterSection implements SettingsSectionInterface {
           $form["solo_settings"]["settings_footer_container"]["layout_settings"]["region_groups__footer__per_content_type_enabled"] = [
             "#parents" => ['region_groups', 'footer', 'per_content_type_enabled'],
             "#type" => "checkbox",
-            "#title" => $this->t("Enable per-content-type layouts for Footer region"),
+            "#title" => $this->t("Enable per-content-type layouts for footer region"),
             "#default_value" => $settings->get('region_groups.footer.per_content_type_enabled'),
           ];
 
@@ -100,7 +100,7 @@ final class FooterSection implements SettingsSectionInterface {
           // Styling & Design Tab.
           $form["solo_settings"]["settings_footer_container"]["styling_design"] = [
             "#type" => "details",
-            "#title" => $this->t("Styling & Design"),
+            "#title" => $this->t("Styling & design"),
             "#group" => "footer_container_tabs",
             "#weight" => -8,
           ];
@@ -114,7 +114,7 @@ final class FooterSection implements SettingsSectionInterface {
           // Accessibility & Behavior Tab.
           $form["solo_settings"]["settings_footer_container"]["accessibility_behavior"] = [
             "#type" => "details",
-            "#title" => $this->t("Accessibility & Behavior"),
+            "#title" => $this->t("Accessibility & behavior"),
             "#group" => "footer_container_tabs",
             "#weight" => -6,
           ];
@@ -123,7 +123,7 @@ final class FooterSection implements SettingsSectionInterface {
           $form["solo_settings"]["settings_footer_container"]["accessibility_behavior"]["region_groups__footer__aria_landmark"] = [
             "#parents" => ['region_groups', 'footer', 'aria_landmark'],
             "#type" => "checkbox",
-            "#title" => $this->t("Enable ARIA Landmark for Footer Container"),
+            "#title" => $this->t("Enable ARIA landmark for footer container"),
             "#default_value" => $settings->get('region_groups.footer.aria_landmark'),
             "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the footer container for improved accessibility. Enable only if this region consistently contains important, navigable content."),
           ];
@@ -131,7 +131,7 @@ final class FooterSection implements SettingsSectionInterface {
           // Color Settings Tab.
           $form["solo_settings"]["settings_footer_container"]["color_settings_tab"] = [
             "#type" => "details",
-            "#title" => $this->t("Color Settings"),
+            "#title" => $this->t("Color settings"),
             "#group" => "footer_container_tabs",
             "#weight" => -4,
             '#attributes' => [
@@ -155,7 +155,7 @@ final class FooterSection implements SettingsSectionInterface {
 
           $form["solo_settings"]["settings_footer_container"]["region_{$region}"]["alignment"] = [
             "#parents" => ['regions', $region, 'alignment'],
-            "#title" => $this->t("Region Block Alignment Option"),
+            "#title" => $this->t("Region block alignment option"),
             "#type" => "select",
             "#options" => $this->options->alignment(),
             "#default_value" => $settings->get("regions.{$region}.alignment"),
@@ -165,7 +165,7 @@ final class FooterSection implements SettingsSectionInterface {
           // Color Settings for Individual Regions.
           $form["solo_settings"]["settings_footer_container"]["region_{$region}"]["color_settings"] = [
             "#type" => "details",
-            "#title" => $this->t("Color Settings"),
+            "#title" => $this->t("Color settings"),
             "#open" => FALSE,
             "#description" => $this->t("Configure colors for background, text, links, buttons, and other visual elements in this region."),
             '#attributes' => [

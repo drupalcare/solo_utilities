@@ -23,7 +23,7 @@ final class TransformResult {
    * @param list<string> $unmovable
    *   Old keys whose value cannot be cast; they stay under the old key.
    * @param list<string> $differences
-   *   Old keys removed in favour of a differing new value.
+   *   Old keys removed in favor of a differing new value.
    */
   public function __construct(
     public readonly array $data,

@@ -51,7 +51,7 @@ final class HeaderSection implements SettingsSectionInterface {
       // Header Layout & Positioning Tab.
       $form["solo_settings"]["settings_{$region}"]["header_layout_positioning"] = [
         "#type" => "details",
-        "#title" => $this->t("Header Layout & Positioning"),
+        "#title" => $this->t("Header layout & positioning"),
         "#group" => "header_tabs",
         "#weight" => -10,
         "#id" => "edit-header-layout-positioning",
@@ -94,7 +94,7 @@ final class HeaderSection implements SettingsSectionInterface {
       // Branding & Typography Tab.
       $form["solo_settings"]["settings_{$region}"]["branding_typography"] = [
         "#type" => "details",
-        "#title" => $this->t("Branding & Typography"),
+        "#title" => $this->t("Branding & typography"),
         "#group" => "header_tabs",
         "#weight" => -8,
       ];
@@ -102,13 +102,13 @@ final class HeaderSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["branding_typography"]["header__logo_alt"] = [
         "#parents" => ['header', 'logo_alt'],
         "#type" => "textfield",
-        "#title" => $this->t("Enter the text to be used for the Site Name Link Title and Site Logo Image Alt."),
+        "#title" => $this->t("Enter the text to be used for the site name link title and site logo image alt"),
         "#default_value" => $settings->get('header.logo_alt'),
       ];
 
       $form["solo_settings"]["settings_{$region}"]["branding_typography"]["header__site_name__font_size_small"] = [
         "#parents" => ['header', 'site_name', 'font_size_small'],
-        "#title" => $this->t("Select the desired font size for the Site Name on small screen."),
+        "#title" => $this->t("Select the desired font size for the site name on small screen"),
         "#type" => "select",
         "#options" => $this->options->siteNameFontSize(),
         "#default_value" => $settings->get('header.site_name.font_size_small'),
@@ -117,7 +117,7 @@ final class HeaderSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_{$region}"]["branding_typography"]["header__site_name__font_size_large"] = [
         "#parents" => ['header', 'site_name', 'font_size_large'],
-        "#title" => $this->t("Select the desired font size for the Site Name on large screen."),
+        "#title" => $this->t("Select the desired font size for the site name on large screen"),
         "#type" => "select",
         "#options" => $this->options->siteNameFontSize(),
         "#default_value" => $settings->get('header.site_name.font_size_large'),
@@ -127,7 +127,7 @@ final class HeaderSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["branding_typography"]["header__site_name__google_font"] = [
         "#parents" => ['header', 'site_name', 'google_font'],
         "#type" => "select",
-        "#title" => $this->t("Site Name Fonts"),
+        "#title" => $this->t("Site name fonts"),
         "#description"   => $this->t("Imported only: not applied to any HTML tag by default. Each of the 25 fonts has a CSS class you can apply to any HTML tag; Eagle Lake, for example, uses <code>eagle-lake</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/394'>Live demo of all available fonts</a>."),
         "#options" => $this->options->nameTitleGoogleFont(),
         "#default_value" => $settings->get('header.site_name.google_font'),
@@ -136,7 +136,7 @@ final class HeaderSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["branding_typography"]["header__site_name__animation"] = [
         "#parents" => ['header', 'site_name', 'animation'],
         "#type" => "select",
-        "#title" => $this->t("Select the desired CSS text animation effects for the Site Name."),
+        "#title" => $this->t("Select the desired CSS text animation effects for the site name"),
         "#description" => $this->t("Animations are sorted by name (e.g., 'Aurora Wave', 'Dreamy Bloom'). You can also use the H1, H2, H3 text in the field below to apply color to the site name and site slogan."),
         "#options" => $this->options->animateSiteName(),
         "#default_value" => $settings->get('header.site_name.animation'),
@@ -160,7 +160,7 @@ final class HeaderSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "header_tabs",
         "#weight" => -4,
         '#attributes' => [

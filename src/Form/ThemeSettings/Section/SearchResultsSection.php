@@ -47,7 +47,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
       // Search Filters Tab.
       $form["solo_settings"]["settings_search"]["search_filters"] = [
         "#type" => "details",
-        "#title" => $this->t("Search Filters"),
+        "#title" => $this->t("Search filters"),
         "#group" => "search_tabs",
         "#weight" => -10,
         "#id" => "edit-search-filters",
@@ -70,7 +70,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
       // Display Options Tab.
       $form["solo_settings"]["settings_search"]["display_options"] = [
         "#type" => "details",
-        "#title" => $this->t("Display Options"),
+        "#title" => $this->t("Display options"),
         "#group" => "search_tabs",
         "#weight" => -8,
       ];
@@ -79,7 +79,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_search"]["display_options"]["search__teaser_mode"] = [
         "#parents" => ['search', 'teaser_mode'],
         "#type" => "checkbox",
-        "#title" => $this->t("Use Teaser Mode for Search Results"),
+        "#title" => $this->t("Use teaser mode for search results"),
         "#default_value" => $settings->get('search.teaser_mode'),
         "#description" => $this->t("Enable this option to display search results using the teaser view mode."),
       ];
@@ -87,7 +87,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
       // Content Types Tab.
       $form["solo_settings"]["settings_search"]["content_types"] = [
         "#type" => "details",
-        "#title" => $this->t("Content Types"),
+        "#title" => $this->t("Content types"),
         "#group" => "search_tabs",
         "#weight" => -6,
       ];
@@ -96,10 +96,10 @@ final class SearchResultsSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_search"]["content_types"]["search__result_content_types"] = [
         "#parents" => ['search', 'result_content_types'],
         "#type" => "checkboxes",
-        "#title" => $this->t("Content Types to Display in Search Results"),
+        "#title" => $this->t("Content types to display in search results"),
         "#options" => $this->options->contentTypes(),
         "#default_value" => $settings->get('search.result_content_types'),
-        "#description" => $this->t("Allow site builder to select which content types can be searched across the site. The chosen content types will apply to both the search form on the page and the Drupal Core Search Blocks."),
+        "#description" => $this->t("Select which content types can be searched across the site. The chosen content types apply to both the search form on the page and the core Search blocks."),
         "#states" => [
           // Show this field only if "Disable Types" is selected.
           "visible" => [

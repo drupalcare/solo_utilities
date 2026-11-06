@@ -49,7 +49,7 @@ final class HighlightedSection implements SettingsSectionInterface {
       // Region Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["region_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Region Configuration"),
+        "#title" => $this->t("Region configuration"),
         "#group" => "highlighted_tabs",
         "#weight" => -10,
         "#id" => "edit-highlighted-region-configuration",
@@ -59,7 +59,7 @@ final class HighlightedSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["region_configuration"]["regions__highlighted__aria_landmark"] = [
         "#parents" => ['regions', 'highlighted', 'aria_landmark'],
         "#type" => "checkbox",
-        "#title" => $this->t("Enable ARIA Landmark for Highlighted Region"),
+        "#title" => $this->t("Enable ARIA landmark for highlighted region"),
         "#default_value" => $settings->get('regions.highlighted.aria_landmark'),
         "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the highlighted region for improved accessibility. Enable only if this region consistently contains important, navigable content."),
       ];
@@ -68,7 +68,7 @@ final class HighlightedSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "highlighted_tabs",
         "#weight" => -8,
         '#attributes' => [

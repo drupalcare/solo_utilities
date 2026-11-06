@@ -49,7 +49,7 @@ final class PrimarySidebarMenuSection implements SettingsSectionInterface {
       // Menu Layout & Styling Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_layout_styling"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Layout & Styling"),
+        "#title" => $this->t("Menu layout & styling"),
         "#group" => "sidebar_menu_tabs",
         "#weight" => -10,
         "#id" => "edit-menu-layout-styling",
@@ -67,7 +67,7 @@ final class PrimarySidebarMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["menu_layout_styling"]["menus__primary_sidebar__branding"] = [
         "#parents" => ['menus', 'primary_sidebar', 'branding'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to display a clickable logo next to the close button."),
+        "#title" => $this->t("Display a clickable logo next to the close button"),
         "#description" => $this->t("To also display the site name, add the class show-sitename to the field (CSS Classes Only)."),
         "#default_value" => $settings->get('menus.primary_sidebar.branding'),
       ];
@@ -75,7 +75,7 @@ final class PrimarySidebarMenuSection implements SettingsSectionInterface {
       // Menu Behavior & Accessibility Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_behavior_accessibility"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Behavior & Accessibility"),
+        "#title" => $this->t("Menu behavior & accessibility"),
         "#group" => "sidebar_menu_tabs",
         "#weight" => -8,
       ];
@@ -91,7 +91,7 @@ final class PrimarySidebarMenuSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "sidebar_menu_tabs",
         "#weight" => -6,
         '#attributes' => [

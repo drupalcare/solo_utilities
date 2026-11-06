@@ -49,7 +49,7 @@ final class FixedSearchSection implements SettingsSectionInterface {
       // Search Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["search_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Search Configuration"),
+        "#title" => $this->t("Search configuration"),
         "#group" => "fixed_search_tabs",
         "#weight" => -10,
         "#id" => "edit-search-configuration",
@@ -60,7 +60,7 @@ final class FixedSearchSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "fixed_search_tabs",
         "#weight" => -8,
         '#attributes' => [

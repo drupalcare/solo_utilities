@@ -49,7 +49,7 @@ final class SystemMessagesSection implements SettingsSectionInterface {
       // Message Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["message_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Message Configuration"),
+        "#title" => $this->t("Message configuration"),
         "#group" => "system_messages_tabs",
         "#weight" => -10,
         "#id" => "edit-message-configuration",
@@ -68,7 +68,7 @@ final class SystemMessagesSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "system_messages_tabs",
         "#weight" => -8,
         '#attributes' => [

@@ -30,7 +30,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
     $settings = $context->settings;
     $form["solo_settings"]["settings_social_icons"] = [
       "#type" => "details",
-      "#title" => $this->t("Social Media Links"),
+      "#title" => $this->t("Social media links"),
       "#description" => $this->t("Configure social media icon display, styling, and platform links."),
     ];
 
@@ -43,7 +43,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
     // General Settings Tab.
     $form["solo_settings"]["settings_social_icons"]["general_settings"] = [
       "#type" => "details",
-      "#title" => $this->t("General Settings"),
+      "#title" => $this->t("General settings"),
       "#group" => "social_media_tabs",
       "#weight" => -10,
       "#id" => "edit-general-settings",
@@ -52,7 +52,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_social_icons"]["general_settings"]["social_icons__size"] = [
       "#parents" => ['social_icons', 'size'],
       "#type" => "select",
-      "#title" => $this->t("The size of the social media icons can be altered from here."),
+      "#title" => $this->t("The size of the social media icons can be altered from here"),
       "#default_value" => $settings->get('social_icons.size'),
       "#options" => [
         "sm-icons-small" => $this->t("Small - Default"),
@@ -67,7 +67,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
       // Long enough for a var() reference; 7 only fitted a hex color, which made
       // the "enter var(--name)" advice impossible to follow.
       "#size" => 20,
-      "#title" => $this->t("Change Social Media Default Colors"),
+      "#title" => $this->t("Change social media default colors"),
       "#description" => $this->t("A hex color such as #1877f2, an rgb() value, transparent, currentcolor, or a custom property reference such as var(--solo-fb). A bare property name like --solo-fb will not work: browsers ignore it and the icons stay gray. Leave empty to use each network's default color."),
       "#default_value" => $settings->get('social_icons.color'),
       // No browser "pattern": SettingsFormValidator (CssValueValidator::color)
@@ -81,7 +81,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_social_icons"]["general_settings"]["social_icons__enabled"] = [
       "#parents" => ['social_icons', 'enabled'],
       "#type" => "checkbox",
-      "#title" => $this->t("Show Social Icons"),
+      "#title" => $this->t("Show social icons"),
       "#default_value" => $settings->get('social_icons.enabled'),
       "#description" => $this->t("Select this option to display the Social Icon. Deselect it to conceal it."),
     ];
@@ -89,7 +89,7 @@ final class SocialIconsSection implements SettingsSectionInterface {
     // Social Platform Links Tab.
     $form["solo_settings"]["settings_social_icons"]["platform_links"] = [
       "#type" => "details",
-      "#title" => $this->t("Social Platform Links"),
+      "#title" => $this->t("Social platform links"),
       "#group" => "social_media_tabs",
       "#weight" => -8,
     ];
@@ -99,9 +99,9 @@ final class SocialIconsSection implements SettingsSectionInterface {
       "twitter" => $this->t("Formerly (Twitter) X"),
       "bluesky" => $this->t("Bluesky"),
       "pinterest" => $this->t("Pinterest"),
-      "linkedin" => $this->t("Linkedin"),
+      "linkedin" => $this->t("LinkedIn"),
       "instagram" => $this->t("Instagram"),
-      "youtube" => $this->t("Youtube"),
+      "youtube" => $this->t("YouTube"),
       "mastodon" => $this->t("Mastodon"),
       "reddit" => $this->t("Reddit"),
       "whatsapp" => $this->t("WhatsApp"),

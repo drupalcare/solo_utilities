@@ -37,7 +37,7 @@ final class SoloSettingsRestoreCommands extends DrushCommands {
    *
    * @return int
    *   0 when every backup was written, 1 when any failed or the run was
-   *   cancelled.
+   *   canceled.
    */
   #[CLI\Command(name: 'solo:settings-restore', aliases: ['solo-settings-restore'])]
   #[CLI\Usage(name: 'drush solo:settings-restore', description: 'Restore Solo theme settings to their state before the migration.')]

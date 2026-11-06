@@ -49,7 +49,7 @@ final class WelcomeTextSection implements SettingsSectionInterface {
       // Region Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["region_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Region Configuration"),
+        "#title" => $this->t("Region configuration"),
         "#group" => "welcome_tabs",
         "#weight" => -10,
         "#id" => "edit-welcome-text-region-configuration",
@@ -60,7 +60,7 @@ final class WelcomeTextSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["region_configuration"]["regions__welcome_text__aria_landmark"] = [
         "#parents" => ['regions', 'welcome_text', 'aria_landmark'],
         "#type" => "checkbox",
-        "#title" => $this->t("Enable ARIA Landmark for Welcome Region"),
+        "#title" => $this->t("Enable ARIA landmark for welcome region"),
         "#default_value" => $settings->get('regions.welcome_text.aria_landmark'),
         "#description" => $this->t("Adds <code>role='region'</code> and <code>aria-label</code> to the welcome region for improved accessibility. Enable only if this region consistently contains important, navigable content."),
       ];
@@ -68,14 +68,14 @@ final class WelcomeTextSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["region_configuration"]["regions__welcome_text__width"] = [
         "#parents" => ['regions', 'welcome_text', 'width'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to enable full width for this region (recommended for hero sections)."),
+        "#title" => $this->t("Enable full width for this region (recommended for hero sections)"),
         "#default_value" => $settings->get('regions.welcome_text.width'),
       ];
 
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "welcome_tabs",
         "#weight" => -8,
         '#attributes' => [

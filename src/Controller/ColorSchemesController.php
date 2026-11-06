@@ -14,7 +14,7 @@ use Drupal\solo_utilities\ColorSchemesRuleInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Controller for handling AJAX operations and overview for Color Schemes Rules.
+ * Controller for handling Ajax operations and overview for Color Schemes Rules.
  *
  * @internal
  *
@@ -74,7 +74,7 @@ class ColorSchemesController extends ControllerBase {
       'links' => [
         '#theme' => 'item_list',
         '#items' => [],
-        '#title' => $this->t('Available Configurations'),
+        '#title' => $this->t('Available configurations'),
       ],
     ];
 
@@ -89,7 +89,7 @@ class ColorSchemesController extends ControllerBase {
   }
 
   /**
-   * Handles AJAX operations for enabling or disabling Color Schemes Rules.
+   * Handles Ajax operations for enabling or disabling Color Schemes Rules.
    *
    * @param \Drupal\solo_utilities\ColorSchemesRuleInterface $color_schemes_rule
    *   The library load rule entity, upcast by the route.

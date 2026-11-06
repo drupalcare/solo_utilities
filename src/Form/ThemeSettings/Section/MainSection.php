@@ -36,7 +36,7 @@ final class MainSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_main_container"] = [
         "#type" => "details",
-        "#title" => $this->t("Main Containers"),
+        "#title" => $this->t("Main containers"),
         "#description"   => $this->t("<p>The settings for @region_label.</p>", ["@region_label" => $region_label]),
       ];
 
@@ -55,7 +55,7 @@ final class MainSection implements SettingsSectionInterface {
           // Layout Settings Tab.
           $form["solo_settings"]["settings_main_container"]["layout_settings"] = [
             "#type" => "details",
-            "#title" => $this->t("Layout Settings"),
+            "#title" => $this->t("Layout settings"),
             "#group" => "main_container_tabs",
             "#weight" => -10,
             "#id" => "edit-main-layout-settings",
@@ -67,7 +67,7 @@ final class MainSection implements SettingsSectionInterface {
           $form["solo_settings"]["settings_main_container"]["layout_settings"]["region_groups__main__per_content_type_enabled"] = [
             "#parents" => ['region_groups', 'main', 'per_content_type_enabled'],
             "#type" => "checkbox",
-            "#title" => $this->t("Enable per-content-type layouts for Main region"),
+            "#title" => $this->t("Enable per-content-type layouts for main region"),
             "#default_value" => $settings->get('region_groups.main.per_content_type_enabled'),
           ];
 
@@ -106,7 +106,7 @@ final class MainSection implements SettingsSectionInterface {
           // Styling & Design Tab.
           $form["solo_settings"]["settings_main_container"]["styling_design"] = [
             "#type" => "details",
-            "#title" => $this->t("Styling & Design"),
+            "#title" => $this->t("Styling & design"),
             "#group" => "main_container_tabs",
             "#weight" => -8,
           ];
@@ -133,7 +133,7 @@ final class MainSection implements SettingsSectionInterface {
           // Color Settings Tab.
           $form["solo_settings"]["settings_main_container"]["color_settings_tab"] = [
             "#type" => "details",
-            "#title" => $this->t("Color Settings"),
+            "#title" => $this->t("Color settings"),
             "#group" => "main_container_tabs",
             "#weight" => -4,
             '#attributes' => [
@@ -157,7 +157,7 @@ final class MainSection implements SettingsSectionInterface {
 
           $form["solo_settings"]["settings_main_container"]["region_{$region}"]["alignment"] = [
             "#parents" => ['regions', $region, 'alignment'],
-            "#title" => $this->t("Region Block Alignment Option"),
+            "#title" => $this->t("Region block alignment option"),
             "#type" => "select",
             "#options" => $this->options->alignment(),
             "#default_value" => $settings->get("regions.{$region}.alignment"),
@@ -167,7 +167,7 @@ final class MainSection implements SettingsSectionInterface {
           // Color Settings for Individual Regions.
           $form["solo_settings"]["settings_main_container"]["region_{$region}"]["color_settings"] = [
             "#type" => "details",
-            "#title" => $this->t("Color Settings"),
+            "#title" => $this->t("Color settings"),
             "#open" => FALSE,
             "#description" => $this->t("Configure colors for background, text, links, buttons, and other visual elements in this region."),
             '#attributes' => [

@@ -31,7 +31,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     // Page wrapper settings.
     $form["solo_settings"]["settings_page_wrapper"] = [
       "#type" => "details",
-      "#title" => $this->t("Page Wrapper"),
+      "#title" => $this->t("Page wrapper"),
       "#description"   => $this->t("The div around all regions of the site: its settings have a global effect. Its CSS should probably come from a trusted user, such as an admin or developer."),
     ];
 
@@ -44,7 +44,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     // CSS Classes & Styling Tab.
     $form["solo_settings"]["settings_page_wrapper"]["css_classes_styling"] = [
       "#type" => "details",
-      "#title" => $this->t("CSS Classes & Styling"),
+      "#title" => $this->t("CSS classes & styling"),
       "#group" => "page_wrapper_tabs",
       "#weight" => -10,
       "#id" => "edit-css-classes-styling",
@@ -53,7 +53,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_page_wrapper"]["css_classes_styling"]["regions__page_wrapper__classes"] = [
       "#parents" => ['regions', 'page_wrapper', 'classes'],
       "#type" => "textfield",
-      "#title" => $this->t("Custom CSS Classes"),
+      "#title" => $this->t("Custom CSS classes"),
       "#description" => $this->t("Use predefined utility classes to control layout, spacing and behavior. See <em>Utility class reference</em> below the field."),
       "#default_value" => $settings->get('regions.page_wrapper.classes'),
     ];
@@ -66,7 +66,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     // Animation Settings Tab.
     $form["solo_settings"]["settings_page_wrapper"]["animation_settings"] = [
       "#type" => "details",
-      "#title" => $this->t("Animation Settings"),
+      "#title" => $this->t("Animation settings"),
       "#group" => "page_wrapper_tabs",
       "#weight" => -8,
     ];
@@ -74,7 +74,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_page_wrapper"]["animation_settings"]["regions__page_wrapper__opacity"] = [
       "#parents" => ['regions', 'page_wrapper', 'opacity'],
       "#type" => "checkbox",
-      "#title" => $this->t("Enable Smooth Page Load Animation"),
+      "#title" => $this->t("Enable smooth page load animation"),
       "#description" => $this->t("Gradually increases the page's visibility from transparent to fully opaque when it is loaded."),
       "#default_value" => $settings->get('regions.page_wrapper.opacity'),
     ];
@@ -82,7 +82,7 @@ final class PageWrapperSection implements SettingsSectionInterface {
     // Color Settings Tab.
     $form["solo_settings"]["settings_page_wrapper"]["color_settings_tab"] = [
       "#type" => "details",
-      "#title" => $this->t("Color Settings"),
+      "#title" => $this->t("Color settings"),
       "#group" => "page_wrapper_tabs",
       "#weight" => -6,
       '#attributes' => [

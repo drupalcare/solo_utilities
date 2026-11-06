@@ -114,7 +114,7 @@ final class SettingsElementFactory {
     return [
       '#type' => 'textfield',
       '#parents' => $this->parents($path),
-      '#title' => $this->t('CSS Classes Only'),
+      '#title' => $this->t('CSS classes only'),
       '#description' => $this->t('Insert any CSS classes here. The CSS should be input by a trusted user (an admin or developer).'),
       '#default_value' => $settings->get($path),
     ];
@@ -131,7 +131,7 @@ final class SettingsElementFactory {
     return [
       '#type' => 'checkbox',
       '#parents' => $this->parents($path),
-      '#title' => $this->t("Tick this box to initiate animation of the region's border."),
+      '#title' => $this->t("Initiate animation of the region's border"),
       '#default_value' => $settings->get($path),
     ];
   }
@@ -147,7 +147,7 @@ final class SettingsElementFactory {
     return [
       '#type' => 'checkbox',
       '#parents' => $this->parents($path),
-      '#title' => $this->t('Tick this box to initiate on hover animation for the region.'),
+      '#title' => $this->t('Initiate on hover animation for the region'),
       '#default_value' => $settings->get($path),
     ];
   }
@@ -179,7 +179,7 @@ final class SettingsElementFactory {
     return [
       '#type' => 'select',
       '#parents' => $this->parents($path),
-      '#title' => $this->t("Select from this list to enable rounding of the inside regions' corners."),
+      '#title' => $this->t("Select from this list to enable rounding of the inside regions' corners"),
       '#default_value' => $settings->get($path, ''),
       '#options' => $this->options->rounded(),
     ];
@@ -288,7 +288,7 @@ final class SettingsElementFactory {
     return [
       '#type' => 'select',
       '#parents' => $this->parents($path),
-      '#title' => $this->t('Megamenu Layout (1, 2, 3 or 4 Columns).'),
+      '#title' => $this->t('Megamenu layout (1, 2, 3 or 4 columns)'),
       '#default_value' => $settings->get($path, 'm-1-1'),
       '#options' => $this->options->megamenuLayouts(),
       '#states' => [

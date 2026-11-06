@@ -51,7 +51,7 @@ final class PageTitleSection implements SettingsSectionInterface {
       // Typography Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["typography_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Typography Settings"),
+        "#title" => $this->t("Typography settings"),
         "#group" => "page_title_tabs",
         "#weight" => -10,
         "#id" => "edit-typography-settings",
@@ -59,7 +59,7 @@ final class PageTitleSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_{$region}"]["typography_settings"]["page_title__font_size_small"] = [
         "#parents" => ['page_title', 'font_size_small'],
-        "#title" => $this->t("Select the desired font size for the page title on small screen."),
+        "#title" => $this->t("Select the desired font size for the page title on small screen"),
         "#type" => "select",
         "#options" => $this->options->pageTitleFontSize(),
         "#default_value" => $settings->get('page_title.font_size_small'),
@@ -68,7 +68,7 @@ final class PageTitleSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_{$region}"]["typography_settings"]["page_title__font_size_large"] = [
         "#parents" => ['page_title', 'font_size_large'],
-        "#title" => $this->t("Select the desired font size for the page title on large screen."),
+        "#title" => $this->t("Select the desired font size for the page title on large screen"),
         "#type" => "select",
         "#options" => $this->options->pageTitleFontSize(),
         "#default_value" => $settings->get('page_title.font_size_large'),
@@ -78,7 +78,7 @@ final class PageTitleSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["typography_settings"]["page_title__google_font"] = [
         "#parents" => ['page_title', 'google_font'],
         "#type" => "select",
-        "#title" => $this->t("Page Title Fonts"),
+        "#title" => $this->t("Page title fonts"),
         "#description"   => $this->t("Imported only: not applied to any HTML tag by default. Each of the 25 fonts has a CSS class you can apply to any HTML tag; Eagle Lake, for example, uses <code>eagle-lake</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/394'>Live demo of all available fonts</a>."),
         "#options" => $this->options->nameTitleGoogleFont(),
         "#default_value" => $settings->get('page_title.google_font'),
@@ -87,7 +87,7 @@ final class PageTitleSection implements SettingsSectionInterface {
       // Display & Effects Tab.
       $form["solo_settings"]["settings_{$region}"]["display_effects"] = [
         "#type" => "details",
-        "#title" => $this->t("Display & Effects"),
+        "#title" => $this->t("Display & effects"),
         "#group" => "page_title_tabs",
         "#weight" => -8,
       ];
@@ -97,7 +97,7 @@ final class PageTitleSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["display_effects"]["page_title__animation"] = [
         "#parents" => ['page_title', 'animation'],
         "#type" => "select",
-        "#title" => $this->t("Select the desired CSS text animation effects for the page title."),
+        "#title" => $this->t("Select the desired CSS text animation effects for the page title"),
         "#options" => $this->options->animatePageTitle(),
         "#description" => $this->t("Animations are sorted by name (e.g. 'Aurora Wave', 'Dreamy Bloom'). The effects are also CSS classes for any HTML tag: <code>animate-site-</code> then the animation name, for example <code>animate-solo-aurora-wave</code>. <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/node/190'>Live demo of all available animations</a>."),
         "#default_value" => $settings->get('page_title.animation'),
@@ -106,14 +106,14 @@ final class PageTitleSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["display_effects"]["page_title__centered"] = [
         "#parents" => ['page_title', 'centered'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to center Page Title."),
+        "#title" => $this->t("Center page title"),
         "#default_value" => $settings->get('page_title.centered'),
       ];
 
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "page_title_tabs",
         "#weight" => -6,
         '#attributes' => [

@@ -49,7 +49,7 @@ final class FooterMenuSection implements SettingsSectionInterface {
       // Menu Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Configuration"),
+        "#title" => $this->t("Menu configuration"),
         "#group" => "footer_menu_tabs",
         "#weight" => -10,
         "#id" => "edit-menu-configuration",
@@ -75,7 +75,7 @@ final class FooterMenuSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "footer_menu_tabs",
         "#weight" => -6,
         '#attributes' => [

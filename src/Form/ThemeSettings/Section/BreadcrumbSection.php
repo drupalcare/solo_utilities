@@ -49,7 +49,7 @@ final class BreadcrumbSection implements SettingsSectionInterface {
       // Breadcrumb Configuration Tab.
       $form["solo_settings"]["settings_{$region}"]["breadcrumb_configuration"] = [
         "#type" => "details",
-        "#title" => $this->t("Breadcrumb Configuration"),
+        "#title" => $this->t("Breadcrumb configuration"),
         "#group" => "breadcrumb_tabs",
         "#weight" => -10,
         "#id" => "edit-breadcrumb-configuration",
@@ -60,7 +60,7 @@ final class BreadcrumbSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["breadcrumb_configuration"]["breadcrumb__hide_page_title"] = [
         "#parents" => ['breadcrumb', 'hide_page_title'],
         "#type" => "checkbox",
-        "#title" => $this->t("Exclude the page title from the Breadcrumb."),
+        "#title" => $this->t("Exclude the page title from the breadcrumb"),
         "#description" => $this->t("By default, Drupal leaves the page title out of the breadcrumb and Solo adds it. Enable this to stop adding it. Applies to all content types, Views pages, taxonomy terms and user profile pages."),
         "#default_value" => $settings->get('breadcrumb.hide_page_title'),
       ];
@@ -68,14 +68,14 @@ final class BreadcrumbSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["breadcrumb_configuration"]["breadcrumb__scroll"] = [
         "#parents" => ['breadcrumb', 'scroll'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to enable Breadcrumb scrolling (Prevent Wrap)"),
+        "#title" => $this->t("Enable breadcrumb scrolling (prevent wrap)"),
         "#default_value" => $settings->get('breadcrumb.scroll'),
       ];
 
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "breadcrumb_tabs",
         "#weight" => -8,
         '#attributes' => [

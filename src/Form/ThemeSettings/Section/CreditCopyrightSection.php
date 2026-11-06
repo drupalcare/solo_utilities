@@ -34,7 +34,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
 
     $form["solo_settings"]["settings_{$region}"] = [
       "#type" => "details",
-      "#title" => $this->t("Copyright & Credit"),
+      "#title" => $this->t("Copyright & credit"),
       "#description" => $this->t("Configure copyright text, footer links, and styling for credit/copyright section."),
     ];
 
@@ -47,7 +47,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     // Copyright & Link Settings Tab.
     $form["solo_settings"]["settings_{$region}"]["copyright_content"] = [
       "#type" => "details",
-      "#title" => $this->t("Copyright & Link Settings"),
+      "#title" => $this->t("Copyright & link settings"),
       "#group" => "copyright_tabs",
       "#weight" => -10,
       "#id" => "edit-copyright-content",
@@ -67,7 +67,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_{$region}"]["copyright_content"]["footer__copyright"] = [
       "#parents" => ['footer', 'copyright'],
       "#type" => "textfield",
-      "#title" => $this->t("Enter Copyright Text"),
+      "#title" => $this->t("Enter copyright text"),
       "#description" => $this->t("Type %year% instead of an actual number for a dynamic copyright year. (Copyright © %year% Company Name - All rights reserved)."),
       "#default_value" => $settings->get('footer.copyright'),
       "#states" => [
@@ -97,7 +97,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_{$region}"]["copyright_content"]["footer__credit_link__url"] = [
       "#parents" => ['footer', 'credit_link', 'url'],
       "#type" => "textfield",
-      "#title" => $this->t("Enter Footer Link URL"),
+      "#title" => $this->t("Enter footer link URL"),
       "#description" => $this->t("Enter the URL for the footer link."),
       "#default_value" => $settings->get('footer.credit_link.url'),
       "#states" => [
@@ -110,7 +110,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_{$region}"]["copyright_content"]["footer__credit_link__label"] = [
       "#parents" => ['footer', 'credit_link', 'label'],
       "#type" => "textfield",
-      "#title" => $this->t("Enter Footer Link Label"),
+      "#title" => $this->t("Enter footer link label"),
       "#description" => $this->t("Enter the Label for the footer link[Footer Link Label][Footer Link Text]."),
       "#default_value" => $settings->get('footer.credit_link.label'),
       "#states" => [
@@ -123,7 +123,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_{$region}"]["copyright_content"]["footer__credit_link__text"] = [
       "#parents" => ['footer', 'credit_link', 'text'],
       "#type" => "textfield",
-      "#title" => $this->t("Enter Footer Link Text"),
+      "#title" => $this->t("Enter footer link text"),
       "#description" => $this->t("Enter the text for the footer link. This field is required if a URL is provided."),
       "#default_value" => $settings->get('footer.credit_link.text'),
       "#states" => [
@@ -136,7 +136,7 @@ final class CreditCopyrightSection implements SettingsSectionInterface {
     // Color Settings Tab.
     $form["solo_settings"]["settings_{$region}"]["color_settings"] = [
       "#type" => "details",
-      "#title" => $this->t("Color Settings"),
+      "#title" => $this->t("Color settings"),
       "#group" => "copyright_tabs",
       "#weight" => -8,
       '#attributes' => [

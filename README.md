@@ -1,6 +1,13 @@
 # Solo Utilities
 
-Solo Utilities is the module behind the Solo theme. It holds all of Solo's PHP logic, adds custom widths for individual nodes, and provides the Drush commands and the upgrade page that move a site from Solo 1 to Solo 2. It is for site builders who use Solo and for developers who maintain a Solo sub-theme.
+Solo Utilities is the module behind the Solo theme. It holds all of Solo's PHP
+logic, adds custom widths for individual content items, and provides the Drush
+commands and the upgrade page that move a site from Solo 1 to Solo 2. It is for
+site builders who use Solo and for developers who maintain a Solo sub-theme.
+
+- Project page: [drupal.org/project/solo_utilities](https://www.drupal.org/project/solo_utilities)
+- Issue queue: [drupal.org/project/issues/solo_utilities](https://www.drupal.org/project/issues/solo_utilities)
+
 
 ## Table of contents
 
@@ -14,39 +21,61 @@ Solo Utilities is the module behind the Solo theme. It holds all of Solo's PHP l
 - Maintainers
 - License
 
+
 ## Overview
 
-- **Custom node widths**: Set custom widths for individual nodes to tailor the display of your content.
-- **Create a Solo sub-theme with one command**: `drush solo:subtheme my_theme` (Drush 12 or later). See [Create a sub-theme](#create-a-sub-theme).
-- **Solo 1 to Solo 2 upgrade tools**: a readiness check (`drush solo:preflight`), the Solo upgrade page, a settings restore (`drush solo:settings-restore`) and a class and id renamer (`drush solo:migrate-classes`).
-- **Compatibility sub-module**: `solo_utilities_compat` lets custom code that reads Solo settings by their old names, or calls the Solo 1 helper functions, keep working. Install it only when `drush solo:preflight` reports a call.
+- **Custom content widths**: Set custom widths for individual content items to
+  tailor the
+  display of your content.
+- **Create a Solo sub-theme with one command**: `drush solo:subtheme my_theme`
+  (Drush 12 or later). See [Create a sub-theme](#create-a-sub-theme).
+- **Solo 1 to Solo 2 upgrade tools**: a readiness check (`drush
+  solo:preflight`), the Solo upgrade page, a settings restore (`drush
+  solo:settings-restore`) and a class and id renamer (`drush
+  solo:migrate-classes`).
+- **Compatibility sub-module**: `solo_utilities_compat` lets custom code that
+  reads Solo settings by their old names, or calls the Solo 1 helper functions,
+  keep working. Install it only when `drush solo:preflight` reports a call.
+
 
 ## Requirements
 
 - **Drupal core** `^11.3 || ^12` and **PHP** 8.3 or later.
 - **Node module**: Core module that must be enabled.
-- **Solo theme**: Solo 2 requires this module and holds no PHP logic of its own. Solo's upgrade steps are in the Solo README, under "Upgrading from Solo 1".
+- **Solo theme**: Solo 2 requires this module and holds no PHP logic of its own.
+  Solo's upgrade steps are in the Solo README, under "Upgrading from Solo 1".
+
 
 ## Installation
 
-1. **Download the module**: Run `composer require drupal/solo_utilities`, or place the Solo Utilities module in the `modules/custom` directory of your Drupal installation. Installing the Solo theme with Composer brings this module with it.
-2. **Enable the module**:
+1. **Download the module**: Run `composer require drupal/solo_utilities`, or
+   place the Solo Utilities module in the `modules/custom` directory of your
+   Drupal installation. Installing the Solo theme with Composer brings this
+   module with it.
+1. **Enable the module**:
    - **Using Drush**: Run `drush en solo_utilities -y` in the command line.
-   - **Using Drupal Admin Interface**: Navigate to **Extend**, find the **Solo Utilities** module, enable it, and save the configuration.
+   - **Using Drupal Admin Interface**: Navigate to **Extend**, find the **Solo
+     Utilities** module, enable it, and save the configuration.
+
 
 ## Configuration
 
 1. Ensure the Solo theme is active and configured correctly.
-2. Navigate to the theme settings of the Solo theme.
-3. If the Solo Utilities module is enabled, you will see an option to enable custom widths for individual nodes.
-4. Configure the settings as needed.
+1. Navigate to the theme settings of the Solo theme.
+1. If the Solo Utilities module is enabled, you will see an option to enable
+   custom widths for individual content items.
+1. Configure the settings as needed.
+
 
 ## Usage
 
-### Set a custom width on a node
 
-1. When creating or editing a node, you will see a dropdown to select a custom width for the node.
-2. Choose the desired width or select **None** to use the default width.
+### Set a custom width on a content item
+
+1. When creating or editing content, you will see a dropdown to select a custom
+   width for that content item.
+1. Choose the desired width or select **None** to use the default width.
+
 
 ### Create a sub-theme
 
@@ -65,7 +94,8 @@ theme generator on Solo's `solo_subtheme` starterkit. It creates
 `themes/custom/my_theme` under your web root and renames every file,
 namespace, function and label to the new name. Add `--label="My Theme"` to
 choose the human-readable name. The same result comes from
-`php core/scripts/drupal generate-theme my_theme --starterkit solo_subtheme --path themes/custom`.
+`php core/scripts/drupal generate-theme my_theme --starterkit solo_subtheme
+--path themes/custom`.
 
 The machine name follows Drupal's rules: lowercase letters, numbers and
 underscores, starting with a letter, at most 50 characters. It must not be
@@ -75,6 +105,7 @@ reserves (`src`, `lib`, `vendor`, `assets`, `css`, `files`, `images`, `js`,
 to your site works best, for example `mysite_theme`. The command refuses
 a name that breaks these rules, and never overwrites an existing folder.
 
+
 ### Check your sub-themes for Solo 2
 
 ```
@@ -82,10 +113,12 @@ drush solo:preflight
 ```
 
 Reads every Solo sub-theme on disk and custom module, and lists calls to
-Solo's PHP functions, `@solo/` template paths, `libraries-override` entries for Solo
+Solo's PHP functions, `@solo/` template paths, `libraries-override` entries for
+Solo
 libraries, and templates that copy a Solo template. It writes nothing and
 changes no setting. The exit code is 0 when nothing needs a change and 1
 when something is listed.
+
 
 ### The Solo upgrade page
 
@@ -93,7 +126,8 @@ Go to **Configuration > System > Solo upgrade**
 (`/admin/config/system/solo-upgrade`). It needs the **Administer themes**
 permission, and installing this module links to it.
 
-For Solo and every sub-theme on disk, the page shows the base theme, which regions
+For Solo and every sub-theme on disk, the page shows the base theme, which
+regions
 hold enabled blocks and how many, and whether the settings use the new names. A
 green list says what was done automatically. An amber list says what needs you,
 with the file and line for custom code. This page never changes sub-theme code.
@@ -117,6 +151,7 @@ the settings to the new names again from this page, Solo 2 shows default
 settings, because it does not read the old names. A configuration export that
 already holds the new names is not changed. Export your configuration after the
 migration.
+
 
 ### Rename Solo 1 classes and ids
 
@@ -167,6 +202,7 @@ A value is restored only when it still holds what the run wrote; anything
 changed since is listed as a conflict and left. For a full undo, restore your
 database backup.
 
+
 ### Public API
 
 Only the following is public API. Every other class is marked `@internal` and
@@ -182,21 +218,34 @@ may change in any release.
 The routes, permissions, library names and block third-party setting keys
 (`solo_block_title_visibility`, `solo_block_title_tag`) are kept as they are.
 
+
 ## Troubleshooting
 
-- **Solo shows default settings after an update.** Solo 2 does not read the old setting names. Move the settings to the new names from the Solo upgrade page, or run `drush updatedb` again. To go back to Solo 1, use `drush solo:settings-restore` before you roll the code back.
-- **`drush solo:preflight` exits with 1.** It listed code that needs a change. The exit code is 0 when nothing needs a change.
-- **`drush solo:migrate-classes --apply --content` refuses to run.** Content changes need `--backup-confirmed` and `--report`. Take a database backup first.
-- **`drush solo:subtheme` refuses a name.** The machine name must follow the rules in [Create a sub-theme](#create-a-sub-theme), and the command never overwrites an existing folder.
-- Report anything else in the [issue queue](https://www.drupal.org/project/issues/solo_utilities).
+- **Solo shows default settings after an update.** Solo 2 does not read the old
+  setting names. Move the settings to the new names from the Solo upgrade page,
+  or run `drush updatedb` again. To go back to Solo 1, use `drush
+  solo:settings-restore` before you roll the code back.
+- **`drush solo:preflight` exits with 1.** It listed code that needs a change.
+  The exit code is 0 when nothing needs a change.
+- **`drush solo:migrate-classes --apply --content` refuses to run.** Content
+  changes need `--backup-confirmed` and `--report`. Take a database backup
+  first.
+- **`drush solo:subtheme` refuses a name.** The machine name must follow the
+  rules in [Create a sub-theme](#create-a-sub-theme), and the command never
+  overwrites an existing folder.
+- Report anything else in the [issue
+  queue](https://www.drupal.org/project/issues/solo_utilities).
+
 
 ## Changelog
 
 See [CHANGELOG.md](./CHANGELOG.md).
 
+
 ## Maintainers
 
 - **Alaa Haddad** - [Alaa Haddad](https://www.alaahaddad.com)
+
 
 ## License
 

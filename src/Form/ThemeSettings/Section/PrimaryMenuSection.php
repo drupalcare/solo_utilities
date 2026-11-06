@@ -49,7 +49,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       // Menu Layout & Alignment Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_layout_alignment"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Layout & Alignment"),
+        "#title" => $this->t("Menu layout & alignment"),
         "#group" => "primary_menu_tabs",
         "#weight" => -10,
         "#id" => "edit-menu-layout-alignment",
@@ -80,7 +80,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["menu_layout_alignment"]["menus__primary__branding"] = [
         "#parents" => ['menus', 'primary', 'branding'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to display a clickable logo next to the Main Menu."),
+        "#title" => $this->t("Display a clickable logo next to the main menu"),
         "#description" => $this->t("To also display the site name, add the class show-sitename to the field (CSS Classes Only)."),
         "#default_value" => $settings->get('menus.primary.branding'),
       ];
@@ -94,7 +94,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       // Menu Behavior Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_behavior"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Behavior"),
+        "#title" => $this->t("Menu behavior"),
         "#group" => "primary_menu_tabs",
         "#weight" => -8,
       ];
@@ -118,7 +118,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       // Menu Styling Tab.
       $form["solo_settings"]["settings_{$region}"]["menu_styling"] = [
         "#type" => "details",
-        "#title" => $this->t("Menu Styling"),
+        "#title" => $this->t("Menu styling"),
         "#group" => "primary_menu_tabs",
         "#weight" => -6,
       ];
@@ -133,7 +133,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["menu_styling"]["menus__primary__arrow_on_hover"] = [
         "#parents" => ['menus', 'primary', 'arrow_on_hover'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to hide dropdown arrows on hover menus. (Large screen only)"),
+        "#title" => $this->t("Hide dropdown arrows on hover menus (large screen only)"),
         "#description" => $this->t("Removes the arrow icons from parent menu items when dropdowns expand on hover, reducing visual clutter and saving space, especially for menus with many items."),
         "#default_value" => $settings->get('menus.primary.arrow_on_hover'),
         "#states" => [
@@ -146,7 +146,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       // Mega Menu Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["mega_menu_settings"] = [
         "#type" => "details",
-        "#title" => $this->t("Mega Menu Settings"),
+        "#title" => $this->t("Mega menu settings"),
         "#group" => "primary_menu_tabs",
         "#weight" => -4,
       ];
@@ -154,7 +154,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["mega_menu_settings"]["menus__primary__megamenu__enabled"] = [
         "#parents" => ['menus', 'primary', 'megamenu', 'enabled'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to transform the main menu dropdowns into a Mega Menu."),
+        "#title" => $this->t("Transform the main menu dropdowns into a mega menu"),
         "#description" => $this->t("Requires a three-level menu. The second level defines the columns of the mega menu. With 'Tick this box to display the second level as headers' selected, the second level shows as a header for the third-level items."),
         "#default_value" => $settings->get('menus.primary.megamenu.enabled'),
       ];
@@ -164,7 +164,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["mega_menu_settings"]["menus__primary__megamenu__submenu_header"] = [
         "#parents" => ['menus', 'primary', 'megamenu', 'submenu_header'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to display the second level as headers."),
+        "#title" => $this->t("Display the second level as headers"),
         "#default_value" => $settings->get('menus.primary.megamenu.submenu_header'),
         "#states" => [
           "visible" => [
@@ -190,7 +190,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_{$region}"]["developer_tools"] = [
         "#type" => "details",
-        "#title" => $this->t("Developer Tools"),
+        "#title" => $this->t("Developer tools"),
         "#group" => "primary_menu_tabs",
         "#weight" => 100,
       ];
@@ -198,7 +198,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["developer_tools"]["menus__debug__enabled"] = [
         "#parents" => ['menus', 'debug', 'enabled'],
         "#type" => "checkbox",
-        "#title" => $this->t("Enable Solo Menu Debug Mode"),
+        "#title" => $this->t("Enable Solo menu debug mode"),
         "#description" => $this->t("<strong>For developers only.</strong> Enables debugging tools: state change tracking and conflict detection, keyboard navigation debugging, ARIA compliance checking, performance monitoring, visual debug indicators (green badge in corner) and console debugging commands. See <em>Debug console reference</em> below the fields.<div class='solo-note solo-note--warning'><strong>Warning:</strong> This adds ~35KB of extra JavaScript. <strong>Always disable before production deployment.</strong></div>"),
         "#default_value" => $settings->get('menus.debug.enabled'),
       ];
@@ -207,7 +207,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_{$region}"]["developer_tools"]["menus__debug__verbosity"] = [
         "#parents" => ['menus', 'debug', 'verbosity'],
         "#type" => "select",
-        "#title" => $this->t("Debug Verbosity Level"),
+        "#title" => $this->t("Debug verbosity level"),
         "#description" => $this->t("Controls how much information is logged to the console. All data is still collected regardless of verbosity. <dl class='solo-deflist'><dt>Minimal</dt><dd>Only errors and conflicts (recommended for most debugging).</dd><dt>Normal</dt><dd>Errors, conflicts, and major events like menu open/close.</dd><dt>Verbose</dt><dd>Everything including system events and state changes.</dd></dl>"),
         "#options" => [
           "minimal" => $this->t("Minimal - Errors and conflicts only"),
@@ -241,7 +241,7 @@ final class PrimaryMenuSection implements SettingsSectionInterface {
       // Color Settings Tab.
       $form["solo_settings"]["settings_{$region}"]["color_settings_tab"] = [
         "#type" => "details",
-        "#title" => $this->t("Color Settings"),
+        "#title" => $this->t("Color settings"),
         "#group" => "primary_menu_tabs",
         "#weight" => 0,
         '#attributes' => [

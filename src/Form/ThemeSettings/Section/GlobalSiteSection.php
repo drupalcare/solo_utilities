@@ -38,7 +38,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $settings = $context->settings;
     $form["solo_settings"]["settings_global_misc"] = [
       "#type" => "details",
-      "#title" => $this->t("Global Site"),
+      "#title" => $this->t("Global site"),
     ];
 
     // Create vertical tabs container.
@@ -71,7 +71,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Layout & Dimensions Tab.
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"] = [
       "#type" => "details",
-      "#title" => $this->t("Layout & Dimensions"),
+      "#title" => $this->t("Layout & dimensions"),
       "#group" => "global_misc_tabs",
       "#weight" => -10,
       "#id" => "edit-layout-dimensions",
@@ -80,7 +80,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__width__use_pixels"] = [
       "#parents" => ['layout', 'width', 'use_pixels'],
       "#type" => "checkbox",
-      "#title" => $this->t("Enable PX-Based Global Website Width"),
+      "#title" => $this->t("Enable px-based global website width"),
       "#default_value" => $settings->get('layout.width.use_pixels'),
       "#states" => CompatibilityRules::states('C14', 'layout.width.use_pixels'),
       "#description" => $this->t("Switches the website's width from rem units to fixed pixel-based widths. <a href='https://alaahaddad.com/node/70' target='_blank' rel='noopener'>Learn more</a>."),
@@ -88,7 +88,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
 
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__width__global"] = [
       "#parents" => ['layout', 'width', 'global'],
-      "#title" => $this->t("Global Website Width - Solo Theme"),
+      "#title" => $this->t("Global website width - Solo theme"),
       "#type" => "select",
       "#options" => $this->options->siteWidth(),
       "#default_value" => $settings->get('layout.width.global'),
@@ -110,7 +110,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       // Collapsible details element for content type specific width settings.
       $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["content_type_widths"] = [
         "#type" => "details",
-        "#title" => $this->t("Content Type Widths"),
+        "#title" => $this->t("Content type widths"),
         "#open" => TRUE,
         "#states" => [
           "visible" => [
@@ -142,9 +142,9 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__width__per_node_enabled"] = [
         "#parents" => ['layout', 'width', 'per_node_enabled'],
         "#type" => "checkbox",
-        "#title" => $this->t("Tick this box to enable custom widths for individual nodes or for each content type."),
+        "#title" => $this->t("Enable custom widths for individual content items or for each content type"),
         "#default_value" => $settings->get('layout.width.per_node_enabled'),
-        "#description" => $this->t("Adds a dropdown to the node edit form for choosing a custom width per node. 'None' uses the default width. Individual node widths take priority over content type widths, which take priority over the global width."),
+        "#description" => $this->t("Adds a dropdown to the content edit form for choosing a custom width per content item. 'None' uses the default width. Content item widths take priority over content type widths, which take priority over the global width."),
       ];
     }
     else {
@@ -153,14 +153,14 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["notice_enable_custom_node_width_message"] = [
         "#input" => FALSE,
         "#type" => "item",
-        "#title" => $this->t("Enable custom widths for individual nodes or each content type."),
+        "#title" => $this->t("Enable custom widths for individual content items or each content type"),
         "#markup" => $this->t("<div class='solo-note solo-note--warning'>Requires the <a href='https://www.drupal.org/project/solo_utilities' target='_blank' rel='noopener'>Solo Utilities module</a>, installed and enabled, and Solo or one of its sub-themes in active use: the default theme, or a parent, grandparent or other part of the active theme hierarchy.</div>"),
       ];
     }
 
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__breakpoints__page"] = [
       "#parents" => ['layout', 'breakpoints', 'page'],
-      "#title" => $this->t("Website's Breakpoints - Solo Theme"),
+      "#title" => $this->t("Website's breakpoints - Solo theme"),
       "#type" => "select",
       "#options" => $this->options->siteBreakpoints(),
       "#default_value" => $settings->get('layout.breakpoints.page'),
@@ -170,14 +170,14 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__collapse_order"] = [
       "#parents" => ['layout', 'collapse_order'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to modify the layout collapse order."),
+      "#title" => $this->t("Modify the layout collapse order"),
       "#description"   => $this->t("Collapses grouped regions into a responsive grid on smaller screens. Applies only if the group contains exactly three or four regions."),
       "#default_value" => $settings->get('layout.collapse_order'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__breakpoints__menu"] = [
       "#parents" => ['layout', 'breakpoints', 'menu'],
-      "#title" => $this->t("Menu's Breakpoints - Solo Theme"),
+      "#title" => $this->t("Menu's breakpoints - Solo theme"),
       "#type" => "select",
       "#options" => $this->options->menuBreakpoints(),
       "#default_value" => $settings->get('layout.breakpoints.menu'),
@@ -186,7 +186,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
 
     $form["solo_settings"]["settings_global_misc"]["layout_dimensions"]["layout__regions_gap"] = [
       "#parents" => ['layout', 'regions_gap'],
-      "#title" => $this->t("Website Region's Spaces"),
+      "#title" => $this->t("Website region's spaces"),
       "#type" => "select",
       "#options" => $this->options->siteGlobalRegionsGap(),
       "#default_value" => $settings->get('layout.regions_gap'),
@@ -206,14 +206,14 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Typography & Content Tab.
     $form["solo_settings"]["settings_global_misc"]["typography_content"] = [
       "#type" => "details",
-      "#title" => $this->t("Typography & Content"),
+      "#title" => $this->t("Typography & content"),
       "#group" => "global_misc_tabs",
       "#weight" => -8,
     ];
 
     $form["solo_settings"]["settings_global_misc"]["typography_content"]["typography__font_size"] = [
       "#parents" => ['typography', 'font_size'],
-      "#title" => $this->t("Website's Font Size"),
+      "#title" => $this->t("Website's font size"),
       "#type" => "select",
       "#options" => $this->options->siteGlobalFontSize(),
       "#default_value" => $settings->get('typography.font_size'),
@@ -222,17 +222,17 @@ final class GlobalSiteSection implements SettingsSectionInterface {
 
     $form["solo_settings"]["settings_global_misc"]["typography_content"]["typography__node_date_format"] = [
       "#parents" => ['typography', 'node_date_format'],
-      "#title" => $this->t("Choose the node date format."),
+      "#title" => $this->t("Choose the content date format"),
       "#type" => "select",
       "#options" => $this->options->siteNodeDateFormat(),
       "#default_value" => $settings->get('typography.node_date_format'),
-      "#description" => $this->t("Select a custom format for the node creation date. Choose '- None -' to use the default format provided by Drupal core or contributed modules."),
+      "#description" => $this->t("Select a custom format for the content creation date. Choose '- None -' to use the default format provided by core or contributed modules."),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["typography_content"]["typography__imported_google_font"] = [
       "#parents" => ['typography', 'imported_google_font'],
       "#type" => "textfield",
-      "#title" => $this->t("Import Google Font"),
+      "#title" => $this->t("Import Google font"),
       "#description" => $this->t("The Google Fonts URL. See <em>How to import a Google font</em> below the fields."),
       "#default_value" => $settings->get('typography.imported_google_font'),
     ];
@@ -240,7 +240,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["typography_content"]["typography__reading_mode_content_types"] = [
       "#parents" => ['typography', 'reading_mode_content_types'],
       "#type" => "select",
-      "#title" => $this->t("Reading Mode (45rem/720px)"),
+      "#title" => $this->t("Reading mode (45rem/720px)"),
       "#default_value" => $settings->get('typography.reading_mode_content_types'),
       "#options" => $this->options->contentTypes(),
       "#multiple" => TRUE,
@@ -264,7 +264,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Block & Visibility Tab.
     $form["solo_settings"]["settings_global_misc"]["block_visibility"] = [
       "#type" => "details",
-      "#title" => $this->t("Block & Visibility"),
+      "#title" => $this->t("Block & visibility"),
       "#group" => "global_misc_tabs",
       "#weight" => -6,
     ];
@@ -309,7 +309,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Comment display order fieldset.
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_display_order"] = [
       "#type" => "fieldset",
-      "#title" => $this->t("Display Order"),
+      "#title" => $this->t("Display order"),
       "#description" => $this->t("Control the order of comment elements for improved accessibility."),
     ];
 
@@ -324,7 +324,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Comment form position fieldset.
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_form_position_settings"] = [
       "#type" => "fieldset",
-      "#title" => $this->t("Comment Form Position"),
+      "#title" => $this->t("Comment form position"),
       "#description" => $this->t("Control where the comment form appears relative to the list of existing comments."),
     ];
 
@@ -340,7 +340,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Comment visibility fieldset.
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_visibility"] = [
       "#type" => "fieldset",
-      "#title" => $this->t("Element Visibility"),
+      "#title" => $this->t("Element visibility"),
       "#description" => $this->t("Choose which comment metadata elements to display."),
     ];
 
@@ -383,7 +383,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Comment date format fieldset.
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_date_settings"] = [
       "#type" => "fieldset",
-      "#title" => $this->t("Date Format"),
+      "#title" => $this->t("Date format"),
     ];
 
     $date_format_options = $this->options->commentDateFormats();
@@ -399,7 +399,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Comment title settings fieldset.
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_title_settings"] = [
       "#type" => "fieldset",
-      "#title" => $this->t("Subject/Title Settings"),
+      "#title" => $this->t("Subject/title settings"),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["comments"]["comment_title_settings"]["comments__title_tag"] = [
@@ -424,7 +424,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Custom Code Tab.
     $form["solo_settings"]["settings_global_misc"]["custom_code"] = [
       "#type" => "details",
-      "#title" => $this->t("Custom Code"),
+      "#title" => $this->t("Custom code"),
       "#group" => "global_misc_tabs",
       "#weight" => -4,
     ];
@@ -432,7 +432,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["custom_code"]["custom_code__inline_css"] = [
       "#parents" => ['custom_code', 'inline_css'],
       "#type" => "textarea",
-      "#title" => $this->t("CSS Injector"),
+      "#title" => $this->t("CSS injector"),
       "#description" => $this->t("Injects custom CSS into the page head on every page. Best for small snippets and quick tests. Changes take effect immediately and are stored in the theme settings."),
       "#default_value" => $settings->get('custom_code.inline_css'),
     ];
@@ -440,7 +440,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["custom_code"]["custom_code__css_file"] = [
       "#parents" => ['custom_code', 'css_file'],
       "#type" => "textarea",
-      "#title" => $this->t("CSS Dynamic"),
+      "#title" => $this->t("CSS dynamic"),
       "#description" => $this->t("Writes your CSS to a dedicated file loaded across your site and cached by browsers, instead of inlining it on every page. Best for substantial customizations and performance on larger sites. Saved in the public file system, in the folder of the theme being edited: @path. The part after custom. changes whenever the code changes, so browsers always load the current file.", ['@path' => 'sites/*/files/solo/THEME/custom.HASH.css']),
       "#default_value" => $settings->get('custom_code.css_file'),
     ];
@@ -448,8 +448,8 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["custom_code"]["custom_code__js_file"] = [
       "#parents" => ['custom_code', 'js_file'],
       "#type" => "textarea",
-      "#title" => $this->t("JavaScript Dynamic"),
-      "#description" => $this->t("Writes your JavaScript to a dedicated file loaded across your site and cached by browsers, which helps reduce page load times. Your code can use Drupal's core libraries without including them: jQuery, AJAX, Drupal behaviors, drupalSettings and once. Saved in the public file system, in the folder of the theme being edited: @path. The part after custom. changes whenever the code changes, so browsers always load the current file.", ['@path' => 'sites/*/files/solo/THEME/custom.HASH.js']),
+      "#title" => $this->t("JavaScript dynamic"),
+      "#description" => $this->t("Writes your JavaScript to a dedicated file loaded across your site and cached by browsers, which helps reduce page load times. Your code can use Drupal's core libraries without including them: jQuery, Ajax, Drupal behaviors, drupalSettings and once. Saved in the public file system, in the folder of the theme being edited: @path. The part after custom. changes whenever the code changes, so browsers always load the current file.", ['@path' => 'sites/*/files/solo/THEME/custom.HASH.js']),
       "#default_value" => $settings->get('custom_code.js_file'),
     ];
   }
@@ -466,7 +466,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     // Interface Behavior Tab.
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"] = [
       "#type" => "details",
-      "#title" => $this->t("Interface Behavior"),
+      "#title" => $this->t("Interface behavior"),
       "#group" => "global_misc_tabs",
       "#weight" => -2,
     ];
@@ -474,7 +474,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__centered_login_page"] = [
       "#parents" => ['layout', 'centered_login_page'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to modify the layout for the login, register, and password reset pages."),
+      "#title" => $this->t("Modify the layout for the login, register, and password reset pages"),
       "#description"   => $this->t("The login form will be centered, with the left and right sides concealed."),
       "#default_value" => $settings->get('layout.centered_login_page'),
     ];
@@ -482,14 +482,14 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__flip_header_menu"] = [
       "#parents" => ['layout', 'flip_header_menu'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to flip the main menu order. It will be displayed before the header."),
+      "#title" => $this->t("Flip the main menu order. It will be displayed before the header"),
       "#default_value" => $settings->get('layout.flip_header_menu'),
     ];
 
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__reveal_on_scroll"] = [
       "#parents" => ['layout', 'reveal_on_scroll'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to animate opacity while scrolling down."),
+      "#title" => $this->t("Animate opacity while scrolling down"),
       "#description"   => $this->t("Hidden blocks stay unseen when the page opens and animate into view as you scroll down. Disabled by default."),
       "#default_value" => $settings->get('layout.reveal_on_scroll'),
     ];
@@ -497,7 +497,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__inline_field_items"] = [
       "#parents" => ['layout', 'inline_field_items'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to display multiple taxonomy term field items on the same line."),
+      "#title" => $this->t("Display multiple taxonomy term field items on the same line"),
       "#description"   => $this->t("By default, a field with multiple values shows them one beneath the other, which can use a lot of vertical space. This shows them side by side on the same line, separated by spaces."),
       "#default_value" => $settings->get('layout.inline_field_items'),
     ];
@@ -505,7 +505,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["color_scheme__colored_system_tabs"] = [
       "#parents" => ['color_scheme', 'colored_system_tabs'],
       "#type" => "checkbox",
-      "#title" => $this->t("Tick this box to enhanced navigation with color-coded system tabs"),
+      "#title" => $this->t("Enhance navigation with color-coded system tabs"),
       "#description"   => $this->t("Assigns custom colors to core system tab links, such as View, Edit, Delete and Revisions."),
       "#default_value" => $settings->get('color_scheme.colored_system_tabs'),
     ];
@@ -513,7 +513,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["menus__toggle_speed"] = [
       "#parents" => ['menus', 'toggle_speed'],
       "#type" => "select",
-      "#title" => $this->t("Menu Animation Speed"),
+      "#title" => $this->t("Menu animation speed"),
       "#description" => $this->t("Controls how fast the menu opens/closes. Applies to all menus."),
       "#default_value" => $settings->get('menus.toggle_speed'),
       "#options" => [
@@ -720,7 +720,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_global_misc"]["preloader"]["appearance"]["preloader__text__font"] = [
       "#parents" => ['preloader', 'text', 'font'],
       '#type' => 'select',
-      '#title' => $this->t('Text Font'),
+      '#title' => $this->t('Text font'),
       '#options' => $this->options->nameTitleGoogleFont(),
       '#default_value' => $settings->get('preloader.text.font'),
       '#description' => $this->t('Optional. For fastest display, leave at "None"—custom fonts load from the network and can delay the preloader.'),

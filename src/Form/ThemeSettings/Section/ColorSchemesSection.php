@@ -39,7 +39,7 @@ final class ColorSchemesSection implements SettingsSectionInterface {
     $settings = $context->settings;
     $form["solo_settings"]["settings_predefined_theme"] = [
       "#type" => "details",
-      "#title" => $this->t("Predefined Color Schemes"),
+      "#title" => $this->t("Predefined color schemes"),
       "#description" => $this->themeDetection->isDefault()
         ? $this->t("<p>Apply color schemes based on site elements such as content types, taxonomies, user roles and specific URLs.</p><p class='solo-links'><a href='/admin/config/system/solo_utilities'>Manage Color Schemes Rules</a> <a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/color-schemes'>Demo site: examples of all color schemes</a></p>")
         : $this->t("<p>Solo comes with 50 color schemes. Apply one to parts of your website such as content types, taxonomies, user roles and specific URLs. Requires the <a target='_blank' rel='noopener' href='https://www.drupal.org/project/solo_utilities'>Solo Utilities</a> module.</p><div class='solo-note solo-note--warning'><strong>Requires an active theme.</strong> Solo or one of its sub-themes must be part of the active theme hierarchy; installing them is not enough. Solo must be the default theme, or a parent, grandparent or any other ancestor of the current default theme.</div><p class='solo-links'><a target='_blank' rel='noopener' href='https://unitedstarsofamerica.com/color-schemes'>Demo site: examples of all color schemes</a></p>"),
@@ -54,7 +54,7 @@ final class ColorSchemesSection implements SettingsSectionInterface {
     // Color Scheme Selection Tab.
     $form["solo_settings"]["settings_predefined_theme"]["color_scheme_selection"] = [
       "#type" => "details",
-      "#title" => $this->t("Color Scheme Selection"),
+      "#title" => $this->t("Color scheme selection"),
       "#group" => "predefined_theme_tabs",
       "#weight" => -10,
       "#id" => "edit-color-scheme-selection",
