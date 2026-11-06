@@ -33,15 +33,19 @@ class BlockTitleFormTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'solo';
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
+    // Solo needs this module, and the test installs its default theme before
+    // its modules, so Solo is installed here once the module is in place.
+    $this->container->get('theme_installer')->install(['solo']);
+    $this->config('system.theme')->set('default', 'solo')->save();
     $this->config('solo.settings')
-      ->set('enable_block_title_visibility', TRUE)
+      ->set('blocks.title_visibility_enabled', TRUE)
       ->save();
     $this->drupalPlaceBlock('system_powered_by_block', [
       'id' => 'powered',
