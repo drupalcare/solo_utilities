@@ -7,6 +7,7 @@ namespace Drupal\solo_utilities\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ThemeExtensionList;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\solo_utilities\Layout\LayoutResolver;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
 /**
@@ -572,45 +573,49 @@ final class SettingsOptions {
   /**
    * The labels of each region group and its regions.
    *
+   * The regions of a group come from LayoutResolver::GROUP_REGIONS and their
+   * labels from Solo's own info file, so a region is named in one place. Only
+   * the group container labels live here.
+   *
    * @return array<string, array{container: \Drupal\Core\StringTranslation\TranslatableMarkup, regions: array<string, \Drupal\Core\StringTranslation\TranslatableMarkup>}>
    *   Labels keyed by group, then by region machine name.
    */
   public function groupLabels(): array {
-    return [
-      'top' => [
-        'container' => $this->t('Top Container Wrapper'),
-        'regions' => [
-          'top_first' => $this->t('Top First Container'),
-          'top_second' => $this->t('Top Second Container'),
-          'top_third' => $this->t('Top Third Container'),
-        ],
-      ],
-      'main' => [
-        'container' => $this->t('Main Container Wrapper'),
-        'regions' => [
-          'sidebar_first' => $this->t('Sidebar First'),
-          'content' => $this->t('Content'),
-          'sidebar_second' => $this->t('Sidebar Second'),
-        ],
-      ],
-      'bottom' => [
-        'container' => $this->t('Bottom Container Wrapper'),
-        'regions' => [
-          'bottom_first' => $this->t('Bottom First Container'),
-          'bottom_second' => $this->t('Bottom Second Container'),
-          'bottom_third' => $this->t('Bottom Third Container'),
-          'bottom_fourth' => $this->t('Bottom Fourth Container'),
-        ],
-      ],
-      'footer' => [
-        'container' => $this->t('Footer Container Wrapper'),
-        'regions' => [
-          'footer_first' => $this->t('Footer First Container'),
-          'footer_second' => $this->t('Footer Second Container'),
-          'footer_third' => $this->t('Footer Third Container'),
-        ],
-      ],
+    $containers = [
+      'top' => $this->t('Top Container Wrapper'),
+      'main' => $this->t('Main Container Wrapper'),
+      'bottom' => $this->t('Bottom Container Wrapper'),
+      'footer' => $this->t('Footer Container Wrapper'),
     ];
+    $info = $this->soloRegions();
+    $labels = [];
+    foreach (LayoutResolver::GROUP_REGIONS as $group => $regions) {
+      $labels[$group] = ['container' => $containers[$group], 'regions' => []];
+      foreach ($regions as $region) {
+        // Region labels are info-file strings, translated at display time as
+        // core does for any theme region.
+        // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
+        $labels[$group]['regions'][$region] = $this->t($info[$region] ?? ucwords(str_replace('_', ' ', $region)));
+      }
+    }
+    return $labels;
+  }
+
+  /**
+   * The region labels Solo's info file declares.
+   *
+   * @return array<string, string>
+   *   Untranslated labels keyed by region machine name; empty when the theme
+   *   is not in the codebase.
+   */
+  private function soloRegions(): array {
+    try {
+      $regions = $this->themeList->getExtensionInfo('solo')['regions'] ?? [];
+    }
+    catch (\InvalidArgumentException) {
+      return [];
+    }
+    return is_array($regions) ? array_map('strval', $regions) : [];
   }
 
   /**

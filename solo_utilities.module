@@ -25,6 +25,14 @@ use Drupal\solo_utilities\Service\NodeWidthForm;
  * Custom submit handler for node form.
  *
  * Named by the node form's #submit, so cached forms keep calling it.
+ *
+ * @param array<string, mixed> $form
+ *   The form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ *
+ * @return void
+ *   No return value.
  */
 function solo_utilities__node_form_submit($form, FormStateInterface $form_state) {
   \Drupal::classResolver(NodeWidthForm::class)->submit($form, $form_state);
@@ -34,6 +42,15 @@ function solo_utilities__node_form_submit($form, FormStateInterface $form_state)
  * Saves the block title settings as the block's third-party settings.
  *
  * Named by the block form's #entity_builders, so cached forms keep calling it.
+ *
+ * @param string $entity_type
+ *   The entity type id.
+ * @param \Drupal\block\BlockInterface $block
+ *   The block.
+ * @param array<string, mixed> $form
+ *   The form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
  */
 function _solo_utilities_block_form_entity_builder($entity_type, BlockInterface $block, array &$form, FormStateInterface $form_state): void {
   \Drupal::classResolver(BlockTitleSettings::class)->buildEntity((string) $entity_type, $block, $form, $form_state);

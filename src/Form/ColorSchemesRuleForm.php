@@ -18,6 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Form controller for Color Schemes Rule edit forms.
  *
  * @internal
+ *
+ * @phpstan-consistent-constructor
  */
 class ColorSchemesRuleForm extends EntityForm {
 
@@ -75,6 +77,14 @@ class ColorSchemesRuleForm extends EntityForm {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array<string, mixed>
+   *   The form.
    */
   public function form(array $form, FormStateInterface $form_state) {
     $available_contexts = $this->contextRepository->getAvailableContexts();
@@ -161,7 +171,9 @@ class ColorSchemesRuleForm extends EntityForm {
     ];
 
     $conditions = $entity->getConditions();
-    $definitions = $this->conditionPluginManager->getFilteredDefinitions(
+    /** @var \Drupal\Core\Plugin\FilteredPluginManagerInterface $condition_manager */
+    $condition_manager = $this->conditionPluginManager;
+    $definitions = $condition_manager->getFilteredDefinitions(
       'solo_utilities_ui',
       $form_state->getTemporaryValue('gathered_contexts'),
       ['color_schemes_rule' => $entity]
@@ -200,10 +212,9 @@ class ColorSchemesRuleForm extends EntityForm {
           ] + $condition_form;
         }
       }
-      catch (PluginException $e) {
-        // \Drupal::logger('solo_utilities')
-        // ->warning('Condition plugin @id could not be loaded: @message',
-        // ['@id' => $condition_id, '@message' => $e->getMessage()]);
+      catch (PluginException) {
+        // A condition plugin that cannot be created gets no tab; the rest of
+        // the form still builds.
       }
     }
 
@@ -212,6 +223,14 @@ class ColorSchemesRuleForm extends EntityForm {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return void
+   *   No return value.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
@@ -237,6 +256,14 @@ class ColorSchemesRuleForm extends EntityForm {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return void
+   *   No return value.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
@@ -286,7 +313,7 @@ class ColorSchemesRuleForm extends EntityForm {
   /**
    * Helper function to get Solo or its sub-themes.
    *
-   * @return array
+   * @return array<string, string>
    *   An associative array of theme machine names and their readable names.
    */
   protected function getSoloAndSubThemes() {

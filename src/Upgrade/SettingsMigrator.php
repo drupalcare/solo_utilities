@@ -15,6 +15,7 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\solo_utilities\Settings\ChoiceNormalizer;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -55,6 +56,7 @@ final class SettingsMigrator {
     private readonly LoggerChannelFactoryInterface $loggerFactory,
     private readonly ExtensionList $themeList,
     private readonly ExtensionList $moduleList,
+    private readonly ChoiceNormalizer $choiceNormalizer,
   ) {}
 
   /**
@@ -131,6 +133,14 @@ final class SettingsMigrator {
           $this->place($data, $key, (string) $row['new'], [TRUE, $data[$key]], $log);
         }
       }
+    }
+
+    // A value the schema's Choice list rejects would fail a later config
+    // import, so it returns to its default here (the one shared rule).
+    $normalised = $this->choiceNormalizer->normalize($data, 'theme settings');
+    $data = $normalised['data'];
+    foreach (array_keys($normalised['changes']) as $path) {
+      $log['differences'][] = $path . ' (reset to default)';
     }
 
     return new TransformResult($data, $log['unknown'], $log['unmovable'], $log['differences']);

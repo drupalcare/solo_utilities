@@ -21,12 +21,12 @@ The 2.0.x branch is the development line and requires Drupal `^11.3 || ^12` and 
 
 Four permissions are marked `restrict access: true` (`solo_utilities.permissions.yml`), which is Drupal's own way of saying a role holding them is trusted with the site. Grant them deliberately:
 
-- `administer Color Schemes Rules`
-- `create Color Schemes Rules`
-- `edit Color Schemes Rules`
-- `delete Color Schemes Rules`
+- `administer color schemes rules`
+- `create color schemes rules`
+- `edit color schemes rules`
+- `delete color schemes rules`
 
-`view Color Schemes Rules` is not restricted.
+`view color schemes rules` is not restricted.
 
 The Solo upgrade page and its run and restore routes (`/admin/config/system/solo-upgrade`) require Drupal's `administer themes` permission. The restore route writes earlier settings back and cannot be undone, so grant that permission only to roles you trust with the theme.
 

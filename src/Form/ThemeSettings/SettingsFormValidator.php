@@ -6,10 +6,13 @@ namespace Drupal\solo_utilities\Form\ThemeSettings;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\solo_utilities\Security\CssValueValidator;
 use Drupal\solo_utilities\Security\UrlSafety;
+use Drupal\solo_utilities\Settings\CompatibilityRules;
 use Drupal\solo_utilities\Settings\SettingsReader;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
@@ -37,6 +40,8 @@ final class SettingsFormValidator {
     protected SettingsReader $settingsReader,
     protected UrlSafety $urlSafety,
     protected CssValueValidator $cssValues,
+    protected MessengerInterface $messenger,
+    protected ExtensionPathResolver $extensionPathResolver,
   ) {}
 
   /**
@@ -57,6 +62,72 @@ final class SettingsFormValidator {
     $this->validatePreloaderLogo($form_state);
     $this->validateSocialIconColor($form_state);
     $this->validateFooterLink($form_state);
+    $this->validateCompatibility($form_state);
+    // Color pairs below WCAG contrast: errors when both colors are set here,
+    // warnings naming the schemes that fail when one side comes from a scheme.
+    (new ContrastValidator())->validateForm($form_state, $this->messenger, $this->extensionPathResolver->getPath('theme', 'solo') . '/schemes');
+  }
+
+  /**
+   * Checks settings that cannot work together; the rules live in compat.yml.
+   *
+   * The rule ids (C3b, C5, C11) are the ones in solo-2.0-compat.yml, and the
+   * generator check fails when one of them is not enforced here.
+   */
+  public function validateCompatibility(FormStateInterface $form_state): void {
+    // C3b: force_show overrides every other preloader rule, even a disabled
+    // preloader, so the preloader still shows.
+    $rule = CompatibilityRules::rule('C3b');
+    if ($this->conditionsHold($rule['when'], $form_state)) {
+      $this->messenger->addWarning($this->t('"Force show for testing" is checked while the preloader is disabled, so the preloader still shows on every page, including admin pages and for logged-in users. Uncheck "Force show for testing" when you are done testing.'));
+    }
+    // C5: the login popup must sit above the sidebar menu and the fixed search.
+    $rule = CompatibilityRules::rule('C5');
+    $z_index = $form_state->getValue(explode('.', $rule['path']));
+    if (is_numeric($z_index) && (int) $z_index < $rule['min']) {
+      $form_state->setErrorByName(str_replace('.', '][', $rule['path']), $this->t('The popup login z-index must be at least @min, or the popup opens underneath the sidebar menu and the fixed search.', ['@min' => $rule['min']]));
+    }
+    // C11: a full menu that appears at a width where the page is still
+    // stacked can overflow sideways.
+    $rule = CompatibilityRules::rule('C11');
+    $menu = $this->breakpointWidth($form_state->getValue(explode('.', $rule['smaller'])));
+    $page = $this->breakpointWidth($form_state->getValue(explode('.', $rule['larger'])));
+    if ($menu !== NULL && $page !== NULL && $menu < $page) {
+      $this->messenger->addWarning($this->t('The menu breakpoint (@menu px) is smaller than the page layout breakpoint (@page px). Between those widths the full menu shows while the page columns are still stacked, and the menu can overflow the screen. Check the site at those widths.', [
+        '@menu' => $menu,
+        '@page' => $page,
+      ]));
+    }
+  }
+
+  /**
+   * Tells whether every condition of a compat rule holds for the submission.
+   *
+   * @param list<array{path: string, value: string}> $conditions
+   *   The conditions.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  private function conditionsHold(array $conditions, FormStateInterface $form_state): bool {
+    foreach ($conditions as $condition) {
+      $value = $form_state->getValue(explode('.', $condition['path']));
+      $holds = match ($condition['value']) {
+        'checked' => !empty($value),
+        'unchecked' => empty($value),
+        default => $value === $condition['value'],
+      };
+      if (!$holds) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+
+  /**
+   * Returns the pixel width in a breakpoint choice such as mn-576, or NULL.
+   */
+  private function breakpointWidth(mixed $choice): ?int {
+    return is_string($choice) && preg_match('/^(?:mn|sb)-(\d+)$/', $choice, $match) ? (int) $match[1] : NULL;
   }
 
   /**
@@ -99,7 +170,7 @@ final class SettingsFormValidator {
    * Checks the social icon color, which is printed into a style attribute.
    *
    * A bare custom property name is the trap: CSS discards the declaration and
-   * the icons render grey with nothing logged.
+   * the icons render gray with nothing logged.
    */
   private function validateSocialIconColor(FormStateInterface $form_state): void {
     $color = trim((string) $form_state->getValue(['social_icons', 'color']));

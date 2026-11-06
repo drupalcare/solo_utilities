@@ -7,7 +7,7 @@ namespace Drupal\solo_utilities\Settings;
 /**
  * The one reader of the bounds Solo's settings schema declares.
  *
- * The schema (solo_theme_settings, generated from planning/solo-2.0-constraints.yml)
+ * The schema (solo_theme_settings, generated from scripts/settings-gen/solo-2.0-constraints.yml)
  * owns every numeric range and text length. The settings form and the CSS
  * builder ask here instead of carrying a number of their own.
  *

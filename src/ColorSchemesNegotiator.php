@@ -6,169 +6,140 @@ namespace Drupal\solo_utilities;
 
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Component\Plugin\Exception\MissingValueContextException;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Condition\ConditionInterface;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\solo_utilities\Entity\ColorSchemesRule;
 
 /**
- * Class ColorSchemesNegotiator.
+ * Picks the color scheme from the Color Schemes Rules.
  *
- * Determines which libraries to load based on the defined rules.
+ * Rules run in weight order (then label, as on the admin list); the first
+ * enabled rule whose conditions pass wins.
  *
  * @internal
  */
-class ColorSchemesNegotiator {
-
-  /**
-   * The entity type manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The request stack service.
-   *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
-   */
-  protected $requestStack;
-
-  /**
-   * The current route match service.
-   *
-   * @var \Drupal\Core\Routing\RouteMatchInterface
-   */
-  protected $currentRouteMatch;
-
-  /**
-   * The context handler service.
-   *
-   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
-   */
-  protected $contextHandler;
-
-  /**
-   * The context repository service.
-   *
-   * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
-   */
-  protected $contextRepository;
+final class ColorSchemesNegotiator {
 
   /**
    * Constructs a ColorSchemesNegotiator object.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager service.
-   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
-   *   The request stack service.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
-   *   The current route match service.
-   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $contextHandler
    *   The context handler service.
-   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
+   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $contextRepository
    *   The context repository service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, RequestStack $request_stack, RouteMatchInterface $current_route_match, ContextHandlerInterface $context_handler, ContextRepositoryInterface $context_repository) {
-    $this->entityTypeManager = $entity_type_manager;
-    $this->requestStack = $request_stack;
-    $this->currentRouteMatch = $current_route_match;
-    $this->contextHandler = $context_handler;
-    $this->contextRepository = $context_repository;
-  }
+  public function __construct(
+    private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly ContextHandlerInterface $contextHandler,
+    private readonly ContextRepositoryInterface $contextRepository,
+  ) {}
 
   /**
-   * Evaluates the rules and loads the appropriate libraries.
+   * Evaluates the rules and returns the scheme with its cacheability.
    *
-   * @return string|null
-   *   The library to be loaded based on the evaluated rules, or NULL if none
-   *   are met.
+   * The cacheability covers every rule that was evaluated, so a role- or
+   * path-based rule varies the page by role or path whether it matched or
+   * not. Apply it to the render array that uses the result.
+   *
+   * @return \Drupal\solo_utilities\NegotiatedColorScheme
+   *   The scheme of the first matching rule (NULL when none matched) and the
+   *   cache metadata the answer depends on.
    */
-  public function evaluateRules() {
+  public function negotiate(): NegotiatedColorScheme {
+    $cacheability = new CacheableMetadata();
+    $cacheability->addCacheTags(['config:color_schemes_rule_list']);
+
+    /** @var array<string, \Drupal\Core\Config\Entity\ConfigEntityInterface> $rules */
     $rules = $this->entityTypeManager->getStorage('color_schemes_rule')->loadMultiple();
-    // \Drupal::logger('solo_utilities')
-    // ->info('Evaluating library load rules.');
+    uasort($rules, static fn (ConfigEntityInterface $a, ConfigEntityInterface $b): int => (int) ColorSchemesRule::sort($a, $b));
+
     foreach ($rules as $rule) {
-      // Check if the rule is enabled.
-      if (!$rule->getStatus()) {
-        // \Drupal::logger('solo_utilities')->info('Rule {label} is disabled
-        // and will not be processed.', ['label' => $rule->label()]);
+      if (!$rule instanceof ColorSchemesRule || !$rule->getStatus()) {
         continue;
       }
+      $cacheability->addCacheableDependency($rule);
 
-      // Get visibility conditions, conjunction, and predefined theme.
-      $conditions = $rule->getVisibilityConditions();
-      $conjunction = $rule->getConjunction();
-      $library = $rule->get('predefined_theme');
-
-      // Prepare to resolve conditions.
       $resolved_conditions = [];
-      foreach ($conditions as $condition_id => $condition) {
+      foreach ($rule->getVisibilityConditions() as $condition_id => $condition) {
         if ($condition instanceof ContextAwarePluginInterface) {
           try {
             $contexts = $this->contextRepository->getRuntimeContexts(
               array_values($condition->getContextMapping())
             );
+            foreach ($contexts as $context) {
+              $cacheability->addCacheableDependency($context);
+            }
             $this->contextHandler->applyContextMapping($condition, $contexts);
           }
-          catch (MissingValueContextException | ContextException $e) {
-            // \Drupal::logger('solo_utilities')->warning('Condition {plugin_id}
-            // skipped due to missing or invalid context: {context_name}', [
-            // 'plugin_id' => $condition->getPluginId(),
-            // 'context_name' => $condition_id,
-            // ]);
+          catch (MissingValueContextException | ContextException) {
+            // A condition without its context cannot pass, so the rule is
+            // skipped. The skip still depends on what was gathered above.
+            $cacheability->addCacheableDependency($condition);
             continue 2;
           }
         }
+        // A condition that is not a cacheable dependency makes the result
+        // uncacheable (max-age 0), which is the safe answer.
+        $cacheability->addCacheableDependency($condition);
         $resolved_conditions[$condition_id] = $condition;
       }
 
-      // Resolve conditions according to conjunction.
-      if ($this->resolveConditions($resolved_conditions, $conjunction) !== FALSE) {
-        // \Drupal::logger('solo_utilities')->info('All conditions met for
-        // rule {label}.', ['label' => $rule->label()]);
-        return $library;
-      }
-      else {
-        // \Drupal::logger('solo_utilities')->info('Conditions not met for
-        // rule {label}.', ['label' => $rule->label()]);
+      if ($this->resolveConditions($resolved_conditions, (string) $rule->getConjunction())) {
+        $scheme = $rule->get('predefined_theme');
+        return new NegotiatedColorScheme(is_string($scheme) ? $scheme : NULL, $cacheability);
       }
     }
 
-    return NULL;
+    return new NegotiatedColorScheme(NULL, $cacheability);
+  }
+
+  /**
+   * Evaluates the rules and returns the scheme to load.
+   *
+   * @return string|null
+   *   The scheme of the first matching rule, or NULL if none matched.
+   *
+   * @deprecated in solo_utilities:2.0.0 and is removed from
+   *   solo_utilities:3.0.0. Use ::negotiate() instead and apply its
+   *   cacheability to the render array.
+   * @see https://www.drupal.org/node/0000000
+   */
+  public function evaluateRules(): ?string {
+    @trigger_error(__METHOD__ . '() is deprecated in solo_utilities:2.0.0 and is removed from solo_utilities:3.0.0. Use ::negotiate() instead and apply its cacheability to the render array. See https://www.drupal.org/node/0000000', E_USER_DEPRECATED);
+    return $this->negotiate()->scheme;
   }
 
   /**
    * Resolves conditions according to the specified conjunction.
    *
-   * @param array $conditions
-   *   The array of conditions to evaluate.
+   * An empty list passes for 'and' and fails for 'or', as before.
+   *
+   * @param array<string|int, \Drupal\Core\Condition\ConditionInterface> $conditions
+   *   The conditions to evaluate.
    * @param string $conjunction
    *   The conjunction ('and' or 'or') to use when evaluating conditions.
    *
    * @return bool
    *   TRUE if conditions are met, FALSE otherwise.
    */
-  protected function resolveConditions(array $conditions, $conjunction) {
-    $conditions_met = ($conjunction === 'and') ? TRUE : FALSE;
-
+  private function resolveConditions(array $conditions, string $conjunction): bool {
     foreach ($conditions as $condition) {
-      // Check if the condition is negated.
-      $negate = $condition->getConfiguration()['negate'] ?? FALSE;
+      if (!$condition instanceof ConditionInterface) {
+        continue;
+      }
+      // evaluate() ignores the negate flag; ConditionManager::execute() is
+      // what normally applies it, so it is applied here.
       $result = $condition->evaluate();
-
-      if ($negate) {
+      if ($condition->getConfiguration()['negate'] ?? FALSE) {
         $result = !$result;
       }
-
-      // Log the result of each condition evaluation.
-      // \Drupal::logger('solo_utilities')->info('Condition {plugin_id}
-      // evaluated to: {result}', [
-      // 'plugin_id' => $condition->getPluginId(),
-      // 'result' => $result ? 'TRUE' : 'FALSE',
-      // ]);.
       if ($conjunction === 'or' && $result) {
         return TRUE;
       }
@@ -177,7 +148,7 @@ class ColorSchemesNegotiator {
       }
     }
 
-    return $conditions_met;
+    return $conjunction === 'and';
   }
 
 }

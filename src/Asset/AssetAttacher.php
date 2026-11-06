@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\solo_utilities\Asset;
 
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\solo_utilities\ColorSchemesNegotiator;
@@ -42,7 +43,7 @@ final class AssetAttacher {
   /**
    * Preloader rules that must paint before any stylesheet loads.
    */
-  private const PRELOADER_CRITICAL_CSS = 'html.solo-preloader-enabled #solo-preloader{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;background-color:var(--solo-preloader-bg,transparent);color:var(--r-tx,#333)}html.solo-preloader-enabled #solo-preloader .solo-preloader__inner{display:flex;flex-direction:column;align-items:center;gap:1rem}html.solo-preloader-enabled #solo-preloader .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}';
+  private const PRELOADER_CRITICAL_CSS = 'html.solo-preloader-enabled #solo-preloader{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;background-color:var(--solo-preloader-bg,transparent);color:var(--r-tx,#333)}html.solo-preloader-enabled #solo-preloader .solo-preloader__inner{display:flex;flex-direction:column;align-items:center;gap:1rem}html.solo-preloader-enabled #solo-preloader .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}@media (scripting:none){html.solo-preloader-enabled #solo-preloader{display:none}}';
 
   public function __construct(
     private readonly SettingsReader $settingsReader,
@@ -287,9 +288,15 @@ final class AssetAttacher {
    *   The theme's settings.
    */
   private function attachColorScheme(array &$build, string $theme, BoundThemeSettings $settings): void {
-    $build['#cache']['tags'][] = 'config:color_schemes_rule_list';
-    $negotiated = $this->colorSchemesNegotiator->evaluateRules();
-    if (is_string($negotiated) && $negotiated !== '') {
+    // The rules' cacheability (the rule list tag and every evaluated
+    // condition's contexts, such as user.roles or url.path) applies whether a
+    // rule matched or not.
+    $negotiation = $this->colorSchemesNegotiator->negotiate();
+    CacheableMetadata::createFromRenderArray($build)
+      ->merge($negotiation->cacheability)
+      ->applyTo($build);
+    $negotiated = $negotiation->scheme;
+    if ($negotiated !== NULL && $negotiated !== '') {
       $this->attachSoloLibrary($build, $theme, 'color_scheme.name', $negotiated);
       return;
     }

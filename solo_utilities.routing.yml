@@ -54,7 +54,7 @@ entity.color_schemes_rule.add_form:
   options:
     _admin_route: TRUE
   requirements:
-    _permission: 'create Color Schemes Rules'
+    _permission: 'create color schemes rules+create Color Schemes Rules'
     _custom_access: 'solo_utilities.access_check:access'
 
 entity.color_schemes_rule.edit_form:
@@ -90,3 +90,6 @@ solo_utilities.ajax_operation:
     _custom_access: 'solo_utilities.access_check:access'
   options:
     _admin_route: TRUE
+    parameters:
+      color_schemes_rule:
+        type: 'entity:color_schemes_rule'

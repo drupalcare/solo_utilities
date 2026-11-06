@@ -120,7 +120,7 @@
 .solo-upgrade__state {
   margin-inline-start: auto;
   padding: 0.125rem 0.625rem;
-  border: 1px solid currentcolor;
+  border: 1px solid currentColor;
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -170,7 +170,7 @@
 
 .solo-upgrade__region.is-occupied {
   color: var(--s-ok);
-  border: 1px solid currentcolor;
+  border: 1px solid currentColor;
   background: var(--s-ok-bg);
   font-weight: 600;
 }
@@ -188,13 +188,13 @@
 
 .solo-upgrade__list--done {
   color: var(--s-ok);
-  border-color: currentcolor;
+  border-color: currentColor;
   background: var(--s-ok-bg);
 }
 
 .solo-upgrade__list--needs {
   color: var(--s-warn);
-  border-color: currentcolor;
+  border-color: currentColor;
   background: var(--s-warn-bg);
 }
 

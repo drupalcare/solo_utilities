@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace Drupal\solo_utilities\Service;
 
+use Drupal\Core\Command\GenerateTheme;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Extension\ProfileExtensionList;
 use Drupal\Core\Extension\ThemeExtensionList;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Creates a Solo sub-theme from the starter that ships inside Solo.
+ * Creates a Solo sub-theme from the starterkit that ships inside Solo.
  *
- * Used by `drush solo:subtheme`. The starter spells its own name in several
- * forms (machine name, class name, label, CSS/JS file names, JS behavior),
- * and every one of them is replaced, in file names and in file contents.
+ * Used by `drush solo:subtheme`, a thin wrapper over core's generate-theme
+ * command. Core does the copy and the rename; Solo's own StarterKit class
+ * (solo_subtheme/src/StarterKit.php) finishes the spellings core does not
+ * know. This class only validates names, finds the starterkit and runs core.
  *
  * @internal
  */
@@ -38,18 +42,6 @@ final class SubthemeGenerator {
    * The starter's folder name inside the Solo theme.
    */
   public const STARTER_FOLDER = 'solo_subtheme';
-
-  /**
-   * Every spelling of the starter's name, keyed by form.
-   */
-  private const STARTER_NAMES = [
-    'machine' => 'solo_subtheme',
-    'class' => 'SoloSubtheme',
-    'label' => 'Solo Sub-theme',
-    'label_lower' => 'Solo sub-theme',
-    'kebab' => 'solo-subtheme',
-    'camel' => 'soloSubTheme',
-  ];
 
   /**
    * Matches any spelling of the starter's name, to catch one not replaced.
@@ -123,108 +115,101 @@ final class SubthemeGenerator {
   }
 
   /**
-   * Copies the starter to a new folder and renames it.
+   * Generates a sub-theme with core's generate-theme command.
    *
-   * Call validate() first; this only refuses an existing destination.
+   * Call validate() first; core itself refuses an existing destination.
    *
    * @param string $machine_name
    *   The new theme's machine name.
    * @param string $label
    *   The new theme's human-readable name.
    * @param string $starter
-   *   Absolute path of the starter folder.
+   *   Absolute path of the starterkit folder, from starterPath().
    * @param string $parent
-   *   Absolute path of the folder to create the theme in.
+   *   Absolute path of the folder to create the theme in. Core's generator
+   *   takes a path relative to the Drupal root, so it must be inside it.
    *
    * @return list<string>
    *   Files, relative to the new theme, that still mention the starter's
    *   name (empty when the rename is complete).
    *
    * @throws \RuntimeException
-   *   When the destination exists or a file cannot be read. A partly created
-   *   theme is removed first.
+   *   When the destination exists, the folder is outside the Drupal root or
+   *   core's generator fails. A partly created theme is removed first.
    */
   public function generate(string $machine_name, string $label, string $starter, string $parent): array {
     $destination = $parent . '/' . $machine_name;
     if (file_exists($destination)) {
       throw new \RuntimeException((string) $this->t('@path already exists. Choose another name or remove that folder.', ['@path' => $destination]));
     }
+    $root_prefix = rtrim($this->appRoot, '/') . '/';
+    if (!str_starts_with($parent . '/', $root_prefix)) {
+      throw new \RuntimeException((string) $this->t('@path is outside the Drupal root; sub-themes must be created inside it.', ['@path' => $parent]));
+    }
+    // The starterkit is found by core through its machine name.
+    if (!is_file($starter . '/' . self::STARTER_FOLDER . '.starterkit.yml')) {
+      throw new \RuntimeException((string) $this->t('@path is not a starterkit: its .starterkit.yml file is missing.', ['@path' => $starter]));
+    }
 
-    $filesystem = new Filesystem();
+    $command = new GenerateTheme(NULL, $this->appRoot);
+    $input = new ArrayInput([
+      'machine-name' => $machine_name,
+      '--name' => $label,
+      '--description' => $label . ' is an empty theme for your customization.',
+      '--path' => substr($parent, strlen($root_prefix)),
+      '--starterkit' => self::STARTER_FOLDER,
+    ]);
+    $input->setInteractive(FALSE);
+    $output = new BufferedOutput();
+
+    // Core's command changes into the Drupal root; put the directory back.
+    $previous = getcwd();
     try {
-      $filesystem->mirror($starter, $destination);
-      return $this->rename($destination, $this->replacements($machine_name, $label), $filesystem);
+      $status = $command->run($input, $output);
     }
     catch (\Throwable $e) {
-      $filesystem->remove($destination);
+      (new Filesystem())->remove($destination);
       throw new \RuntimeException($e->getMessage(), 0, $e);
     }
+    finally {
+      if ($previous !== FALSE) {
+        chdir($previous);
+      }
+    }
+    if ($status !== 0) {
+      (new Filesystem())->remove($destination);
+      throw new \RuntimeException(trim($output->fetch()));
+    }
+    return $this->leftovers($destination);
   }
 
   /**
-   * Maps every spelling of the starter's name to the new theme's.
+   * Lists files that still mention the starter's name.
    *
-   * @return array<string, string>
-   *   Old spelling => new spelling.
-   */
-  private function replacements(string $machine_name, string $label): array {
-    $class_name = str_replace(' ', '', ucwords(str_replace('_', ' ', $machine_name)));
-    return [
-      self::STARTER_NAMES['machine'] => $machine_name,
-      self::STARTER_NAMES['class'] => $class_name,
-      self::STARTER_NAMES['label'] => $label,
-      self::STARTER_NAMES['label_lower'] => $label,
-      self::STARTER_NAMES['kebab'] => str_replace('_', '-', $machine_name),
-      self::STARTER_NAMES['camel'] => lcfirst($class_name),
-    ];
-  }
-
-  /**
-   * Replaces the starter's names in every file name and file.
+   * A spelling neither core nor the StarterKit class knows (for example one
+   * added in a later Solo release) is reported, so it is never kept silently.
    *
    * @param string $directory
    *   The new theme's folder.
-   * @param array<string, string> $replacements
-   *   Old spelling => new spelling.
-   * @param \Symfony\Component\Filesystem\Filesystem $filesystem
-   *   The filesystem helper.
    *
    * @return list<string>
-   *   Files that still mention the starter's name.
+   *   Paths relative to the theme.
    */
-  private function rename(string $directory, array $replacements, Filesystem $filesystem): array {
-    // The starter's README explains renaming the folder by hand, which has
-    // just been done.
-    $filesystem->remove($directory . '/README.md');
-
-    $paths = [];
+  private function leftovers(string $directory): array {
+    $leftovers = [];
     $files = new \RecursiveIteratorIterator(
       new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
     );
     foreach ($files as $file) {
-      if ($file instanceof \SplFileInfo && $file->isFile()) {
-        $paths[] = $file->getPathname();
+      if (!$file instanceof \SplFileInfo || !$file->isFile()) {
+        continue;
       }
-    }
-
-    $leftovers = [];
-    foreach ($paths as $path) {
+      $path = $file->getPathname();
       $contents = file_get_contents($path);
       if ($contents === FALSE) {
         throw new \RuntimeException(sprintf('Cannot read %s.', $path));
       }
-      $renamed = strtr($contents, $replacements);
-      if ($renamed !== $contents) {
-        $filesystem->dumpFile($path, $renamed);
-      }
-      $basename = strtr(basename($path), $replacements);
-      if ($basename !== basename($path)) {
-        $filesystem->rename($path, dirname($path) . '/' . $basename);
-        $path = dirname($path) . '/' . $basename;
-      }
-      // A spelling the map does not know (for example one added in a later
-      // Solo release) is reported, so it is never kept silently.
-      if (preg_match(self::STARTER_NAME_PATTERN, $basename . "\n" . $renamed) === 1) {
+      if (preg_match(self::STARTER_NAME_PATTERN, $file->getBasename() . "\n" . $contents) === 1) {
         $leftovers[] = substr($path, strlen($directory) + 1);
       }
     }

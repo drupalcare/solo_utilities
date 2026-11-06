@@ -7,8 +7,6 @@ services:
     autowire: false
     arguments:
       - '@entity_type.manager'
-      - '@request_stack'
-      - '@current_route_match'
       - '@context.handler'
       - '@context.repository'
 
@@ -73,6 +71,7 @@ services:
       - '@extension.path.resolver'
       - '%app.root%'
   Drupal\solo_utilities\Settings\SchemaBounds: {}
+  Drupal\solo_utilities\Settings\ChoiceNormalizer: {}
   Drupal\solo_utilities\Security\CssValueValidator: {}
   Drupal\solo_utilities\Security\UrlSafety: {}
   Drupal\solo_utilities\Context\RequestContext: {}
@@ -230,6 +229,7 @@ services:
       - '@logger.factory'
       - '@extension.list.theme'
       - '@extension.list.module'
+      - '@Drupal\solo_utilities\Settings\ChoiceNormalizer'
   Drupal\solo_utilities\Upgrade\UpgradeOverview:
     autowire: false
     arguments:

@@ -1,0 +1,21 @@
+# Cross-field rules for the Solo 2.0 settings form: the one owner of "A needs B" and "A overrides B".
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which writes it as
+# solo_utilities/src/Settings/CompatibilityRules.php. The form (#states) and SettingsFormValidator read that class by
+# rule id; the generator --check goes red when a rule is not used by the form or the validator, or the reverse.
+# Format: `ID: kind key=value ...`. Paths are exact dotted schema leaves. A condition is `path:checked`,
+# `path:unchecked` or `path:VALUE` (the field holds that value). Several conditions in one `when` are joined by commas.
+# Kinds:
+#   states_invisible when=<one condition> targets=<paths>   targets are hidden while the condition holds. They are
+#                    hidden, not disabled: a disabled field is not posted, so saving would silently reset its stored value.
+#   warn_when        when=<conditions, all must hold>        warning on save, saving still succeeds
+#   error_floor      path=<path> from=constraint            error when the value is below the Range min of that path
+#                                                           (the number is read from solo-2.0-constraints.yml, not repeated)
+#   warn_order       smaller=<path> larger=<path>           warning when the number in the first choice (mn-576) is
+#                                                           below the number in the second (sb-1200)
+# Not here, on purpose: C9 (menus.primary.expand_left x megamenu) is not proven redundant; the arrow rules in
+# solo-menu-breakpoints-mn-768.css and solo-menu.js apply to a megamenu menu as well.
+C3a: states_invisible when=preloader.force_show:checked targets=preloader.disable_authenticated,preloader.disable_admin_routes,preloader.path_rules
+C3b: warn_when when=preloader.force_show:checked,preloader.enabled:unchecked
+C5: error_floor path=popup_login.z_index from=constraint
+C11: warn_order smaller=layout.breakpoints.menu larger=layout.breakpoints.page
+C14: states_invisible when=layout.width.global:sw-100 targets=layout.width.use_pixels

@@ -10,7 +10,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 /**
  * Reads the shipped old-to-new settings map. It holds no key name of its own.
  *
- * The file is a generated copy of planning/solo-config-map.yml. Decoding 700
+ * The file is a generated copy of scripts/settings-gen/solo-config-map.yml. Decoding 700
  * rows is slow enough to matter on a read path, so the result is cached under a
  * key that includes the file's size and time: new code cannot read an old map.
  *

@@ -219,7 +219,6 @@ final class SoloThemeDetection implements SoloThemeDetectionInterface, Container
     return $chain;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -232,7 +231,8 @@ final class SoloThemeDetection implements SoloThemeDetectionInterface, Container
       return [];
     }
     // Core fills base_themes root first; nearest first is its reverse.
-    return $this->familyCache[$theme] = [$theme, ...array_map('strval', array_reverse(array_keys($found->base_themes ?? [])))];
+    $nearest = array_reverse(array_keys($found->base_themes ?? []));
+    return $this->familyCache[$theme] = [$theme, ...array_map('strval', $nearest)];
   }
 
   /**
@@ -246,8 +246,11 @@ final class SoloThemeDetection implements SoloThemeDetectionInterface, Container
     if ($theme === 'solo') {
       return 0;
     }
-    $position = array_search('solo', array_map('strval', array_keys($found->base_themes ?? [])), TRUE);
-    return $position === FALSE ? NULL : count($found->base_themes) - $position;
+    // Core sets base_themes on the extension object only for sub themes.
+    /** @var array<string, mixed> $base_themes */
+    $base_themes = get_object_vars($found)['base_themes'] ?? [];
+    $position = array_search('solo', array_map('strval', array_keys($base_themes)), TRUE);
+    return $position === FALSE ? NULL : count($base_themes) - $position;
   }
 
   /**

@@ -44,6 +44,9 @@ final class SiteFeatureHooks {
    * Implements hook_help().
    *
    * Theme scope: none. Reads no theme; the help page is theme independent.
+   *
+   * @return string|array<string, mixed>|null
+   *   The help text or render array, or NULL for other routes.
    */
   #[Hook('help')]
   public function help(string $route_name, RouteMatchInterface $route_match): string|array|NULL {
@@ -59,6 +62,13 @@ final class SiteFeatureHooks {
    * Theme scope: default. Node forms render under the admin theme; the width
    * field must still show. isActive() would remove the feature. Solo's own node
    * form template runs only with Solo active, after the width field is added.
+   *
+   * @param array<string, mixed> $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form id.
    */
   #[Hook('form_node_form_alter')]
   public function formNodeFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
@@ -80,11 +90,14 @@ final class SiteFeatureHooks {
     if ($this->detection->isDefault()) {
       $default_theme = $this->detection->defaultThemeName();
       if ($this->themeSettings->forTheme($default_theme)->bool('enable_custom_node_width')) {
-        $node = $form_state->getFormObject()->getEntity();
+        /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+        $form_object = $form_state->getFormObject();
+        $node = $form_object->getEntity();
         if ($node instanceof NodeInterface) {
           $current_width_class = 'none';
           $node_id = $node->id();
           if ($node_id) {
+            /** @var \Drupal\Core\Entity\ContentEntityInterface[] $current_width */
             $current_width = $this->entityTypeManager->getStorage('node_width')->loadByProperties([
               'node_id' => $node_id,
             ]);
@@ -140,6 +153,7 @@ final class SiteFeatureHooks {
       $node_id = $node->id();
       if ($node_id) {
         if ($custom_width && $custom_width !== 'none') {
+          /** @var \Drupal\Core\Entity\ContentEntityInterface[] $existing */
           $existing = $node_width_storage->loadByProperties([
             'node_id' => $node_id,
           ]);
@@ -203,13 +217,20 @@ final class SiteFeatureHooks {
    *
    * Theme scope: default. Block forms render under the admin theme; the
    * setting is read from the default theme.
+   *
+   * @param array<string, mixed> $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   #[Hook('form_block_form_alter')]
   public function formBlockFormAlter(array &$form, FormStateInterface $form_state): void {
     if (!$this->blockTitleSettings->isEnabled()) {
       return;
     }
-    $block = $form_state->getFormObject()?->getEntity();
+    /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+    $form_object = $form_state->getFormObject();
+    $block = $form_object->getEntity();
     if (!$block instanceof BlockInterface) {
       return;
     }
@@ -290,6 +311,9 @@ final class SiteFeatureHooks {
    *
    * Theme scope: default. Kept as before: the flag is read from the default
    * theme. Candidate for active; owner decision.
+   *
+   * @param array<string, mixed> $variables
+   *   The template variables.
    */
   #[Hook('preprocess_block')]
   public function preprocessBlock(array &$variables): void {

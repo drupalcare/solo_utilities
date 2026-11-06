@@ -1,8 +1,6 @@
 ((Drupal) => {
-  'use strict';
-
   Drupal.behaviors.ColorSchemesRules = {
-    attach: function(context, settings) {
+    attach(context, settings) {
       const categorySelect = context.querySelector('#edit-theme-category');
       const themeSelect = context.querySelector('#edit-predefined-theme');
 
@@ -14,8 +12,14 @@
       const storedValue = themeSelect.getAttribute('data-default-value');
 
       // Initialize once
-      if (categorySelect.getAttribute('data-solo-theme-settings-processed') !== 'true') {
-        categorySelect.setAttribute('data-solo-theme-settings-processed', 'true');
+      if (
+        categorySelect.getAttribute('data-solo-theme-settings-processed') !==
+        'true'
+      ) {
+        categorySelect.setAttribute(
+          'data-solo-theme-settings-processed',
+          'true',
+        );
 
         // Clone original options
         const initialOptions = Array.from(themeSelect.options);
@@ -28,7 +32,7 @@
             let selectedOptionExists = false;
 
             initialOptions.forEach((option) => {
-              if (option.value.startsWith(selectedCategory + '|')) {
+              if (option.value.startsWith(`${selectedCategory}|`)) {
                 themeSelect.appendChild(option.cloneNode(true));
 
                 // Check if the stored value matches this option's suffix
@@ -47,25 +51,26 @@
         };
 
         // Filter options on category change
-        categorySelect.addEventListener('change', function() {
+        categorySelect.addEventListener('change', function () {
           filterThemeOptions(this.value);
         });
 
         // Filter options based on the default value or current value on page load
         filterThemeOptions(categorySelect.value);
       }
-    }
+    },
   };
 
   Drupal.behaviors.soloUtilitiesAjaxOperations = {
-    attach: function (context, settings) {
+    attach(context, settings) {
       // Hide all elements with the class .disable.dropbutton__item
-      const disableLinks = context.querySelectorAll('.disable.dropbutton__item');
+      const disableLinks = context.querySelectorAll(
+        '.disable.dropbutton__item',
+      );
 
-      disableLinks.forEach(link => {
+      disableLinks.forEach((link) => {
         link.style.display = 'none';
       });
-    }
+    },
   };
-
 })(Drupal);

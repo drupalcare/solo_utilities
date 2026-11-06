@@ -1,0 +1,37 @@
+# Config constraints for the Solo 2.0 settings schema: the one owner of every bound the settings form and the CSS builder enforce.
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which writes them into solo/config/schema/solo.schema.yml
+# (the schema is the shipped artifact, so there is no second copy). solo_utilities reads them back through
+# SettingsCatalog and SchemaBounds; no PHP file carries a bound of its own.
+# Format: valid YAML. One constraint is `path: Name option=value ...`; several on one path are a block list under that single key:
+#   path:
+#     - Name option=value
+#     - Name option=value
+# A path is written once (a repeated key is invalid YAML and a reader would drop one; the generator and eslint-plugin-yml both reject it).
+# The path is a dotted schema path where `*` stands for one segment.
+# Range needs an integer leaf (min, max); Length and Regex need a string leaf (Length max; Regex pattern with / delimiters,
+# no spaces). Every row must match at least one leaf, and every install default must satisfy its leaf's constraints.
+# Range values are the numbers the settings form carried as literals before 2.0 (GlobalSiteSection).
+# Choice is not used: its callback must be a static method, and the option lists live in the injected SettingsOptions service.
+preloader.max_display_seconds: Range min=3 max=60
+preloader.text.font_size: Range min=12 max=124
+preloader.logo.width: Range min=16 max=800
+preloader.logo.height: Range min=16 max=600
+preloader.logo.opacity: Range min=0 max=100
+preloader.bg_opacity: Range min=0 max=100
+back_to_top.scroll_threshold: Range min=200 max=800
+popup_login.animation_duration: Range min=0 max=5000
+# The floor 5002 keeps the login popup above the primary sidebar menu (z 5001) and the fixed search and cookies (z 5000).
+popup_login.z_index: Range min=5002 max=999999
+popup_login.overlay_opacity: Range min=0 max=100
+# Room for a hex color, an rgb() value or a var(--name) reference (SocialIconsSection).
+social_icons.color: Length max=40
+# Hex color fields (SettingsElementFactory::colorSwatch): #rrggbb, or empty for "not set".
+regions.*.colors.*:
+  - Length max=7
+  - Regex pattern=/^#[0-9a-fA-F]{6}$/
+preloader.colors.*:
+  - Length max=7
+  - Regex pattern=/^#[0-9a-fA-F]{6}$/
+back_to_top.colors.*:
+  - Length max=7
+  - Regex pattern=/^#[0-9a-fA-F]{6}$/

@@ -504,13 +504,18 @@ final class ClassMigrator {
    * Renames ids in an HTML fragment: id and for values, and #fragment links.
    *
    * Used on stored content, where only ids are renamed (owner decision D3).
+   * Only a same-document link (href="#id") is renamed. A link that names a
+   * page or site before the "#" points at an id this text does not hold, so
+   * it is left as it is and returned as a note with the whole href.
    *
-   * @return array{value: string, renamed: array<string, string>}
-   *   The new HTML and the renamed ids.
+   * @return array{value: string, renamed: array<string, string>, notes: list<array{id: string, new: string, href: string}>}
+   *   The new HTML, the renamed ids, and the links to other pages to check by
+   *   hand.
    */
   public function migrateHtmlIds(string $html): array {
     $renamed = [];
-    $pattern = '/(\s(?:id|for|aria-controls|aria-labelledby|aria-describedby)\s*=\s*["\']|\shref\s*=\s*["\'][^"\'#]*#)([' . self::TOKEN_CHARS . ']+)(?=["\'])/i';
+    $notes = [];
+    $pattern = '/(\s(?:id|for|aria-controls|aria-labelledby|aria-describedby)\s*=\s*["\']|\shref\s*=\s*["\']#)([' . self::TOKEN_CHARS . ']+)(?=["\'])/i';
     $value = preg_replace_callback($pattern, function (array $m) use (&$renamed): string {
       $new = $this->ids[$m[2]] ?? NULL;
       if ($new === NULL) {
@@ -520,9 +525,17 @@ final class ClassMigrator {
       return $m[1] . $new;
     }, $html);
     if ($value === NULL) {
-      return ['value' => $html, 'renamed' => []];
+      return ['value' => $html, 'renamed' => [], 'notes' => []];
     }
-    return ['value' => $value, 'renamed' => $renamed];
+    $other = '/\shref\s*=\s*["\']([^"\'#]+#([' . self::TOKEN_CHARS . ']+))(?=["\'])/i';
+    if (preg_match_all($other, $html, $matches, PREG_SET_ORDER) > 0) {
+      foreach ($matches as $m) {
+        if (isset($this->ids[$m[2]])) {
+          $notes[] = ['id' => $m[2], 'new' => $this->ids[$m[2]], 'href' => $m[1]];
+        }
+      }
+    }
+    return ['value' => $value, 'renamed' => $renamed, 'notes' => $notes];
   }
 
   /**

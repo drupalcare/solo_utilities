@@ -16,6 +16,9 @@ use Drupal\solo_utilities\Theme\SoloThemeDetection;
 
 /**
  * Implements hook_schema().
+ *
+ * @return array<string, mixed>
+ *   The schema definition.
  */
 function solo_utilities_schema(): array {
   return [

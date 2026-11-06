@@ -10,12 +10,15 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\solo_utilities\ColorSchemesRuleInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for handling AJAX operations and overview for Color Schemes Rules.
  *
  * @internal
+ *
+ * @phpstan-consistent-constructor
  */
 class ColorSchemesController extends ControllerBase {
 
@@ -59,7 +62,7 @@ class ColorSchemesController extends ControllerBase {
   /**
    * Provides an overview of all theme configurations.
    *
-   * @return array
+   * @return array<string, mixed>
    *   A renderable array containing the overview page.
    */
   public function overview() {
@@ -88,44 +91,41 @@ class ColorSchemesController extends ControllerBase {
   /**
    * Handles AJAX operations for enabling or disabling Color Schemes Rules.
    *
-   * @param string $color_schemes_rule
-   *   The ID of the library load rule entity.
+   * @param \Drupal\solo_utilities\ColorSchemesRuleInterface $color_schemes_rule
+   *   The library load rule entity, upcast by the route.
    * @param string $op
    *   The operation being performed, either 'enable' or 'disable'.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   A JSON response indicating success or failure.
    */
-  public function ajaxOperation($color_schemes_rule, $op) {
+  public function ajaxOperation(ColorSchemesRuleInterface $color_schemes_rule, string $op): JsonResponse {
     $account = $this->currentUser();
 
     // Check if the user has the necessary permission to manage rules.
-    if (!$account->hasPermission('administer Color Schemes Rules')) {
+    // The deprecated 1.x name still counts until drush updatedb moves it.
+    if (!$account->hasPermission('administer color schemes rules') && !$account->hasPermission('administer Color Schemes Rules')) {
       return new JsonResponse(['status' => 'error', 'message' => 'You are not authorized to perform this operation.'], 403);
     }
 
-    $storage = $this->entityTypeManager()->getStorage('color_schemes_rule');
-    $rule = $storage->load($color_schemes_rule);
+    // The route upcasts the rule (parameters option), so it arrives loaded.
+    $rule = $color_schemes_rule;
 
-    if ($rule) {
-      switch ($op) {
-        case 'enable':
-          $rule->set('status', TRUE);
-          break;
+    switch ($op) {
+      case 'enable':
+        $rule->set('status', TRUE);
+        break;
 
-        case 'disable':
-          $rule->set('status', FALSE);
-          break;
+      case 'disable':
+        $rule->set('status', FALSE);
+        break;
 
-        default:
-          return new JsonResponse(['status' => 'error', 'message' => 'Invalid operation.']);
-      }
-
-      $rule->save();
-      return new JsonResponse(['status' => 'success']);
+      default:
+        return new JsonResponse(['status' => 'error', 'message' => 'Invalid operation.']);
     }
 
-    return new JsonResponse(['status' => 'error', 'message' => 'Rule not found.']);
+    $rule->save();
+    return new JsonResponse(['status' => 'success']);
   }
 
 }

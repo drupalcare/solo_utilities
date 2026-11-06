@@ -175,7 +175,7 @@ final class SettingsFormBuilder {
     $settings = $this->settingsReader->forTheme($theme);
 
     // Handlers are appended, so the submit runs after core's save. They are
-    // serialisable objects because this form has uploads and can be cached.
+    // serializable objects because this form has uploads and can be cached.
     $form['#validate'][] = [$this->validator, 'validate'];
     $form['#submit'][] = [$this->submitter, 'submit'];
 

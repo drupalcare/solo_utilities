@@ -95,7 +95,7 @@ final class SearchResult {
   }
 
   /**
-   * Decorates the search block and hands its content types to the behaviour.
+   * Decorates the search block and hands its content types to the behavior.
    *
    * @param array<mixed> $form
    *   The form.
@@ -104,7 +104,7 @@ final class SearchResult {
    */
   public function alterSearchBlockForm(array &$form, BoundThemeSettings $settings): void {
     CacheableMetadata::createFromRenderArray($form)->addCacheableDependency($settings)->applyTo($form);
-    $form['keys']['#attributes']['placeholder'] = $this->t('Search by keyword or phrase.');
+    $form['keys']['#attributes']['placeholder'] = $this->t('Search');
     $form['actions']['submit'] ??= [];
     $this->attributes->addClasses($form['actions']['submit'], 'solo-fixed-search__button-block', '#attributes');
     $form['#attached']['drupalSettings']['solo'] = [

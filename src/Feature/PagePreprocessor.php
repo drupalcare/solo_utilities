@@ -31,6 +31,11 @@ final class PagePreprocessor {
    */
   private const LOGIN_PATHS = ['user/login', 'user/register', 'user/password'];
 
+  /**
+   * The copyright text Solo installs, whose placeholder name is the site name.
+   */
+  private const SHIPPED_COPYRIGHT = 'Copyright © %year% Company Name - All rights reserved';
+
   public function __construct(
     private readonly SettingsCatalog $catalog,
     private readonly SettingsReader $settingsReader,
@@ -64,7 +69,7 @@ final class PagePreprocessor {
     foreach ($this->catalog->templateVariables() as $name => $path) {
       $variables[$name] = $path === NULL ? NULL : $settings->get($path);
     }
-    $this->addFooterCopyright($variables, $settings);
+    $this->addFooterCopyright($variables, $settings, $cache);
     $this->attachPageLibraries($variables, $settings);
     $this->addSizeClasses($variables, $settings);
     $this->addSidebarBranding($variables, $settings, $cache);
@@ -83,14 +88,25 @@ final class PagePreprocessor {
   }
 
   /**
-   * Renders the formatted copyright when the setting asks for it.
+   * Names the site in the shipped copyright and renders the formatted one.
    *
    * @param array<string, mixed> $variables
    *   The page template variables.
    * @param \Drupal\solo_utilities\Settings\BoundThemeSettings $settings
    *   The active theme's settings.
+   * @param \Drupal\Core\Cache\CacheableMetadata $cache
+   *   The page's cache metadata.
    */
-  private function addFooterCopyright(array &$variables, BoundThemeSettings $settings): void {
+  private function addFooterCopyright(array &$variables, BoundThemeSettings $settings, CacheableMetadata $cache): void {
+    // The saved text is never changed. Only the shipped placeholder is shown
+    // with the site name; any text the site owner typed prints as typed.
+    if (($variables['footer_copyright'] ?? NULL) === self::SHIPPED_COPYRIGHT) {
+      $name = (string) $this->settingsReader->siteName();
+      if ($name !== '') {
+        $variables['footer_copyright'] = str_replace('Company Name', $name, self::SHIPPED_COPYRIGHT);
+        $cache->addCacheTags([SettingsReader::SITE_CACHE_TAG]);
+      }
+    }
     $variables['footer_copyright_formatted_rendered'] = '';
     if (empty($variables['footer_use_formatted_text'])) {
       return;
@@ -221,7 +237,7 @@ final class PagePreprocessor {
   }
 
   /**
-   * Passes the popup login's behaviour to its script.
+   * Passes the popup login's behavior to its script.
    *
    * @param array<string, mixed> $variables
    *   The page template variables.

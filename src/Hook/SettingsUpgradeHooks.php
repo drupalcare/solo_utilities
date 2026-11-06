@@ -39,6 +39,9 @@ final class SettingsUpgradeHooks {
    * A sub-theme's config/install still holds old names, and core installs it
    * as shipped. During a sync the data was already transformed on import. A
    * failure is logged, not thrown, as the theme is already installed.
+   *
+   * @param list<string> $theme_list
+   *   The machine names of the themes just installed.
    */
   #[Hook('themes_installed')]
   public function themesInstalled(array $theme_list): void {
@@ -57,6 +60,9 @@ final class SettingsUpgradeHooks {
    * Implements hook_themes_uninstalled().
    *
    * Forgets remembered theme answers; a removed theme must not still be Solo.
+   *
+   * @param list<string> $themes
+   *   The machine names of the themes just uninstalled.
    */
   #[Hook('themes_uninstalled')]
   public function themesUninstalled(array $themes): void {
@@ -70,6 +76,11 @@ final class SettingsUpgradeHooks {
    * and Solo's own post-update installs this module on sites without it. So the
    * migration runs here for them. On failure it unregisters this module's post
    * update, so the next updb runs it, and throws to keep the current one red.
+   *
+   * @param list<string> $modules
+   *   The machine names of the modules just installed.
+   * @param bool $is_syncing
+   *   Whether a configuration sync is running.
    *
    * @throws \RuntimeException
    *   Naming the themes that failed.
@@ -93,6 +104,9 @@ final class SettingsUpgradeHooks {
    * new type, plus whatever its file declares that is not in the map. Only an
    * existing definition is changed: core throws if an alter adds one, so a
    * sub-theme with no schema stays without.
+   *
+   * @param array<string, mixed> $definitions
+   *   The config schema definitions, altered in place.
    */
   #[Hook('config_schema_info_alter')]
   public function configSchemaInfoAlter(array &$definitions): void {

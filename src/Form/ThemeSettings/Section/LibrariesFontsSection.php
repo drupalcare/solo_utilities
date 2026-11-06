@@ -28,6 +28,9 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
    * The color names of each family of classes.
    */
   private const COLORS = [
+    // These are W3.CSS class suffixes, so they keep W3.CSS spelling, which the
+    // spell checker flags in one word.
+    // cspell:disable
     'base' => [
       'red',
       'pink',
@@ -131,6 +134,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
       'pale-green',
       'pale-blue',
     ],
+    // cspell:enable
   ];
 
   /**

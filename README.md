@@ -60,10 +60,12 @@ drush theme:install my_theme
 drush config:set system.theme default my_theme -y
 ```
 
-The command finds Solo wherever it is installed, copies its `solo_subtheme`
-starter to `themes/custom/my_theme` under your web root, and renames
-every file, namespace, function and label to the new name. Add
-`--label="My Theme"` to choose the human-readable name.
+The command finds Solo wherever it is installed and runs Drupal core's
+theme generator on Solo's `solo_subtheme` starterkit. It creates
+`themes/custom/my_theme` under your web root and renames every file,
+namespace, function and label to the new name. Add `--label="My Theme"` to
+choose the human-readable name. The same result comes from
+`php core/scripts/drupal generate-theme my_theme --starterkit solo_subtheme --path themes/custom`.
 
 The machine name follows Drupal's rules: lowercase letters, numbers and
 underscores, starting with a letter, at most 50 characters. It must not be
@@ -134,7 +136,10 @@ writes nothing. Add `--report=solo-report.md` for a full list.
   published revision and the latest draft are rewritten; older revisions are
   counted and left. A paragraph or inline block is never saved alone: its page
   is saved too, so the page shows the new text. Layout Builder section and
-  component settings are listed only.
+  component settings are listed only. Only a link to the same page
+  (`href="#header"`) is renamed; a link to an old id on another page or site
+  (`href="/about#header"`) is never changed and is listed as
+  `other-page-link` with its whole address, to check by hand.
 
 Changing content needs a database backup first. With `--apply --content`, the
 command refuses and writes nothing unless you also pass `--backup-confirmed`

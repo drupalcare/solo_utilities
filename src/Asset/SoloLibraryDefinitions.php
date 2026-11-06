@@ -12,7 +12,7 @@ use Drupal\Component\Serialization\Yaml;
  * Sources, all inside the Solo theme directory:
  * - fonts/solo-fonts.json: "fonts" (one entry per Google font slug) and
  *   "icons" (the Font Awesome libraries).
- * - schemes/*.yml: one record per predefined colour scheme.
+ * - schemes/*.yml: one record per predefined color scheme.
  * - scripts/breakpoints/breakpoints.json: the breakpoint widths in px.
  * - libraries/solo-components.json: "libraries" (the component and feature
  *   libraries) and "globs" (libraries built from a file pattern).
@@ -38,7 +38,7 @@ final class SoloLibraryDefinitions {
   ];
 
   /**
-   * Weight of a predefined colour scheme stylesheet.
+   * Weight of a predefined color scheme stylesheet.
    */
   private const SCHEME_WEIGHT = -9;
 
@@ -157,7 +157,7 @@ final class SoloLibraryDefinitions {
   }
 
   /**
-   * Builds one library per predefined colour scheme record.
+   * Builds one library per predefined color scheme record.
    *
    * @param string $themePath
    *   Solo theme directory.
@@ -347,6 +347,8 @@ final class SoloLibraryDefinitions {
           && is_string($value['name'] ?? NULL) && preg_match('/^[A-Za-z0-9. -]+$/', $value['name'])
           && is_string($value['url'] ?? NULL) && preg_match('#^https://[A-Za-z0-9._~:/?\#@!$&=+%-]+$#', $value['url'])
           && is_bool($value['gpl-compatible'] ?? NULL),
+        // Unreachable: the keys were checked against META_KEYS above.
+        default => FALSE,
       };
       if (!$valid) {
         return NULL;
@@ -450,6 +452,8 @@ final class SoloLibraryDefinitions {
         'minified', 'preprocess' => is_bool($value),
         'attributes' => is_array($value) && !array_is_list($value) && $value
           && !array_filter($value, static fn ($v, $k): bool => !is_string($k) || !preg_match('/^[a-z-]+$/', $k) || !is_bool($v), ARRAY_FILTER_USE_BOTH),
+        // Unreachable: the keys were checked against $allowed above.
+        default => FALSE,
       };
       if ($valid === FALSE) {
         return NULL;

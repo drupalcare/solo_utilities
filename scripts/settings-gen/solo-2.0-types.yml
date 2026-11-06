@@ -1,0 +1,9 @@
+# Schema type overrides for the Solo 2.0 settings schema: the one owner of every leaf typed other than the 1.x schema says.
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which writes the type into
+# solo/config/schema/solo.schema.yml. Text a visitor reads must be translatable through config translation.
+# Format: `path: type`. The path is one exact dotted schema path. Allowed: label (a string leaf, translatable) and
+# text_format (replaces a value/format mapping; stored shape is unchanged, so no update path is needed).
+footer.credit_link.label: label
+footer.credit_link.text: label
+footer.copyright_formatted: text_format
+footer.copyright: label

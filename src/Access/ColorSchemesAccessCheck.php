@@ -6,6 +6,8 @@ namespace Drupal\solo_utilities\Access;
 
 use Drupal\Core\Access\AccessCheckInterface;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Component\Routing\Route;
@@ -34,28 +36,38 @@ class ColorSchemesAccessCheck implements AccessCheckInterface {
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user account.
    *
-   * @return \Drupal\Core\Access\AccessResult
-   *   The access result.
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result, varying by the default theme and, once that is Solo,
+   *   by the account's permissions.
    */
-  public function access(Route $route, AccountInterface $account) {
-    // Check if the Solo theme or its sub-themes are enabled.
+  public function access(Route $route, AccountInterface $account): AccessResultInterface {
+    // The answer depends on system.theme:default and on which themes are
+    // installed (the Solo hierarchy is read from installed themes).
+    $theme_dependency = (new CacheableMetadata())
+      ->addCacheTags(['config:system.theme', 'config:core.extension']);
+
     if (!$this->isSoloOrSubThemeEnabled()) {
-      // \Drupal::logger('solo_utilities')->notice('Access denied:
-      // Solo or sub-theme is not enabled.');
-      return AccessResult::forbidden();
+      return AccessResult::forbidden()->addCacheableDependency($theme_dependency);
     }
 
-    // Check for user permissions.
-    if ($account->hasPermission('administer Color Schemes Rules') ||
-        $account->hasPermission('view Color Schemes Rules') ||
-        $account->hasPermission('edit Color Schemes Rules') ||
-        $account->hasPermission('delete Color Schemes Rules')) {
-      return AccessResult::allowed();
+    $permissions = AccessResult::allowedIfHasPermissions($account, [
+      'administer color schemes rules',
+      'view color schemes rules',
+      'edit color schemes rules',
+      'delete color schemes rules',
+      // Deprecated 1.x names, accepted until drush updatedb moves the grants.
+      'administer Color Schemes Rules',
+      'view Color Schemes Rules',
+      'edit Color Schemes Rules',
+      'delete Color Schemes Rules',
+    ], 'OR');
+    if ($permissions->isAllowed()) {
+      return $permissions->addCacheableDependency($theme_dependency);
     }
 
-    // \Drupal::logger('solo_utilities')->notice('Access denied: No sufficient
-    // permissions for user @user.', ['@user' => $account->getDisplayName()]);
-    return AccessResult::forbidden();
+    return AccessResult::forbidden()
+      ->cachePerPermissions()
+      ->addCacheableDependency($theme_dependency);
   }
 
   /**

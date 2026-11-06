@@ -1,0 +1,13 @@
+# Choice constraints for the Solo 2.0 settings schema: stored values the settings form offers from a static list.
+# OWNER: this file maps a schema path to the SettingsOptions method that owns the list. The generator reads the keys
+# of that method in solo_utilities/src/Form/SettingsOptions.php (literal keys only; any other body is an error) and
+# writes them as a Choice constraint into solo/config/schema/solo.schema.yml. Change the list in the method and regenerate.
+# Dynamic lists (content types, menus, text formats, installed fonts and palettes) cannot be a static Choice and are deliberately not here.
+# Format: `path: method`. `*` stands for one segment. Every row must match a string leaf and every install default must be a choice.
+regions.*.alignment: alignment
+layout.width.global: siteWidth
+layout.breakpoints.page: siteBreakpoints
+layout.breakpoints.menu: menuBreakpoints
+layout.mobile_order: mobileLayout
+region_groups.*.rounded: rounded
+menus.primary.megamenu.layout: megamenuLayouts

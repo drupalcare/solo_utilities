@@ -24,7 +24,7 @@ interface ColorSchemesRuleInterface extends ConfigEntityInterface {
   /**
    * Gets the conditions for the library load rule.
    *
-   * @return array
+   * @return array<string, mixed>
    *   The conditions under which the library should be loaded.
    */
   public function getConditions();

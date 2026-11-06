@@ -18,6 +18,9 @@ class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The render array.
    */
   public function render() {
     // Attach the "pre-defined" library when rendering the list.
@@ -29,6 +32,9 @@ class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The header cells.
    */
   public function buildHeader() {
     $header['label'] = $this->t('Label');
@@ -42,6 +48,9 @@ class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The row cells.
    */
   public function buildRow(EntityInterface $entity) {
     /** @var \Drupal\solo_utilities\Entity\ColorSchemesRule $entity */
@@ -84,11 +93,15 @@ class ColorSchemesRuleListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The operations.
    */
   public function getOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
     $operations = parent::getOperations($entity, $cacheability);
 
     // Add enable/disable operation.
+    /** @var \Drupal\solo_utilities\Entity\ColorSchemesRule $entity */
     if ($entity->getStatus()) {
       $operations['disable'] = [
         'title' => $this->t('Disable'),

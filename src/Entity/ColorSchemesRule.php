@@ -18,56 +18,7 @@ use Drupal\solo_utilities\Form\ColorSchemesRuleForm;
 /**
  * Defines the Color Schemes Rule entity.
  *
- * The definition is declared twice ON PURPOSE, and the two must agree. Core
- * that ships the entity-type attribute classes reads #[ConfigEntityType] and
- * ignores this annotation. Drupal 10 ships none (checked on 10.6.18) and
- * discovers entity types from the annotation only: without it this entity
- * type does not exist there, which is the 1.0.7 PluginNotFoundException.
- * EntityTypeDefinitionTest fails if either copy goes missing or the two
- * drift apart.
- *
  * @api
- *
- * @ConfigEntityType(
- *   id = "color_schemes_rule",
- *   label = @Translation("Color Schemes Rule"),
- *   handlers = {
- *     "access" = "Drupal\solo_utilities\ColorSchemesRuleAccessControlHandler",
- *     "list_builder" = "Drupal\solo_utilities\ColorSchemesRuleListBuilder",
- *     "form" = {
- *       "add" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
- *       "edit" = "Drupal\solo_utilities\Form\ColorSchemesRuleForm",
- *       "delete" = "Drupal\solo_utilities\Form\ColorSchemesRuleDeleteForm"
- *     }
- *   },
- *   config_prefix = "rule",
- *   admin_permission = "administer site configuration",
- *   entity_keys = {
- *     "id" = "id",
- *     "uuid" = "uuid",
- *     "label" = "label",
- *     "status" = "status",
- *     "weight" = "weight"
- *   },
- *   config_export = {
- *     "uuid",
- *     "id",
- *     "label",
- *     "weight",
- *     "status",
- *     "library",
- *     "conditions",
- *     "theme_category",
- *     "predefined_theme",
- *     "conjunction",
- *   },
- *   links = {
- *     "collection" = "/admin/config/solo_utilities/color-schemes-rules",
- *     "add-form" = "/admin/config/solo_utilities/color-schemes-rules/add",
- *     "edit-form" = "/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}",
- *     "delete-form" = "/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}"
- *   }
- * )
  */
 #[ConfigEntityType(
   id: 'color_schemes_rule',
@@ -95,7 +46,7 @@ use Drupal\solo_utilities\Form\ColorSchemesRuleForm;
     'edit-form' => '/admin/config/solo_utilities/color-schemes-rules/edit/{color_schemes_rule}',
     'delete-form' => '/admin/config/solo_utilities/color-schemes-rules/delete/{color_schemes_rule}',
   ],
-  admin_permission: 'administer site configuration',
+  admin_permission: 'administer color schemes rules',
   config_export: [
     'uuid',
     'id',
@@ -156,7 +107,7 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
   /**
    * The conditions for the library load rule.
    *
-   * @var array
+   * @var array<string, mixed>
    */
   protected $conditions = [];
 
@@ -184,14 +135,14 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
   /**
    * The visibility collection.
    *
-   * @var \Drupal\Core\Condition\ConditionPluginCollection
+   * @var \Drupal\Core\Condition\ConditionPluginCollection|null
    */
   protected $visibilityCollection;
 
   /**
    * The condition plugin manager.
    *
-   * @var \Drupal\Core\Executable\ExecutableManagerInterface
+   * @var \Drupal\Core\Executable\ExecutableManagerInterface|null
    */
   protected $conditionPluginManager;
 
@@ -204,6 +155,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The conditions.
    */
   public function getConditions() {
     return $this->getVisibilityConditions()->getConfiguration();
@@ -225,6 +179,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return string|null
+   *   The conjunction.
    */
   public function getConjunction() {
     return $this->conjunction;
@@ -232,6 +189,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return string|null
+   *   The theme category.
    */
   public function getThemeCategory() {
     return $this->theme_category;
@@ -239,6 +199,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return string|null
+   *   The predefined theme.
    */
   public function getPredefinedTheme() {
     return $this->predefined_theme;
@@ -249,6 +212,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
    *
    * @param string $theme_category
    *   The theme category.
+   *
+   * @return void
+   *   No return value.
    */
   public function setThemeCategory($theme_category) {
     $this->theme_category = $theme_category;
@@ -259,6 +225,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
    *
    * @param string $predefined_theme
    *   The predefined theme.
+   *
+   * @return void
+   *   No return value.
    */
   public function setPredefinedTheme($predefined_theme) {
     $this->predefined_theme = $predefined_theme;
@@ -273,6 +242,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The visibility conditions' configuration.
    */
   public function getVisibility() {
     return $this->getVisibilityConditions()->getConfiguration();
@@ -280,6 +252,9 @@ class ColorSchemesRule extends ConfigEntityBase implements ColorSchemesRuleInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return \Drupal\Core\Condition\ConditionPluginCollection
+   *   The condition collection.
    */
   public function getVisibilityConditions() {
     if (!isset($this->visibilityCollection)) {

@@ -334,11 +334,17 @@ final class StoredClassMigrator {
     $units = $this->candidateUnits($ids, $result['rows'], $result['summary']);
     [$units, $result['resume']] = self::slice($units, $from, $limit);
 
-    $transform = function (array $context, string $text): ?string {
+    $transform = function (array $context, string $text) use (&$result): ?string {
       if ($context['property'] === 'options.attributes.id') {
         return $this->engine->newId($text);
       }
       $migrated = $this->engine->migrateHtmlIds($text);
+      // A link to an old id on another page or site is never rewritten; it is
+      // listed with its whole href so it can be checked by hand.
+      foreach ($migrated['notes'] as $note) {
+        $where = $context['field'] . '.' . $context['delta'] . '.' . $context['property'] . ($context['role'] === 'pending' ? ' (draft)' : '');
+        $result['rows'][] = self::row('content', self::changeName($context), $where, $note['href'], $note['new'], 'other-page-link');
+      }
       return $migrated['renamed'] === [] ? NULL : $migrated['value'];
     };
     $remaining = array_values($units);
@@ -1175,6 +1181,7 @@ final class StoredClassMigrator {
   private function rewrite(string $name, string $store, bool $apply, ?RollbackLog $log, array &$rows, callable $callback): void {
     $config = $this->configFactory->getEditable($name);
     $data = $config->getRawData();
+    /** @var list<array<string, string>> $found */
     $found = [];
     $new = $callback($data, $found);
     foreach ($found as $item) {

@@ -39,7 +39,7 @@ final class ThemeLibraryRegistrar {
   public const GROUP = 200;
 
   /**
-   * Region colours and back to top load after every theme stylesheet.
+   * Region colors and back to top load after every theme stylesheet.
    *
    * The `style` attributes they replace outranked every stylesheet.
    */

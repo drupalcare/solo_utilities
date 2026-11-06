@@ -12,6 +12,9 @@ use Drupal\Core\Session\AccountInterface;
 /**
  * Defines the access control handler for the color_schemes_rule entity type.
  *
+ * Each check also accepts the deprecated 1.x permission name, so a role keeps
+ * access until drush updatedb moves its grant. The old names go in 3.0.0.
+ *
  * @internal
  */
 class ColorSchemesRuleAccessControlHandler extends EntityAccessControlHandler {
@@ -22,16 +25,28 @@ class ColorSchemesRuleAccessControlHandler extends EntityAccessControlHandler {
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view Color Schemes Rules');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'view color schemes rules',
+          'view Color Schemes Rules',
+        ], 'OR');
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit Color Schemes Rules');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'edit color schemes rules',
+          'edit Color Schemes Rules',
+        ], 'OR');
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete Color Schemes Rules');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'delete color schemes rules',
+          'delete Color Schemes Rules',
+        ], 'OR');
 
       case 'administer':
-        return AccessResult::allowedIfHasPermission($account, 'administer Color Schemes Rules');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'administer color schemes rules',
+          'administer Color Schemes Rules',
+        ], 'OR');
     }
 
     // Return neutral access result if the operation is not explicitly handled.
@@ -40,9 +55,19 @@ class ColorSchemesRuleAccessControlHandler extends EntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The account.
+   * @param array<string, mixed> $context
+   *   The creation context.
+   * @param string|null $entity_bundle
+   *   The entity bundle.
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'create Color Schemes Rules');
+    return AccessResult::allowedIfHasPermissions($account, [
+      'create color schemes rules',
+      'create Color Schemes Rules',
+    ], 'OR');
   }
 
 }

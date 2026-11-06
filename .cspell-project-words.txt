@@ -1,0 +1,41 @@
+# Project dictionary for Solo Utilities (one word per line).
+# People and sibling projects
+alaa
+haddad
+razzle
+webform
+# Technical and product terms
+megamenu
+updatedb
+updb
+cset
+renamer
+mytheme
+nullsafe
+unmigrated
+uncast
+hardlinks
+deflist
+delish
+# Font names (Google Fonts slugs and families shipped as setting choices)
+aans
+barriecito
+girassol
+staatliches
+unifrakturmaguntia
+# SHIPPED NAMES, not typos, never renamed: config keys, old Solo 1 setting names,
+# update-function names, method names, CSS and library names
+discription
+googel
+pagetitle
+gfex
+gfin
+normalise
+unposted
+clsmig
+# Local variable names in code
+normalised
+conds
+badhex
+# Deliberate typo used by the generator self-test to prove its drift check goes red
+globl

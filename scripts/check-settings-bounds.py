@@ -2,7 +2,7 @@
 """Fail when the settings form carries a bound of its own.
 
 Solo's numeric ranges and text lengths have ONE owner: the config constraints in
-solo/config/schema/solo.schema.yml (generated from planning/solo-2.0-constraints.yml).
+solo/config/schema/solo.schema.yml (generated from scripts/settings-gen/solo-2.0-constraints.yml).
 SchemaBounds::applyTo() turns them into #min, #max and #maxlength. An integer literal
 such as `'#min' => 3` in a section or in SettingsElementFactory is a second owner
 and drifts. This check reports every one.

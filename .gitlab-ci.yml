@@ -31,3 +31,26 @@ variables:
   _AUTORUN_PREVIOUS_MINOR: 'all'
   # No previous-major job: 2.0.x requires ^11.3 || ^12, so Drupal 10 is not
   # claimed (it stays on 1.0.x).
+
+################
+# Settings generator and project check scripts (python only, no Drupal needed).
+# The generator builds Solo's settings schema, install defaults and the shipped
+# maps from the Solo theme's 1.0.x-dev files, so the job clones Solo (both the
+# working branch and 1.0.x-dev) and points SOLO_THEME_DIR at it. --check goes red
+# when a generated file in that checkout differs from the generator's output.
+# Run it locally: see scripts/settings-gen/README.md.
+################
+settings-gen-checks:
+  stage: validate
+  image: python:3.12-bookworm
+  script:
+    - export SOLO_THEME_DIR="$(mktemp -d "${TMPDIR:-/tmp}/solo-theme.XXXXXX")"
+    - git clone --quiet --branch 2.0.x-dev https://git.drupalcode.org/project/solo.git "$SOLO_THEME_DIR"
+    - git -C "$SOLO_THEME_DIR" fetch --quiet origin 1.0.x-dev:1.0.x-dev
+    - python3 -I scripts/settings-gen/solo-schema-gen.py --check
+    - python3 -I scripts/settings-gen/solo-schema-gen.py --self-test
+    - python3 -I scripts/check-settings-bounds.py
+    - python3 -I scripts/check-settings-defaults.py
+    - python3 -I scripts/check-theme-detection.py
+    - python3 -I scripts/check-regions.py
+    - python3 -I scripts/check-regions.py --self-test

@@ -9,6 +9,7 @@ use Drupal\solo_utilities\Form\SettingsElementFactory;
 use Drupal\solo_utilities\Form\SettingsOptions;
 use Drupal\solo_utilities\Form\ThemeSettings\SettingsFormContext;
 use Drupal\solo_utilities\Settings\BoundThemeSettings;
+use Drupal\solo_utilities\Settings\CompatibilityRules;
 use Drupal\solo_utilities\Settings\SchemaBounds;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 
@@ -81,6 +82,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#type" => "checkbox",
       "#title" => $this->t("Enable PX-Based Global Website Width"),
       "#default_value" => $settings->get('layout.width.use_pixels'),
+      "#states" => CompatibilityRules::states('C14', 'layout.width.use_pixels'),
       "#description" => $this->t("Switches the website's width from rem units to fixed pixel-based widths. <a href='https://alaahaddad.com/node/70' target='_blank' rel='noopener'>Learn more</a>."),
     ];
 
@@ -542,7 +544,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
   private function buildAccessibility(array &$form, BoundThemeSettings $settings): void {
     $menu_options = $this->options->menus();
 
-    // Accessbility Tab.
+    // Accessibility Tab.
     $form["solo_settings"]["settings_global_misc"]["accessibility"] = [
       "#type" => "details",
       "#title" => $this->t("Accessibility"),
@@ -624,7 +626,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Force show for testing'),
       '#default_value' => $settings->get('preloader.force_show'),
-      '#description' => $this->t('Show the preloader on every page for 30 seconds (logged in, admin, any path). Use this to test logo, text size, and colors. Uncheck when done.'),
+      '#description' => $this->t('Show the preloader on every page for 30 seconds (logged in, admin, any path). Use this to test logo, text size, and colors. Uncheck when done. While it is checked it overrides the visibility settings below, which are hidden.'),
       '#weight' => -10,
       '#id' => 'edit-preloader-force-show',
       '#attributes' => ['class' => ['solo-preloader-force-show']],
@@ -635,6 +637,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Disable for authenticated users'),
       '#default_value' => $settings->get('preloader.disable_authenticated'),
+      '#states' => CompatibilityRules::states('C3a', 'preloader.disable_authenticated'),
       '#description' => $this->t('Do not show the preloader to logged-in users. Recommended for editors.'),
     ];
 
@@ -643,6 +646,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Disable on admin routes'),
       '#default_value' => $settings->get('preloader.disable_admin_routes'),
+      '#states' => CompatibilityRules::states('C3a', 'preloader.disable_admin_routes'),
       '#description' => $this->t('Do not show on /admin, layout builder, content editing, etc.'),
     ];
 
@@ -651,6 +655,7 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       '#type' => 'textarea',
       '#title' => $this->t('Path include/exclude rules'),
       '#default_value' => $settings->get('preloader.path_rules'),
+      '#states' => CompatibilityRules::states('C3a', 'preloader.path_rules'),
       '#description' => $this->t('One path per line. Leave empty to use the default visibility above. <dl class="solo-deflist"><dt>Exclude</dt><dd>Prefix with a minus sign to hide the preloader on that path (e.g. <code>-/contact</code>, <code>-/about</code>).</dd><dt>Include only</dt><dd>List paths without a prefix to show the preloader only on those paths (e.g. <code>/</code> for front page only, or <code>/</code> and <code>/products</code>).</dd></dl>'),
       '#rows' => 4,
     ];

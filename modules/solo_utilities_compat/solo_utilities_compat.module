@@ -16,10 +16,17 @@ use Drupal\solo_utilities\Service\BlockTitleSettings;
 use Drupal\solo_utilities\Service\ReadmeRenderer;
 use Drupal\solo_utilities\Theme\SoloThemeDetection;
 
+// These are the Solo 1 function names that sub-themes call; the names are the
+// public API this module exists to keep, so the module prefix rule cannot apply.
+// phpcs:disable Drupal.NamingConventions.ValidFunctionName.InvalidPrefix
+
 /**
  * Helper function to render README.md.
  *
  * @see \Drupal\solo_utilities\Service\ReadmeRenderer::render()
+ *
+ * @return string
+ *   The rendered README.
  */
 function _solo_utilities_helper_render_readme() {
   return \Drupal::classResolver(ReadmeRenderer::class)->render();
@@ -30,6 +37,12 @@ function _solo_utilities_helper_render_readme() {
  *
  * TRUE if the theme or any of its base themes is 'solo', FALSE otherwise. The
  * walk lives in SoloThemeDetection; this stays for callers that name it.
+ *
+ * @param mixed $theme_name
+ *   The theme machine name.
+ *
+ * @return bool
+ *   TRUE when the theme is in the Solo hierarchy.
  */
 function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
   return \Drupal::classResolver(SoloThemeDetection::class)->isInHierarchy($theme_name);
@@ -41,6 +54,9 @@ function solo_utilities__is_solo_in_theme_hierarchy($theme_name) {
  * Reads system.theme:default, not the active theme, so it still answers for the
  * front end while an admin theme renders the node and block forms. For "is
  * Solo rendering this request" use SoloThemeDetection::isActive().
+ *
+ * @return bool
+ *   TRUE when the default theme is in the Solo hierarchy.
  */
 function solo_utilities__is_solo_or_sub_in_hierarchy_active() {
   return \Drupal::classResolver(SoloThemeDetection::class)->isDefault();

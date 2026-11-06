@@ -12,7 +12,7 @@ reads live and reports every such fallback not listed in ALLOWED below.
 
 Standard library only. Not a test: it reads PHP source and runs no site code.
 
-Solo 2.0-only keys get their default from planning/solo-2.0-defaults.yml (shipped
+Solo 2.0-only keys get their default from scripts/settings-gen/solo-2.0-defaults.yml (shipped
 copy: config/map/solo-2.0-defaults.yml), which solo-schema-gen.py merges into the
 install file; code never repeats them.
 

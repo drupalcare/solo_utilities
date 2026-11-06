@@ -1,5 +1,5 @@
 # Install defaults for settings that exist only in Solo 2.0 (no 1.x install default to carry over).
-# OWNER: this file. Read by planning/spike-tools/solo-schema-gen.py, which merges it into
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which merges it into
 # solo/config/install/solo.settings.yml; a copy ships in solo_utilities/config/map/ and the
 # generator's --check goes red when either differs. Code carries no second default for these keys.
 # Format: one `settings.path: yaml-scalar` per line. Every path must be a leaf in the generated

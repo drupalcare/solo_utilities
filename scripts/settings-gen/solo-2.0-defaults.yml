@@ -1,0 +1,41 @@
+# Install defaults for settings that exist only in Solo 2.0 (no 1.x install default to carry over).
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which merges it into
+# solo/config/install/solo.settings.yml; a copy ships in solo_utilities/config/map/ and the
+# generator's --check goes red when either differs. Code carries no second default for these keys.
+# Format: one `settings.path: yaml-scalar` per line. Every path must be a leaf in the generated
+# schema, and the value must fit its type (boolean true/false, integer, sequence []).
+region_groups.top.aria_landmark: false
+region_groups.bottom.aria_landmark: false
+region_groups.footer.aria_landmark: false
+regions.highlighted.aria_landmark: false
+regions.welcome_text.aria_landmark: false
+typography.node_date_format: solo_date_l
+typography.reading_mode_content_types: []
+menus.toggle_speed: normal
+menus.debug.verbosity: normal
+popup_login.animation_duration: 300
+popup_login.z_index: 10000
+popup_login.overlay_opacity: 50
+popup_login.custom_triggers: ''
+popup_login.use_inline_styles: false
+popup_login.close_on_escape: true
+popup_login.close_on_outside_click: true
+popup_login.focus_trap: true
+popup_login.announce_to_screen_readers: true
+popup_login.return_focus_on_close: true
+search.disabled_filters: []
+search.result_content_types: []
+search.teaser_mode: false
+regions.top_first.alignment: region-left
+regions.top_second.alignment: region-left
+regions.top_third.alignment: region-left
+regions.sidebar_first.alignment: region-left
+regions.content.alignment: region-left
+regions.sidebar_second.alignment: region-left
+regions.bottom_first.alignment: region-left
+regions.bottom_second.alignment: region-left
+regions.bottom_third.alignment: region-left
+regions.bottom_fourth.alignment: region-left
+regions.footer_first.alignment: region-left
+regions.footer_second.alignment: region-left
+regions.footer_third.alignment: region-left
