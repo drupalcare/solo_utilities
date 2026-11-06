@@ -1,7 +1,7 @@
 name: 'Solo Utilities Compatibility'
 type: module
-description: 'Lets custom code that reads Solo settings by their old names, or calls the Solo Utilities helper functions, keep working. Install it only when "drush solo:preflight" reports a call.'
-package: 'Solo Suite'
+description: 'Keeps custom code working that reads Solo settings by their old names or calls the Solo 1 helper functions. Install it only when drush solo:preflight reports such code.'
+package: 'Solo'
 core_version_requirement: ^11.3 || ^12
 php: ^8.3
 dependencies:

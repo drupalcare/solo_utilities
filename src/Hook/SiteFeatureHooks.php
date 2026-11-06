@@ -15,7 +15,6 @@ use Drupal\node\NodeInterface;
 use Drupal\solo_utilities\Feature\BlockBranding;
 use Drupal\solo_utilities\Feature\FormDecorator;
 use Drupal\solo_utilities\Service\BlockTitleSettings;
-use Drupal\solo_utilities\Service\ReadmeRenderer;
 use Drupal\solo_utilities\Settings\SettingsReader;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -35,7 +34,6 @@ final class SiteFeatureHooks {
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly RequestStack $requestStack,
     private readonly BlockTitleSettings $blockTitleSettings,
-    private readonly ReadmeRenderer $readmeRenderer,
     private readonly BlockBranding $blockBranding,
     private readonly FormDecorator $formDecorator,
   ) {}
@@ -50,10 +48,27 @@ final class SiteFeatureHooks {
    */
   #[Hook('help')]
   public function help(string $route_name, RouteMatchInterface $route_match): string|array|NULL {
-    if ($route_name === 'help.page.solo_utilities') {
-      return $this->readmeRenderer->render();
+    if ($route_name !== 'help.page.solo_utilities') {
+      return NULL;
     }
-    return NULL;
+    $output = '<h2>' . $this->t('About') . '</h2>';
+    $output .= '<p>' . $this->t('The Solo Utilities module adds features, utilities and settings to the Solo theme for advanced site building, and the tools that move a site from Solo 1 to Solo 2. For more information, see the <a href=":project">online documentation for the Solo Utilities module</a>.', [
+      ':project' => 'https://www.drupal.org/project/solo_utilities',
+    ]) . '</p>';
+    $output .= '<h2>' . $this->t('Uses') . '</h2>';
+    $output .= '<dl>';
+    $output .= '<dt>' . $this->t('Setting a custom width on a content item') . '</dt>';
+    $output .= '<dd>' . $this->t('Turn on custom widths in the Solo theme settings. The content form then offers a width for each content item; choose <em>None</em> to keep the default width.') . '</dd>';
+    $output .= '<dt>' . $this->t('Managing color scheme rules') . '</dt>';
+    $output .= '<dd>' . $this->t('Under <em>Configuration</em> > <em>System</em> > <em>Solo Utilities</em> > <em>Color Schemes</em>, a rule applies a Solo color scheme to the pages that match its conditions.') . '</dd>';
+    $output .= '<dt>' . $this->t('Creating a sub-theme') . '</dt>';
+    $output .= '<dd>' . $this->t('Run <code>drush solo:subtheme my_theme</code> to create a Solo sub-theme in one step.') . '</dd>';
+    $output .= '<dt>' . $this->t('Upgrading from Solo 1 to Solo 2') . '</dt>';
+    $output .= '<dd>' . $this->t('Run <code>drush solo:preflight</code> to list what in your sub-themes and custom modules needs a change. The <em>Solo upgrade</em> page under <em>Configuration</em> > <em>System</em> shows each Solo theme, its occupied regions and its upgrade state. <code>drush solo:settings-restore</code> restores settings and <code>drush solo:migrate-classes</code> renames Solo 1 classes and ids.') . '</dd>';
+    $output .= '<dt>' . $this->t('Keeping old custom code working') . '</dt>';
+    $output .= '<dd>' . $this->t('The Solo Utilities Compatibility sub-module lets custom code that reads Solo settings by their old names, or calls the Solo 1 helper functions, keep working. Install it only when <code>drush solo:preflight</code> reports such a call.') . '</dd>';
+    $output .= '</dl>';
+    return $output;
   }
 
   /**

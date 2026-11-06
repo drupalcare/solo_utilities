@@ -1,7 +1,7 @@
 name: 'Solo Utilities'
 type: module
-description: 'Adds features, utilities, and settings to the Solo theme for advanced site building.'
-package: 'Solo Suite'
+description: 'Adds custom content widths, color scheme rules, block title controls, sub-theme generation and the Solo 1 to Solo 2 upgrade tools to the Solo theme.'
+package: 'Solo'
 core_version_requirement: ^11.3 || ^12
 php: 8.3
 dependencies:

@@ -4,6 +4,8 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 
 ## [2.0.0] - Unreleased
 
+- Extend and Appearance pages: every module and theme description is a short, professional statement that begins with a verb; credits, links and version notes moved out of the info files.
+
 ### Changed
 - Text follows the drupal.org standards: the module description begins with a verb, settings form titles are in sentence case without "Tick this box to", settings say "content" instead of "node" and "site" instead of "Drupal", "YouTube" and "LinkedIn" are spelled as the brands spell them, and the README follows the drupal.org README template.
 - Comments: a relative comment date ("5 minutes ago") now expires from the render cache when its text would change, instead of staying frozen.
@@ -27,6 +29,7 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 
 ### Changed (sub-theme generator and entity definition)
 
+- Help page: follows the drupal.org help text standard (translatable About and Uses sections) instead of printing README.md as raw text.
 - `drush solo:subtheme` keeps its name, arguments and options, and now runs core's `generate-theme` command on Solo's `solo_subtheme` starterkit (the theme ships `solo_subtheme.starterkit.yml` and a `StarterKit` class).
 - The Color Schemes Rule and Node Width entity types are declared by their attributes only; the Drupal 10 annotations are gone.
 
