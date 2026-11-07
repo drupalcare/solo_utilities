@@ -7,6 +7,11 @@ pre-defined:
     - core/drupalSettings
     - core/once
 
+overview-page:
+  css:
+    theme:
+      css/solo-utilities-overview.css: {}
+
 upgrade-page:
   css:
     theme:

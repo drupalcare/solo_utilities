@@ -69,8 +69,38 @@ class ColorSchemesController extends ControllerBase {
     // Build a render array for the overview page with links to all
     // configurations.
     $build = [
-      '#type' => 'markup',
-      '#markup' => $this->t('Welcome to the Solo Utilities overview page. Here you can manage all theme configurations.'),
+      '#type' => 'container',
+      '#attributes' => ['class' => ['solo-utilities-overview']],
+      '#attached' => ['library' => ['solo_utilities/overview-page']],
+      'band' => [
+        '#type' => 'html_tag',
+        '#tag' => 'header',
+        '#attributes' => ['class' => ['solo-utilities-overview__band']],
+        'logo' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['solo-utilities-overview__logo'], 'aria-hidden' => 'true'],
+        ],
+        'text' => [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['solo-utilities-overview__text']],
+          'name' => [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $this->t('Solo Utilities'),
+            '#attributes' => ['class' => ['solo-utilities-overview__name']],
+          ],
+          'purpose' => [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $this->t('Content widths, color scheme rules, block title controls, sub-theme generation and the Solo upgrade tools.'),
+            '#attributes' => ['class' => ['solo-utilities-overview__purpose']],
+          ],
+        ],
+      ],
+      'intro' => [
+        '#markup' => $this->t('Welcome to the Solo Utilities overview page. Here you can manage all theme configurations.'),
+      ],
       'links' => [
         '#theme' => 'item_list',
         '#items' => [],

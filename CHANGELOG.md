@@ -5,6 +5,7 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 ## [2.0.0] - Unreleased
 
 - Extend and Appearance pages: every module and theme description is a short, professional statement that begins with a verb; credits, links and version notes moved out of the info files.
+- New Solo logo in a header on the Solo Utilities overview page.
 
 ### Changed
 - Text follows the drupal.org standards: the module description begins with a verb, settings form titles are in sentence case without "Tick this box to", settings say "content" instead of "node" and "site" instead of "Drupal", "YouTube" and "LinkedIn" are spelled as the brands spell them, and the README follows the drupal.org README template.
