@@ -1,0 +1,176 @@
+# What each Solo setting is for. One entry per feature, one owner per setting.
+#
+# A key in `settings` is exact, or uses * to match the rest of the key.
+# `form` is the class in src/Form/ThemeSettings/Section/ that shows it; it is
+# left out when the feature appears on several tabs.
+# scripts/check-features.py fails when a setting has no feature, has two, or
+# when a key here matches no setting. Keep each entry on single lines: that
+# script reads this file without a YAML library.
+features:
+  - id: color_scheme
+    label: 'Color scheme'
+    form: ColorSchemesSection
+    description: 'Chooses one of the predefined color schemes and its category.'
+    settings: [color_scheme.category, color_scheme.name]
+  - id: colored_system_tabs
+    label: 'Colored system tabs'
+    form: GlobalSiteSection
+    description: 'Colors the local task tabs from the scheme.'
+    settings: [color_scheme.colored_system_tabs]
+  - id: site_width
+    label: 'Site width'
+    form: GlobalSiteSection
+    description: 'Sets the site width globally, per content type and per node.'
+    settings: ['layout.width.*']
+  - id: breakpoints
+    label: 'Breakpoints'
+    form: GlobalSiteSection
+    description: 'Sets where the page layout and the menus collapse.'
+    settings: ['layout.breakpoints.*']
+  - id: collapse_order
+    label: 'Collapse order'
+    description: 'Changes the order regions stack in on small screens.'
+    settings: [layout.collapse_order, layout.mobile_order]
+  - id: regions_gap
+    label: 'Space between regions'
+    form: GlobalSiteSection
+    description: 'Sets the space between the regions of the page.'
+    settings: [layout.regions_gap]
+  - id: layout_options
+    label: 'Layout options'
+    form: GlobalSiteSection
+    description: 'Centers the login page, swaps the header sides, puts field items inline and reveals content on scroll.'
+    settings: [layout.centered_login_page, layout.flip_header_menu, layout.inline_field_items, layout.reveal_on_scroll]
+  - id: typography
+    label: 'Base typography'
+    form: GlobalSiteSection
+    description: 'Sets the site font size, the content date format and which content types get reading mode.'
+    settings: [typography.font_size, typography.node_date_format, typography.reading_mode_content_types]
+  - id: fonts
+    label: 'Fonts'
+    form: LibrariesFontsSection
+    description: 'Chooses the global, heading and special fonts, and whether every font loads locally or from Google.'
+    settings: [typography.fonts.global, typography.fonts.heading, typography.fonts.special, typography.fonts.local]
+  - id: imported_font
+    label: 'Imported Google font'
+    form: GlobalSiteSection
+    description: 'Loads a Google Fonts URL that the site enters itself.'
+    settings: [typography.imported_google_font]
+  - id: icon_library
+    label: 'Font Awesome'
+    form: LibrariesFontsSection
+    description: 'Loads Font Awesome locally, from the CDN, or not at all.'
+    settings: [typography.fonts.icon_library]
+  - id: w3css
+    label: 'W3.CSS library'
+    form: LibrariesFontsSection
+    description: 'Loads the bundled W3.CSS library.'
+    settings: [typography.load_w3css]
+  - id: block_titles
+    label: 'Block title visibility'
+    form: GlobalSiteSection
+    description: 'Adds per-block control over showing the block title.'
+    settings: [blocks.title_visibility_enabled]
+  - id: comments
+    label: 'Comments'
+    form: GlobalSiteSection
+    description: 'Sets the comment display order, form position, shown elements, date format and title tag.'
+    settings: ['comments.*']
+  - id: preloader
+    label: 'Preloader'
+    form: GlobalSiteSection
+    description: 'Shows a loading screen with a style, logo, text, colors and rules for where it appears.'
+    settings: ['preloader.*']
+  - id: back_to_top
+    label: 'Back to top'
+    form: GlobalSiteSection
+    description: 'Shows a back to top button with a style, icon, position, colors and rules for where it appears.'
+    settings: ['back_to_top.*']
+  - id: custom_code
+    label: 'Custom code'
+    form: GlobalSiteSection
+    description: 'Adds custom CSS and JavaScript from files or inline.'
+    settings: ['custom_code.*']
+  - id: site_name
+    label: 'Header and site name'
+    form: HeaderSection
+    description: 'Positions the logo, name and slogan, and sets the site name font, size, animation, logo link text and icon change.'
+    settings: ['header.*']
+  - id: page_title
+    label: 'Page title'
+    form: PageTitleSection
+    description: 'Sets the page title font, size, alignment and animation.'
+    settings: ['page_title.*']
+  - id: breadcrumb
+    label: 'Breadcrumb'
+    form: BreadcrumbSection
+    description: 'Hides the page title in the breadcrumb and lets a long breadcrumb scroll.'
+    settings: ['breadcrumb.*']
+  - id: main_menu
+    label: 'Main menu'
+    form: PrimaryMenuSection
+    description: 'Sets the main menu alignment, branding, border, dropdown behavior and mega menu.'
+    settings: ['menus.primary.*']
+  - id: sidebar_menu
+    label: 'Sidebar menu'
+    form: PrimarySidebarMenuSection
+    description: 'Sets the sidebar menu branding, border and dropdown behavior.'
+    settings: ['menus.primary_sidebar.*']
+  - id: menu_behavior
+    label: 'Menu behavior'
+    form: GlobalSiteSection
+    description: 'Sets keyboard navigation, toggle speed and which template each menu uses.'
+    settings: [menus.keyboard_navigation, menus.toggle_speed, menus.template_assignments]
+  - id: menu_debug
+    label: 'Menu debug'
+    form: PrimaryMenuSection
+    description: 'Prints menu debugging information for developers.'
+    settings: ['menus.debug.*']
+  - id: skip_links
+    label: 'Skip links'
+    description: 'Adds skip links to the header, main navigation, main content and footer.'
+    settings: ['skip_links.*']
+  - id: search_results
+    label: 'Search results'
+    form: SearchResultsSection
+    description: 'Sets the search result content types, filters and teaser mode.'
+    settings: ['search.*']
+  - id: popup_login
+    label: 'Popup login'
+    form: PopupLoginSection
+    description: 'Opens the login form in a popup, with its triggers, animation and focus behavior.'
+    settings: ['popup_login.*']
+  - id: social_icons
+    label: 'Social icons'
+    form: SocialIconsSection
+    description: 'Shows social links with a size, a color and one URL per platform.'
+    settings: ['social_icons.*']
+  - id: copyright
+    label: 'Copyright and credit'
+    form: CreditCopyrightSection
+    description: 'Sets the copyright text and the credit link.'
+    settings: ['footer.*']
+  - id: region_colors
+    label: 'Region colors'
+    description: 'Sets the text, link, button, menu and form colors of each region.'
+    settings: ['regions.*.colors.*']
+  - id: region_options
+    label: 'Region options'
+    description: 'Sets the classes, alignment, landmark and visibility of each region.'
+    settings: ['regions.*.classes', 'regions.*.alignment', 'regions.*.aria_landmark', 'regions.*.visibility']
+  - id: region_specials
+    label: 'Page wrapper, messages and welcome text'
+    description: 'Sets the page wrapper opacity, the dark style of system messages and the welcome text width.'
+    settings: ['regions.*.opacity', 'regions.*.disable_dark', 'regions.*.width']
+  - id: region_group_columns
+    label: 'Region group columns'
+    description: 'Sets the column layouts of each region group, also per content type.'
+    settings: ['region_groups.*.columns_*', 'region_groups.*.per_content_type*']
+  - id: region_group_look
+    label: 'Region group look'
+    description: 'Sets the border, corners, hover and border animation, landmark and visibility of each region group.'
+    settings: ['region_groups.*.border', 'region_groups.*.rounded', 'region_groups.*.animate_border', 'region_groups.*.animate_hover', 'region_groups.*.aria_landmark', 'region_groups.*.visibility']
+  - id: drupal_core
+    label: 'Drupal core theme settings'
+    description: 'Settings Drupal itself owns: logo, favicon and the shown page elements.'
+    settings: [_core, features, favicon, logo]

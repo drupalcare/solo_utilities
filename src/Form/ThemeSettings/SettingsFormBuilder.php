@@ -9,6 +9,7 @@ use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Url;
 use Drupal\solo_utilities\Form\SettingsOptions;
 use Drupal\solo_utilities\Layout\LayoutResolver;
 use Drupal\solo_utilities\Layout\RegionInventory;
@@ -180,6 +181,7 @@ final class SettingsFormBuilder {
     $form['#submit'][] = [$this->submitter, 'submit'];
 
     $form['#attached']['library'][] = 'solo/solo-form-theme-settings';
+    $form['#attached']['library'][] = 'solo_utilities/settings-form-extras';
 
     [$mix, $groups] = $this->occupiedRegions($theme);
 
@@ -187,7 +189,7 @@ final class SettingsFormBuilder {
     foreach ($this->sections as $section) {
       $section->build($form, $context);
     }
-    $this->arrangeSections($form, $groups);
+    $this->arrangeSections($form, $groups, $theme);
 
     $posted = [];
     $this->collectPosted($form, $posted);
@@ -224,6 +226,109 @@ final class SettingsFormBuilder {
   }
 
   /**
+   * The region status card: each region is enabled, disabled or empty.
+   *
+   * Brings back the 1.x overview message, as a read-only render. 1.x saved its
+   * counts to configuration while the form was only being viewed.
+   *
+   * @param string $theme
+   *   The machine name of the edited theme.
+   *
+   * @return array<string, mixed>
+   *   The render array.
+   */
+  private function regionStatus(string $theme): array {
+    $with_blocks = array_flip($this->regionInventory->regionsWithBlocks($theme));
+    $enabled = array_flip($this->regionInventory->regionsWithEnabledBlocks($theme));
+    $names = [
+      'enabled' => $this->t('Enabled'),
+      'disabled' => $this->t('Disabled'),
+      'empty' => $this->t('Empty'),
+    ];
+    $visible = $this->regionInventory->visibleRegions($theme);
+    $labels = $this->options->groupLabels();
+
+    $card = function (string|\Stringable $label, array $regions) use ($with_blocks, $enabled, $names): array {
+      $boxes = [];
+      foreach ($regions as $region => $name) {
+        $state = isset($enabled[$region]) ? 'enabled' : (isset($with_blocks[$region]) ? 'disabled' : 'empty');
+        $boxes[] = [
+          'name' => $name,
+          'state' => $state,
+          'state_label' => $names[$state],
+          'wide' => $region === 'content',
+        ];
+      }
+      $count = count(array_intersect_key($regions, $enabled));
+      return [
+        'label' => $label,
+        'count' => $this->t('@count of @total enabled', ['@count' => $count, '@total' => count($regions)]),
+        'zero' => $count === 0,
+        'boxes' => $boxes,
+      ];
+    };
+
+    $cards = [];
+    $grouped = [];
+    foreach (LayoutResolver::GROUP_REGIONS as $group => $regions) {
+      $grouped += array_fill_keys($regions, TRUE);
+      $members = [];
+      foreach ($regions as $region) {
+        if (isset($visible[$region])) {
+          $members[$region] = $labels[$group]['regions'][$region] ?? $visible[$region];
+        }
+      }
+      if ($members !== []) {
+        $cards[] = $card($labels[$group]['container'], $members);
+      }
+    }
+    $others = array_diff_key($visible, $grouped, ['hidden' => TRUE]);
+    if ($others !== []) {
+      $cards[] = $card($this->t('Other regions'), $others);
+    }
+
+    return [
+      '#type' => 'inline_template',
+      '#template' => <<<'TWIG'
+<section class="solo-region-status" aria-labelledby="solo-region-status-title">
+  <div class="solo-region-status__header">
+    <h2 class="solo-region-status__title" id="solo-region-status-title">{{ title }}</h2>
+    <a class="solo-region-status__link" href="{{ block_layout_url }}">{{ block_layout }}</a>
+  </div>
+  <ul class="solo-region-status__grid">
+    {% for card in cards %}
+      <li class="solo-region-status__card">
+        <span class="solo-region-status__label">{{ card.label }}</span>
+        <span class="solo-region-status__count{{ card.zero ? ' solo-region-status__count--zero' }}">{{ card.count }}</span>
+        <ul class="solo-region-status__map">
+          {% for box in card.boxes %}
+            <li class="solo-region-status__region solo-region-status__region--{{ box.state }}{{ box.wide ? ' solo-region-status__region--wide' }}" title="{{ box.name }}: {{ box.state_label }}"><span class="visually-hidden">{{ box.name }}: {{ box.state_label }}</span></li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+  </ul>
+  <ul class="solo-region-status__legend">
+    {% for state, name in states %}
+      <li class="solo-region-status__key solo-region-status__key--{{ state }}">{{ name }}</li>
+    {% endfor %}
+  </ul>
+  <p class="solo-region-status__help">{{ help }}</p>
+</section>
+TWIG,
+      '#context' => [
+        'title' => $this->t('Region status'),
+        'block_layout' => $this->t('Block layout'),
+        'block_layout_url' => Url::fromRoute('block.admin_display_theme', ['theme' => $theme])->toString(),
+        'cards' => $cards,
+        'states' => $names,
+        'help' => $this->t('Enabled regions hold at least one enabled block. Disabled regions hold only disabled blocks. Empty regions hold no blocks, and their settings appear here once they hold one.'),
+      ],
+      '#cache' => ['tags' => $this->regionInventory->cacheTags()],
+    ];
+  }
+
+  /**
    * The id of a section's details element, the value core would generate.
    *
    * @param string $key
@@ -243,8 +348,10 @@ final class SettingsFormBuilder {
    *   The form.
    * @param array<string, array<string, string|\Stringable>> $groups
    *   The occupied regions of each group.
+   * @param string $theme
+   *   The machine name of the edited theme.
    */
-  private function arrangeSections(array &$form, array $groups): void {
+  private function arrangeSections(array &$form, array $groups, string $theme): void {
     $titles = $this->navGroups();
     $rows = array_fill_keys(array_keys($titles), []);
     $weight = 0;
@@ -296,6 +403,7 @@ final class SettingsFormBuilder {
       '#weight' => -90,
       '#attributes' => ['class' => ['solo-sections']],
     ];
+    $form[self::SECTIONS_KEY]['solo_region_status'] = $this->regionStatus($theme) + ['#weight' => -1000];
 
     $nav = [];
     foreach ($titles as $group => $title) {

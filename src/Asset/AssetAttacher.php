@@ -34,10 +34,11 @@ final class AssetAttacher {
    * Icon library per stored choice.
    */
   private const ICON_LIBRARIES = [
-    '1' => 'font-awesome-4-in',
-    '2' => 'font-awesome-4-ex',
-    '3' => 'font-awesome-5-ex',
-    '4' => 'font-awesome-6-ex',
+    '1' => 'font-awesome-7-in',
+    '2' => 'font-awesome-7-ex',
+    // The removed 5.x and 6.x CDN choices, still stored on older sites.
+    '3' => 'font-awesome-7-ex',
+    '4' => 'font-awesome-7-ex',
   ];
 
   /**
@@ -104,9 +105,9 @@ final class AssetAttacher {
     $source = $settings->bool('typography.fonts.local') ? 'in' : 'ex';
     $this->attachFont($build, $theme, $settings, 'typography.fonts.global', $source);
     $this->attachFont($build, $theme, $settings, 'typography.fonts.heading', $source);
-    $this->attachFont($build, $theme, $settings, 'typography.fonts.special', 'ex');
-    $this->attachFont($build, $theme, $settings, 'header.site_name.google_font', 'ex');
-    $this->attachFont($build, $theme, $settings, 'page_title.google_font', 'ex');
+    $this->attachFont($build, $theme, $settings, 'typography.fonts.special', $source);
+    $this->attachFont($build, $theme, $settings, 'header.site_name.google_font', $source);
+    $this->attachFont($build, $theme, $settings, 'page_title.google_font', $source);
 
     $this->attachColorScheme($build, $theme, $settings);
 
@@ -167,7 +168,8 @@ final class AssetAttacher {
    */
   public function attachPreloaderFont(array &$build, string $theme): void {
     if ($this->themeDetection->isInHierarchy($theme)) {
-      $this->attachFont($build, $theme, $this->settingsReader->forTheme($theme), 'preloader.text.font', 'ex');
+      $settings = $this->settingsReader->forTheme($theme);
+      $this->attachFont($build, $theme, $settings, 'preloader.text.font', $settings->bool('typography.fonts.local') ? 'in' : 'ex');
     }
   }
 

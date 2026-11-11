@@ -35,7 +35,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
 
       $form["solo_settings"]["settings_search"] = [
         "#type" => "details",
-        "#title" => $this->t("<strong class='purple'>Search Results</strong> Settings - Solo Theme"),
+        "#title" => $this->t("Search Results Settings - Solo Theme"),
       ];
 
       // Create vertical tabs container.
@@ -114,7 +114,7 @@ final class SearchResultsSection implements SettingsSectionInterface {
       // note is the description, so the builder adds no section hint.
       $form["solo_settings"]["settings_search"] = [
         "#type" => "details",
-        "#title" => $this->t("<strong class='purple'>Search Results</strong> Settings - Solo Theme"),
+        "#title" => $this->t("Search Results Settings - Solo Theme"),
         "#description" => $this->t("Install the Search module to use these settings."),
       ];
     }

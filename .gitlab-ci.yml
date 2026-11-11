@@ -54,3 +54,5 @@ settings-gen-checks:
     - python3 -I scripts/check-theme-detection.py
     - python3 -I scripts/check-regions.py
     - python3 -I scripts/check-regions.py --self-test
+    - python3 -I scripts/check-features.py
+    - python3 -I scripts/check-features.py --self-test

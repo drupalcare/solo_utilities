@@ -4,6 +4,9 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 
 ## [2.0.0] - Unreleased
 
+- Added `config/map/solo-features.yml`, which says what each setting is for, and `scripts/check-features.py`, which fails when a setting has no feature.
+- The "Load Google fonts locally" setting now covers every font: global, heading, special, site name, page title and preloader.
+- Font Awesome settings offer Font Awesome 7 locally or from the CDN; the older versions are removed.
 - Extend and Appearance pages: every module and theme description is a short, professional statement that begins with a verb; credits, links and version notes moved out of the info files.
 - New Solo logo in a header on the Solo Utilities overview page.
 

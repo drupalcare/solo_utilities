@@ -240,7 +240,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
     $form["solo_settings"]["settings_libraries_fonts"]["font_libraries"]["typography__fonts__local"] = [
       "#parents" => ['typography', 'fonts', 'local'],
       "#type" => "checkbox",
-      "#title" => $this->t("Load Google fonts locally (global and heading fonts only)"),
+      "#title" => $this->t("Load Google fonts locally"),
       "#description"   => $this->t("Any font you choose for the site, heading or special fonts has a CSS class you can apply to any HTML tag. <a target='_blank' rel='noopener' href='https://www.drupal.org/node/2866181#change-font'>Documentation on drupal.org</a>."),
       "#default_value" => $settings->get('typography.fonts.local'),
     ];
@@ -249,13 +249,12 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
       "#parents" => ['typography', 'fonts', 'icon_library'],
       "#type" => "select",
       "#title" => $this->t("Select Font Awesome library"),
-      "#default_value" => $settings->get('typography.fonts.icon_library'),
+      // Sites can still hold 3 or 4, the removed 5.x and 6.x CDN choices.
+      "#default_value" => in_array((string) $settings->get('typography.fonts.icon_library'), ['3', '4'], TRUE) ? 2 : $settings->get('typography.fonts.icon_library'),
       "#options" => [
         0 => $this->t("None"),
-        1 => $this->t("Load Font Awesome 4.7 locally."),
-        2 => $this->t("Load Font Awesome 4.7 from the CDN."),
-        3 => $this->t("Load Font Awesome 5.15.4 from the CDN."),
-        4 => $this->t("Load Font Awesome 6.5.1 from the CDN."),
+        1 => $this->t("Load Font Awesome 7 locally."),
+        2 => $this->t("Load Font Awesome 7 from the CDN."),
       ],
     ];
 
@@ -338,7 +337,7 @@ final class LibrariesFontsSection implements SettingsSectionInterface {
           '#template' => self::CLASS_PANE_TEMPLATE,
           '#context' => [
             'name' => $labels[$kind]['name'],
-            'pattern' => $definition['prefix'] . '<color>',
+            'pattern' => $definition['prefix'] . '[color]',
             'count' => $this->formatPlural(count($colors), '1 class', '@count classes'),
             'demo' => $definition['demo'],
             'demo_label' => $this->t('Live demo'),

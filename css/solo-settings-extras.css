@@ -1,0 +1,208 @@
+/**
+ * @file
+ * Solo settings form: the region status card and the navigation search.
+ *
+ * Every rule is scoped to the settings form. Colors come from the form's own
+ * --s-* tokens, so light and dark need no second set of rules.
+ */
+
+/* Region status. Each state differs in shape as well as color. */
+form.system-theme-settings .solo-region-status {
+  --solo-status-ok: #0f8a7e;
+  --solo-status-off: #3b6fd4;
+  --solo-status-empty: color-mix(in srgb, currentColor 45%, transparent);
+
+  box-sizing: border-box;
+  margin-block-end: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-block-start: 3px solid var(--s-accent);
+  border-radius: 0.75rem;
+  background-color: var(--s-surface);
+}
+
+form.system-theme-settings .solo-region-status__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-block-end: 1rem;
+}
+
+form.system-theme-settings .solo-region-status__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+form.system-theme-settings .solo-region-status__link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+form.system-theme-settings .solo-region-status__grid,
+form.system-theme-settings .solo-region-status__map,
+form.system-theme-settings .solo-region-status__legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+form.system-theme-settings .solo-region-status__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem;
+}
+
+form.system-theme-settings .solo-region-status__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.875rem;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 0.5rem;
+}
+
+form.system-theme-settings .solo-region-status__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: var(--s-muted);
+}
+
+form.system-theme-settings .solo-region-status__count {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--solo-status-ok) 16%, transparent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+form.system-theme-settings .solo-region-status__count--zero {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  color: var(--s-muted);
+}
+
+form.system-theme-settings .solo-region-status__map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-block-start: auto;
+}
+
+form.system-theme-settings .solo-region-status__region {
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 0.875rem;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 0.1875rem;
+}
+
+form.system-theme-settings .solo-region-status__region--wide {
+  inline-size: 4.75rem;
+}
+
+form.system-theme-settings .solo-region-status__region--enabled,
+form.system-theme-settings .solo-region-status__key--enabled::before {
+  border-color: var(--solo-status-ok);
+  background-color: color-mix(in srgb, var(--solo-status-ok) 28%, transparent);
+}
+
+form.system-theme-settings .solo-region-status__region--disabled,
+form.system-theme-settings .solo-region-status__key--disabled::before {
+  border-color: var(--solo-status-off);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--solo-status-off) 35%, transparent) 0 0.25rem,
+    transparent 0.25rem 0.5rem
+  );
+}
+
+form.system-theme-settings .solo-region-status__region--empty,
+form.system-theme-settings .solo-region-status__key--empty::before {
+  border-style: dashed;
+  border-color: var(--solo-status-empty);
+}
+
+form.system-theme-settings .solo-region-status__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-block: 1rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+form.system-theme-settings .solo-region-status__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+form.system-theme-settings .solo-region-status__key::before {
+  content: "";
+  inline-size: 1.125rem;
+  block-size: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.1875rem;
+}
+
+form.system-theme-settings .solo-region-status__help {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--s-muted);
+}
+
+/* Navigation search. */
+form.system-theme-settings .solo-nav__searchbox {
+  position: relative;
+  margin-block: 0.5rem;
+  padding-inline: 0.25rem;
+}
+
+form.system-theme-settings .solo-nav__searchbox::before {
+  position: absolute;
+  inset-block-start: 0.625rem;
+  inset-inline-start: 0.75rem;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  content: "";
+  background-color: var(--s-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='116 -844 728 728'%3E%3Cpath d='M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='116 -844 728 728'%3E%3Cpath d='M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+form.system-theme-settings .solo-nav__search {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 2.375rem;
+  padding-block: 0.375rem;
+  padding-inline: 2.125rem 0.5rem;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-radius: 0.375rem;
+  background-color: var(--s-surface);
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+form.system-theme-settings .solo-nav__count {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--s-muted);
+}
+
+form.system-theme-settings .solo-nav__count:empty {
+  display: none;
+}
+
+form.system-theme-settings .solo-nav__item[hidden],
+form.system-theme-settings .solo-nav__list[hidden],
+form.system-theme-settings .solo-nav__group[hidden] {
+  display: none;
+}
