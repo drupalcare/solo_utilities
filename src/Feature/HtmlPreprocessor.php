@@ -67,7 +67,7 @@ final class HtmlPreprocessor {
     $this->attachImportedFont($variables, $settings);
 
     if ($this->moduleHandler->moduleExists('cookies')) {
-      $variables['#attached']['library'][] = 'solo/solo-cookies';
+      $variables['#attached']['library'][] = 'solo/theme-cookies';
     }
     $variables['enabled_skip_links'] = $this->enabledSkipLinks($settings);
 

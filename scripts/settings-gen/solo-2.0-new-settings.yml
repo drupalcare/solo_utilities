@@ -1,0 +1,6 @@
+# Settings that exist only in Solo 2.0: no 1.x key, so the settings map has no row for them.
+# OWNER: this file. Read by solo_utilities/scripts/settings-gen/solo-schema-gen.py, which adds each leaf to
+# solo/config/schema/solo.schema.yml and its Twig variable to config/map/solo-template-variables.yml (group misc).
+# The install default lives in solo-2.0-defaults.yml; the generator goes red when one is missing.
+# Format: `path: type | 'Schema label' | twig_variable`. Types: boolean, integer, string.
+layout.flip_breadcrumb_page_title: boolean | 'Flip breadcrumb and page title' | site_flip_breadcrumb_pagetitle

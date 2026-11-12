@@ -17,6 +17,12 @@ use Drupal\Component\Serialization\Yaml;
  * - libraries/solo-components.json: "libraries" (the component and feature
  *   libraries) and "globs" (libraries built from a file pattern).
  *
+ * Every renamed library keeps its previous id for one major version as a
+ * deprecated alias, built from the same data as the new library and never typed
+ * twice: a component record carries "was", a glob rule carries "prefix" and
+ * "strip", and fonts, schemes and breakpoints derive the previous id from the
+ * same slug, id or width. See the Python twin, scripts/solo_libraries.py.
+ *
  * Pure: no services, no state. Malformed data is reported through the
  * $problems argument and skipped; nothing here throws, because it runs inside
  * library discovery and a throw would take down every page.
@@ -24,6 +30,18 @@ use Drupal\Component\Serialization\Yaml;
  * @internal
  */
 final class SoloLibraryDefinitions {
+
+  /**
+   * The extension the libraries belong to.
+   */
+  private const EXTENSION = 'solo';
+
+  /**
+   * Deprecation message of an alias; {use} is replaced by the new id(s).
+   *
+   * %library_id% is Drupal's own placeholder, filled with the old id.
+   */
+  private const ALIAS_MESSAGE = 'The %library_id% asset library is deprecated in solo 2.0.0 and is removed from solo 3.0.0. Use {use} instead.';
 
   /**
    * Font category: stylesheet directory and CSS weight.
@@ -83,13 +101,14 @@ final class SoloLibraryDefinitions {
     $fonts = $this->readJson($themePath . '/fonts/solo-fonts.json', 'fonts/solo-fonts.json', $problems);
     $components = $this->readJson($themePath . '/libraries/solo-components.json', 'libraries/solo-components.json', $problems);
     $libraries = [];
+    $aliases = [];
     foreach ([
-      $this->fonts($fonts['fonts'] ?? NULL, $problems),
-      $this->records($fonts['icons'] ?? NULL, 'fonts/solo-fonts.json icons', $problems),
-      $this->schemes($themePath, $problems),
-      $this->breakpoints($themePath, $problems),
-      $this->records($components['libraries'] ?? NULL, 'libraries/solo-components.json libraries', $problems),
-      $this->globs($themePath, $components['globs'] ?? NULL, $problems),
+      $this->fonts($fonts['fonts'] ?? NULL, $problems, $aliases),
+      $this->records($fonts['icons'] ?? NULL, 'fonts/solo-fonts.json icons', $problems, $aliases),
+      $this->schemes($themePath, $problems, $aliases),
+      $this->breakpoints($themePath, $problems, $aliases),
+      $this->records($components['libraries'] ?? NULL, 'libraries/solo-components.json libraries', $problems, $aliases),
+      $this->globs($themePath, $components['globs'] ?? NULL, $problems, $aliases),
     ] as $part) {
       foreach ($part as $name => $definition) {
         if (isset($libraries[$name])) {
@@ -99,21 +118,109 @@ final class SoloLibraryDefinitions {
         $libraries[$name] = $definition;
       }
     }
+    // The previous ids, last: an alias never replaces a library.
+    foreach ($aliases as $old => $newIds) {
+      if (isset($libraries[$old])) {
+        $problems[] = sprintf('Library %s is defined twice; the deprecated alias was skipped.', $old);
+        continue;
+      }
+      $libraries[$old] = $this->aliasDefinition($newIds);
+    }
     return $libraries;
   }
 
   /**
-   * Builds the solo-gfex-* and solo-gfin-* libraries.
+   * Returns the library id of a font stylesheet set.
+   *
+   * @param string $slug
+   *   The font slug of fonts/solo-fonts.json.
+   * @param bool $local
+   *   TRUE for the locally served files, FALSE for Google's CDN.
+   *
+   * @return string
+   *   The library id without the extension, such as font-abel-external.
+   */
+  public static function fontLibrary(string $slug, bool $local): string {
+    return sprintf('font-%s-%s', $slug, $local ? 'local' : 'external');
+  }
+
+  /**
+   * Returns the library id of a predefined color scheme.
+   *
+   * The stored scheme id keeps its solo- prefix; only the library id changes.
+   *
+   * @param string $schemeId
+   *   The stored scheme id, such as solo-berry-blue-dreams.
+   *
+   * @return string
+   *   The library id without the extension, such as scheme-berry-blue-dreams.
+   */
+  public static function schemeLibrary(string $schemeId): string {
+    return 'scheme-' . (str_starts_with($schemeId, 'solo-') ? substr($schemeId, 5) : $schemeId);
+  }
+
+  /**
+   * Returns the library id of a breakpoint stylesheet set.
+   *
+   * @param string $family
+   *   Either page or menu.
+   * @param string $value
+   *   The stored breakpoint, such as sb-576 or mn-576.
+   *
+   * @return string
+   *   The library id without the extension, such as breakpoint-page-sb-576.
+   */
+  public static function breakpointLibrary(string $family, string $value): string {
+    return sprintf('breakpoint-%s-%s', $family, $value);
+  }
+
+  /**
+   * Builds the deprecated alias of a renamed library.
+   *
+   * @param array<int, string> $newIds
+   *   The ids (without the extension) that replace the old one.
+   *
+   * @return array<string, mixed>
+   *   A library that only depends on the new id(s) and carries the notice.
+   */
+  private function aliasDefinition(array $newIds): array {
+    $use = implode(' and ', array_map(static fn (string $id): string => self::EXTENSION . '/' . $id, $newIds));
+    return [
+      'deprecated' => str_replace('{use}', $use, self::ALIAS_MESSAGE),
+      'dependencies' => array_map(static fn (string $id): string => self::EXTENSION . '/' . $id, $newIds),
+    ];
+  }
+
+  /**
+   * Records that an old library id is replaced by a new one.
+   *
+   * @param array<string, array<int, string>> $aliases
+   *   The collected old id => new ids.
+   * @param string $old
+   *   The previous id.
+   * @param string $new
+   *   The new id.
+   */
+  private function addAlias(array &$aliases, string $old, string $new): void {
+    if ($old !== $new && !in_array($new, $aliases[$old] ?? [], TRUE)) {
+      $aliases[$old][] = $new;
+    }
+  }
+
+  /**
+   * Builds the font-*-external and font-*-local libraries.
    *
    * @param mixed $rows
    *   The "fonts" list of fonts/solo-fonts.json.
    * @param array<int, string> $problems
    *   Problem messages.
+   * @param array<string, array<int, string>> $aliases
+   *   Collects the previous id of every library built.
    *
    * @return array<string, array<string, mixed>>
    *   Library definitions.
    */
-  private function fonts(mixed $rows, array &$problems): array {
+  private function fonts(mixed $rows, array &$problems, array &$aliases): array {
     $libraries = [];
     if (!is_array($rows) || !array_is_list($rows)) {
       $problems[] = 'fonts/solo-fonts.json has no "fonts" list.';
@@ -134,7 +241,7 @@ final class SoloLibraryDefinitions {
       [$directory, $weight] = self::FONT_CATEGORIES[$category];
       $stylesheet = sprintf('fonts/css/%s/solo-%s.css', $directory, $slug);
       $url = sprintf('https://fonts.googleapis.com/css2?family=%s&display=swap', $query);
-      $libraries['solo-gfex-' . $slug] = [
+      $libraries[self::fontLibrary($slug, FALSE)] = [
         'css' => [
           'base' => [
             $url => ['type' => 'external', 'minified' => TRUE, 'weight' => $weight],
@@ -142,8 +249,9 @@ final class SoloLibraryDefinitions {
           ],
         ],
       ];
+      $this->addAlias($aliases, 'solo-gfex-' . $slug, self::fontLibrary($slug, FALSE));
       if ($local) {
-        $libraries['solo-gfin-' . $slug] = [
+        $libraries[self::fontLibrary($slug, TRUE)] = [
           'css' => [
             'base' => [
               sprintf('fonts/font-face/google-font-%s.css', $slug) => ['weight' => $weight],
@@ -151,6 +259,7 @@ final class SoloLibraryDefinitions {
             ],
           ],
         ];
+        $this->addAlias($aliases, 'solo-gfin-' . $slug, self::fontLibrary($slug, TRUE));
       }
     }
     return $libraries;
@@ -163,11 +272,13 @@ final class SoloLibraryDefinitions {
    *   Solo theme directory.
    * @param array<int, string> $problems
    *   Problem messages.
+   * @param array<string, array<int, string>> $aliases
+   *   Collects the previous id of every library built.
    *
    * @return array<string, array<string, mixed>>
    *   Library definitions.
    */
-  private function schemes(string $themePath, array &$problems): array {
+  private function schemes(string $themePath, array &$problems, array &$aliases): array {
     $libraries = [];
     $files = glob($themePath . '/schemes/*.yml') ?: [];
     sort($files);
@@ -191,23 +302,26 @@ final class SoloLibraryDefinitions {
         $library['dependencies'] = $dependencies;
       }
       $library['css'] = ['theme' => [$css => ['weight' => self::SCHEME_WEIGHT]]];
-      $libraries[$id] = $library;
+      $libraries[self::schemeLibrary($id)] = $library;
+      $this->addAlias($aliases, $id, self::schemeLibrary($id));
     }
     return $libraries;
   }
 
   /**
-   * Builds the solo-global-breakpoints-sb-* and solo-menu-breakpoints-mn-*.
+   * Builds the breakpoint-page-sb-* and breakpoint-menu-mn-* libraries.
    *
    * @param string $themePath
    *   Solo theme directory.
    * @param array<int, string> $problems
    *   Problem messages.
+   * @param array<string, array<int, string>> $aliases
+   *   Collects the previous id of every library built.
    *
    * @return array<string, array<string, mixed>>
    *   Library definitions.
    */
-  private function breakpoints(string $themePath, array &$problems): array {
+  private function breakpoints(string $themePath, array &$problems, array &$aliases): array {
     $libraries = [];
     $widths = $this->readJson($themePath . '/scripts/breakpoints/breakpoints.json', 'scripts/breakpoints/breakpoints.json', $problems);
     if (!array_is_list($widths)) {
@@ -219,23 +333,25 @@ final class SoloLibraryDefinitions {
         $problems[] = sprintf('scripts/breakpoints/breakpoints.json entry %s is malformed and was skipped.', $index);
         continue;
       }
-      $libraries['solo-global-breakpoints-sb-' . $width] = [
+      $libraries[self::breakpointLibrary('page', 'sb-' . $width)] = [
         'css' => [
           'layout' => [
-            sprintf('css/layout/solo-layout-breakpoints-sb-%d.css', $width) => ['weight' => -100],
+            sprintf('css/layout/solo-page-sb-%d.css', $width) => ['weight' => -100],
           ],
           'theme' => [
-            sprintf('css/breakpoints/solo-global-breakpoints-sb-%d.css', $width) => ['weight' => 200],
+            sprintf('css/breakpoints/solo-page-sb-%d.css', $width) => ['weight' => 200],
           ],
         ],
       ];
-      $libraries['solo-menu-breakpoints-mn-' . $width] = [
+      $this->addAlias($aliases, 'solo-global-breakpoints-sb-' . $width, self::breakpointLibrary('page', 'sb-' . $width));
+      $libraries[self::breakpointLibrary('menu', 'mn-' . $width)] = [
         'css' => [
           'theme' => [
-            sprintf('css/breakpoints/solo-menu-breakpoints-mn-%d.css', $width) => ['weight' => 200],
+            sprintf('css/breakpoints/solo-menu-mn-%d.css', $width) => ['weight' => 200],
           ],
         ],
       ];
+      $this->addAlias($aliases, 'solo-menu-breakpoints-mn-' . $width, self::breakpointLibrary('menu', 'mn-' . $width));
     }
     return $libraries;
   }
@@ -243,8 +359,10 @@ final class SoloLibraryDefinitions {
   /**
    * Builds libraries from a list of explicit records.
    *
-   * A record is {id, meta?, css?, js?, dependencies?}. The built library keeps
-   * that key order: the meta keys, then css, js and dependencies.
+   * A record is {id, was?, meta?, css?, js?, dependencies?}. The built library
+   * keeps that key order: the meta keys, then css, js and dependencies. "was"
+   * is the previous id, or a list of previous ids when several old libraries
+   * merged into this one; each becomes a deprecated alias.
    *
    * @param mixed $records
    *   The decoded list.
@@ -252,11 +370,13 @@ final class SoloLibraryDefinitions {
    *   Where the list came from, for messages.
    * @param array<int, string> $problems
    *   Problem messages.
+   * @param array<string, array<int, string>> $aliases
+   *   Collects the previous id of every library built.
    *
    * @return array<string, array<string, mixed>>
    *   Library definitions.
    */
-  private function records(mixed $records, string $label, array &$problems): array {
+  private function records(mixed $records, string $label, array &$problems, array &$aliases): array {
     if (!is_array($records) || !array_is_list($records)) {
       $problems[] = sprintf('%s has no list.', $label);
       return [];
@@ -277,9 +397,42 @@ final class SoloLibraryDefinitions {
         $problems[] = sprintf('%s defines %s twice; the second was skipped.', $label, $id);
         continue;
       }
+      $was = $this->previousIds($record['was'] ?? NULL);
+      if ($was === NULL) {
+        $problems[] = sprintf('%s entry %s (%s) has an invalid "was" and was skipped.', $label, $index, $id);
+        continue;
+      }
       $libraries[$id] = $library;
+      foreach ($was as $old) {
+        $this->addAlias($aliases, $old, $id);
+      }
     }
     return $libraries;
+  }
+
+  /**
+   * Validates the "was" value of a record.
+   *
+   * @param mixed $was
+   *   NULL, one previous library id, or a non-empty list of them.
+   *
+   * @return array<int, string>|null
+   *   The previous ids (empty when the record has none), or NULL when malformed.
+   */
+  private function previousIds(mixed $was): ?array {
+    if ($was === NULL) {
+      return [];
+    }
+    $ids = is_string($was) ? [$was] : $was;
+    if (!is_array($ids) || !$ids || !array_is_list($ids)) {
+      return NULL;
+    }
+    foreach ($ids as $id) {
+      if (!is_string($id) || !$this->isLibraryId($id)) {
+        return NULL;
+      }
+    }
+    return $ids;
   }
 
   /**
@@ -320,7 +473,7 @@ final class SoloLibraryDefinitions {
       }
       $library['dependencies'] = $record['dependencies'];
     }
-    $unknown = array_diff(array_keys($record), ['id', 'meta', 'css', 'js', 'dependencies']);
+    $unknown = array_diff(array_keys($record), ['id', 'was', 'meta', 'css', 'js', 'dependencies']);
     return $unknown || !array_intersect_key($library, array_flip(['css', 'js', 'dependencies'])) ? NULL : $library;
   }
 
@@ -450,8 +603,10 @@ final class SoloLibraryDefinitions {
         'weight' => $value === NULL || is_int($value),
         'type' => in_array($value, ['external', 'file'], TRUE),
         'minified', 'preprocess' => is_bool($value),
+        // Values are flags (TRUE) or plain strings such as an external file's
+        // integrity hash and crossorigin, which the Font Awesome CDN entry needs.
         'attributes' => is_array($value) && !array_is_list($value) && $value
-          && !array_filter($value, static fn ($v, $k): bool => !is_string($k) || !preg_match('/^[a-z-]+$/', $k) || !is_bool($v), ARRAY_FILTER_USE_BOTH),
+          && !array_filter($value, static fn ($v, $k): bool => !is_string($k) || !preg_match('/^[a-z-]+$/', $k) || !(is_bool($v) || (is_string($v) && preg_match('#^[A-Za-z0-9+/=._:-]+$#', $v))), ARRAY_FILTER_USE_BOTH),
         // Unreachable: the keys were checked against $allowed above.
         default => FALSE,
       };
@@ -470,8 +625,10 @@ final class SoloLibraryDefinitions {
    * Builds the libraries a "globs" rule describes.
    *
    * Two rule shapes. With no "id": one library per matched file, named after
-   * the file stem. With an "id": one library holding every matched file, the
-   * "first" paths leading in their given order and the rest sorted.
+   * the file stem with the optional "strip" prefix removed and the optional
+   * "prefix" added (the stem is the deprecated alias). With an "id": one
+   * library holding every matched file, the "first" paths leading in their
+   * given order and the rest sorted.
    *
    * @param string $themePath
    *   Solo theme directory.
@@ -479,11 +636,13 @@ final class SoloLibraryDefinitions {
    *   The "globs" list of libraries/solo-components.json.
    * @param array<int, string> $problems
    *   Problem messages.
+   * @param array<string, array<int, string>> $aliases
+   *   Collects the previous id of every library built.
    *
    * @return array<string, array<string, mixed>>
    *   Library definitions.
    */
-  private function globs(string $themePath, mixed $rules, array &$problems): array {
+  private function globs(string $themePath, mixed $rules, array &$problems, array &$aliases): array {
     if (!is_array($rules) || !array_is_list($rules)) {
       $problems[] = 'libraries/solo-components.json has no "globs" list.';
       return [];
@@ -494,6 +653,8 @@ final class SoloLibraryDefinitions {
       $pattern = is_array($rule) ? ($rule['pattern'] ?? NULL) : NULL;
       $category = is_array($rule) ? ($rule['category'] ?? NULL) : NULL;
       $weight = is_array($rule) ? ($rule['weight'] ?? NULL) : NULL;
+      $prefix = is_array($rule) ? ($rule['prefix'] ?? '') : NULL;
+      $strip = is_array($rule) ? ($rule['strip'] ?? '') : NULL;
       $first = is_array($rule) ? ($rule['first'] ?? []) : NULL;
       $meta = is_array($rule) && isset($rule['meta']) ? $this->meta($rule['meta']) : [];
       if (!is_string($pattern) || !preg_match('#^css/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_*.-]+)*$#', $pattern) || str_contains($pattern, '..')
@@ -501,6 +662,8 @@ final class SoloLibraryDefinitions {
         || !is_int($weight)
         || ($id !== NULL && (!is_string($id) || !$this->isLibraryId($id)))
         || !is_array($first) || ($first && array_is_list($first)) || array_filter($first, static fn ($w): bool => !is_int($w))
+        || !is_string($prefix) || ($prefix !== '' && !preg_match('/^[a-z0-9-]+$/', $prefix))
+        || !is_string($strip) || ($strip !== '' && !preg_match('/^[a-z0-9-]+$/', $strip))
         || $meta === NULL) {
         $problems[] = sprintf('libraries/solo-components.json globs entry %s is malformed and was skipped.', $index);
         continue;
@@ -519,7 +682,13 @@ final class SoloLibraryDefinitions {
             $problems[] = sprintf('%s is not a valid library name and was skipped.', $path);
             continue;
           }
-          $libraries[$name] = ['css' => [$category => [$path => ['weight' => $weight]]]];
+          $new = $prefix . ($strip !== '' && str_starts_with($name, $strip) ? substr($name, strlen($strip)) : $name);
+          if (!$this->isLibraryId($new)) {
+            $problems[] = sprintf('%s is not a valid library name and was skipped.', $path);
+            continue;
+          }
+          $libraries[$new] = ['css' => [$category => [$path => ['weight' => $weight]]]];
+          $this->addAlias($aliases, $name, $new);
         }
         continue;
       }

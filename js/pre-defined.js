@@ -1,5 +1,18 @@
 ((Drupal) => {
-  Drupal.behaviors.ColorSchemesRules = {
+  // Deprecated in 2.0, removed in the next major: the old behavior name
+  // ColorSchemesRules reads and writes Drupal.behaviors.soloUtilitiesColorSchemesRules.
+  // It is not enumerable, so Drupal.attachBehaviors() runs it once.
+  if (!Object.prototype.hasOwnProperty.call(Drupal.behaviors, 'ColorSchemesRules')) {
+    Object.defineProperty(Drupal.behaviors, 'ColorSchemesRules', {
+      configurable: true,
+      get: () => Drupal.behaviors.soloUtilitiesColorSchemesRules,
+      set: (value) => {
+        Drupal.behaviors.soloUtilitiesColorSchemesRules = value;
+      },
+    });
+  }
+
+  Drupal.behaviors.soloUtilitiesColorSchemesRules = {
     attach(context, settings) {
       const categorySelect = context.querySelector('#edit-theme-category');
       const themeSelect = context.querySelector('#edit-predefined-theme');
@@ -9,7 +22,10 @@
       }
 
       // Get the stored value from the form state
-      const storedValue = themeSelect.getAttribute('data-default-value');
+      // Deprecated in 2.0, removed in the next major: data-default-value.
+      const storedValue =
+        themeSelect.getAttribute('data-solo-default-value') ??
+        themeSelect.getAttribute('data-default-value');
 
       // Initialize once
       if (

@@ -39,8 +39,8 @@ features:
   - id: layout_options
     label: 'Layout options'
     form: GlobalSiteSection
-    description: 'Centers the login page, swaps the header sides, puts field items inline and reveals content on scroll.'
-    settings: [layout.centered_login_page, layout.flip_header_menu, layout.inline_field_items, layout.reveal_on_scroll]
+    description: 'Centers the login page, swaps the header sides, puts the breadcrumb before the page title, puts field items inline and reveals content on scroll.'
+    settings: [layout.centered_login_page, layout.flip_header_menu, layout.flip_breadcrumb_page_title, layout.inline_field_items, layout.reveal_on_scroll]
   - id: typography
     label: 'Base typography'
     form: GlobalSiteSection

@@ -212,6 +212,7 @@ final class SoloUpgradeController extends ControllerBase {
   private function findingType(string $type): string|\Stringable {
     return match ($type) {
       SoloReadinessScanner::TYPE_FUNCTION_CALL => $this->t('Solo function call'),
+      SoloReadinessScanner::TYPE_CLASS_USE => $this->t('Removed Solo class'),
       SoloReadinessScanner::TYPE_SOLO_INCLUDE => $this->t('Solo template path'),
       SoloReadinessScanner::TYPE_LIBRARY_OVERRIDE => $this->t('Library override'),
       SoloReadinessScanner::TYPE_COPIED_TEMPLATE => $this->t('Copied template'),

@@ -40,8 +40,10 @@ final class MenuDebugNotice {
     }
     $verbosity = $settings->string('menus.debug.verbosity') ?: 'normal';
     $attachments['#attached']['drupalSettings']['solo']['debug'] = TRUE;
+    $attachments['#attached']['drupalSettings']['solo']['debugVerbosity'] = $verbosity;
+    // Deprecated in 2.0, removed in the next major: the snake_case key.
     $attachments['#attached']['drupalSettings']['solo']['debug_verbosity'] = $verbosity;
-    $attachments['#attached']['library'][] = 'solo/solo-debug';
+    $attachments['#attached']['library'][] = 'solo/debug-menu';
     $this->messenger->addWarning($this->t('<strong>SOLO DEBUG MODE ACTIVE</strong> (Verbosity: @verbosity) — Development tools are enabled. Open browser console and run showReport() for menu diagnostics. <a class="warning" href="@settings_url">Disable debug mode</a> before going to production.', [
       '@verbosity' => ucfirst($verbosity),
       '@settings_url' => Url::fromRoute('system.theme_settings_theme', ['theme' => $settings->themeName()])->toString(),

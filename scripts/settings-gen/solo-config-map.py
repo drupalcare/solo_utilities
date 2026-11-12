@@ -199,6 +199,7 @@ LEGACY = [
     {'old': 'solo_layout_<group>_<n>col_<content_type>', 'new': 'region_groups.<group>.per_content_type.columns_<n>.<content_type>', 'action': 'move'},
     {'old': 'primary_menu_keyboard', 'new': None, 'action': 'drop', 'reason': 'Removed as orphaned by solo.post_update.php.'},
     {'old': 'primary_sidebar_menu_keyboard', 'new': None, 'action': 'drop', 'reason': 'Removed as orphaned by solo.post_update.php.'},
+    {'old': 'settings_<region>___r_bg_in', 'new': None, 'action': 'drop', 'reason': 'Left by a Solo development build before 1.0; no released Solo reads it.'},
 ]
 
 

@@ -38,8 +38,8 @@ final class ThemeCssBuilder {
    */
   public const REGION_SELECTORS = [
     'page_wrapper' => '.solo-page',
-    'popup_login_block' => '.solo-popup-login',
-    'fixed_search_block' => '.solo-fixed-search',
+    'popup_login_block' => '.solo-popup-login-block',
+    'fixed_search_block' => '.solo-fixed-search-block',
     'header' => '.solo-page .solo-header',
     'primary_sidebar_menu' => '.solo-primary-sidebar-menu',
     'primary_menu' => '.solo-primary-menu',
@@ -49,7 +49,7 @@ final class ThemeCssBuilder {
     'top_second' => '.solo-page .solo-region-box__inner--top-second',
     'top_third' => '.solo-page .solo-region-box__inner--top-third',
     'highlighted' => '.solo-highlighted',
-    'system_messages' => '.solo-system-messages',
+    'system_messages' => '.solo-status-messages',
     'page_title' => '.solo-page div.solo-page-title.solo-container--single',
     'breadcrumb' => ':where(.solo-page) > .breadcrumb',
     'main_container' => '.solo-container--main',
@@ -65,7 +65,7 @@ final class ThemeCssBuilder {
     'footer_first' => '.solo-page .solo-region-box__inner--footer-first',
     'footer_second' => '.solo-page .solo-region-box__inner--footer-second',
     'footer_third' => '.solo-page .solo-region-box__inner--footer-third',
-    'footer_menu' => '.solo-footer-nav',
+    'footer_menu' => '.solo-footer-menu__nav',
     'credit_copyright' => '.solo-copyright',
   ];
 
@@ -73,21 +73,21 @@ final class ThemeCssBuilder {
    * The custom property of each color under regions.<region>.colors.
    */
   public const COLOR_PROPERTIES = [
-    'background' => '--r-bg',
-    'text' => '--r-tx',
-    'heading' => '--r-h1',
-    'link' => '--r-lk',
-    'link_hover' => '--r-lk-h',
-    'border' => '--r-br',
-    'form_field_background' => '--r-bg-fr',
-    'menu_link_text' => '--r-tx-lk',
-    'menu_link_text_hover' => '--r-tx-lk-h',
-    'menu_link_background' => '--r-bg-lk',
-    'menu_link_background_hover' => '--r-bg-lk-h',
-    'button_text' => '--r-tx-bt',
-    'button_text_hover' => '--r-tx-bt-h',
-    'button_background' => '--r-bg-bt',
-    'button_background_hover' => '--r-bg-bt-h',
+    'background' => '--r-background',
+    'text' => '--r-text',
+    'heading' => '--r-heading',
+    'link' => '--r-link',
+    'link_hover' => '--r-link-hover',
+    'border' => '--r-border',
+    'form_field_background' => '--r-form-background',
+    'menu_link_text' => '--r-menu-text',
+    'menu_link_text_hover' => '--r-menu-text-hover',
+    'menu_link_background' => '--r-menu-background',
+    'menu_link_background_hover' => '--r-menu-background-hover',
+    'button_text' => '--r-button-text',
+    'button_text_hover' => '--r-button-text-hover',
+    'button_background' => '--r-button-background',
+    'button_background_hover' => '--r-button-background-hover',
   ];
 
   public function __construct(
@@ -205,7 +205,7 @@ final class ThemeCssBuilder {
     $rules = ['.solo-back-to-top-sentinel-wrapper{--solo-back-to-top-sentinel-height:' . $threshold . 'px}'];
 
     $declarations = [];
-    foreach (['background' => '--r-bg', 'text' => '--r-tx'] as $name => $property) {
+    foreach (['background' => '--r-background', 'text' => '--r-text'] as $name => $property) {
       $color = $this->hexOrNothing($settings, 'back_to_top.colors.' . $name, $refused);
       if ($color !== NULL) {
         $declarations[] = $property . ':' . $color;
@@ -241,7 +241,7 @@ final class ThemeCssBuilder {
 
     $text = $this->hexOrNothing($settings, 'preloader.colors.text', $refused);
     if ($text !== NULL) {
-      $declarations[] = '--r-tx:' . $text;
+      $declarations[] = '--r-text:' . $text;
     }
     if ($style === 'logo' || $style === 'logo_text') {
       $declarations[] = '--solo-preloader-logo-width:' . $this->clampedInteger($settings, 'preloader.logo.width', 160, $refused) . 'px';

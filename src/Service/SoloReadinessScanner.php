@@ -53,6 +53,11 @@ final class SoloReadinessScanner {
   public const TYPE_CONFIG_OVERRIDE = 'config_override';
 
   /**
+   * A finding type: PHP that names a Solo 1 class Solo 2 removed.
+   */
+  public const TYPE_CLASS_USE = 'class_use';
+
+  /**
    * A file is read only when it is at most this size, in bytes.
    */
   private const MAX_FILE_SIZE = 2097152;
@@ -68,6 +73,13 @@ final class SoloReadinessScanner {
    * @var string[]|null
    */
   private ?array $soloFunctions = NULL;
+
+  /**
+   * The Solo 1 classes Solo 2 removed, once read.
+   *
+   * @var string[]|null
+   */
+  private ?array $soloClasses = NULL;
 
   public function __construct(
     private readonly SoloThemeDetectionInterface $detection,
@@ -167,6 +179,13 @@ final class SoloReadinessScanner {
         foreach ($this->functionCalls($contents, $functions) as [$line, $function]) {
           $findings[] = $this->finding(self::TYPE_FUNCTION_CALL, $relative, $line, $function . '() is a Solo function; Solo 2 moves Solo\'s PHP into solo_utilities.');
         }
+        foreach (preg_split('/\R/', $contents) ?: [] as $index => $text) {
+          foreach ($this->soloClassNames() as $class) {
+            if (stripos($text, $class) !== FALSE) {
+              $findings[] = $this->finding(self::TYPE_CLASS_USE, $relative, $index + 1, $class . ' was a Solo 1 class; Solo 2 removed it, so this line fails with "Class not found".');
+            }
+          }
+        }
       }
       array_push($findings, ...$this->settingsUseFindings($relative, $contents));
       if ($is_php || $is_twig || $is_info) {
@@ -213,13 +232,38 @@ final class SoloReadinessScanner {
     if ($this->soloFunctions !== NULL) {
       return $this->soloFunctions;
     }
-    $file = $this->appRoot . '/' . $this->moduleList->getPath('solo_utilities') . '/config/map/solo1-function-names.yml';
-    $data = is_file($file) ? Yaml::decode((string) file_get_contents($file)) : NULL;
-    if (!is_array($data) || empty($data['functions'])) {
+    $data = $this->soloOneNames();
+    if (empty($data['functions'])) {
       throw new \RuntimeException('The Solo 1 function list is missing from Solo Utilities: config/map/solo1-function-names.yml');
     }
     $this->soloFunctions = array_values($data['functions']);
     return $this->soloFunctions;
+  }
+
+  /**
+   * Returns the fully qualified names of the Solo 1 classes Solo 2 removed.
+   *
+   * @return string[]
+   *   Without a leading backslash; empty when the list names none.
+   */
+  public function soloClassNames(): array {
+    if ($this->soloClasses === NULL) {
+      $classes = $this->soloOneNames()['classes'] ?? [];
+      $this->soloClasses = is_array($classes) ? array_values(array_filter($classes, 'is_string')) : [];
+    }
+    return $this->soloClasses;
+  }
+
+  /**
+   * Reads the Solo 1 name list this module ships.
+   *
+   * @return array<string, mixed>
+   *   The decoded list, or an empty array when the file is unreadable.
+   */
+  private function soloOneNames(): array {
+    $file = $this->appRoot . '/' . $this->moduleList->getPath('solo_utilities') . '/config/map/solo1-function-names.yml';
+    $data = is_file($file) ? Yaml::decode((string) file_get_contents($file)) : NULL;
+    return is_array($data) ? $data : [];
   }
 
   /**

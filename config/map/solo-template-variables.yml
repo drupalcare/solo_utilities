@@ -83,6 +83,7 @@ groups:
     enable_aria_highlighted: regions.highlighted.aria_landmark
     enable_block_title_visibility: blocks.title_visibility_enabled
     disable_block_title_visibility: ~
+    site_flip_breadcrumb_pagetitle: layout.flip_breadcrumb_page_title
   social:
     sm_icon_size: social_icons.size
     sm_icon_colors: social_icons.color

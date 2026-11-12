@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\node\NodeInterface;
+use Drupal\solo_utilities\Asset\SoloLibraryDefinitions;
 use Drupal\solo_utilities\Context\RequestContext;
 use Drupal\solo_utilities\Layout\LayoutResolver;
 use Drupal\solo_utilities\Security\CssValueValidator;
@@ -138,19 +139,19 @@ final class PagePreprocessor {
     }
     $page_breakpoint = $settings->string('layout.breakpoints.page');
     if ($page_breakpoint !== '') {
-      $variables['#attached']['library'][] = 'solo/solo-global-breakpoints-' . $page_breakpoint;
+      $variables['#attached']['library'][] = 'solo/' . SoloLibraryDefinitions::breakpointLibrary('page', $page_breakpoint);
     }
     $menu_breakpoint = $settings->string('layout.breakpoints.menu');
     if ($menu_breakpoint !== '') {
-      $variables['#attached']['library'][] = 'solo/solo-menu-breakpoints-' . $menu_breakpoint;
+      $variables['#attached']['library'][] = 'solo/' . SoloLibraryDefinitions::breakpointLibrary('menu', $menu_breakpoint);
     }
     // After the breakpoint libraries, as in 1.x: it carries a stylesheet too,
     // and the attach order sets the order of equal-weight stylesheets.
     if ($keyboard_menus !== []) {
-      $variables['#attached']['library'][] = 'solo/solo-menu-keyboard';
+      $variables['#attached']['library'][] = 'solo/component-menu-keyboard';
     }
     if (!$settings->bool('regions.system_messages.disable_dark')) {
-      $variables['#attached']['library'][] = 'solo/solo-system-messages-dark';
+      $variables['#attached']['library'][] = 'solo/component-system-messages-dark';
     }
   }
 
@@ -234,7 +235,7 @@ final class PagePreprocessor {
   private function applyLoginLayout(array &$variables, BoundThemeSettings $settings): void {
     if ($settings->bool('layout.centered_login_page') && in_array(ltrim($this->requestContext->internalPath(), '/'), self::LOGIN_PATHS, TRUE)) {
       unset($variables['page']['sidebar_first'], $variables['page']['sidebar_second']);
-      $variables['#attached']['library'][] = 'solo/solo-user-login-custom';
+      $variables['#attached']['library'][] = 'solo/layout-user-login';
     }
   }
 

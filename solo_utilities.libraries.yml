@@ -1,13 +1,13 @@
 settings-form-extras:
   css:
     theme:
-      css/solo-settings-extras.css: { weight: 210 }
+      css/admin/solo-settings-extras.css: { weight: 210 }
   js:
     js/solo-settings-search.js: {}
   dependencies:
     - core/drupal
     - core/once
-    - solo/solo-form-theme-settings
+    - solo/admin-form-theme-settings
 
 pre-defined:
   js:
@@ -21,9 +21,9 @@ pre-defined:
 overview-page:
   css:
     theme:
-      css/solo-utilities-overview.css: {}
+      css/admin/solo-utilities-overview.css: {}
 
 upgrade-page:
   css:
     theme:
-      css/solo-upgrade.css: {}
+      css/admin/solo-upgrade.css: {}

@@ -148,7 +148,7 @@ class ColorSchemesRuleForm extends EntityForm {
       ],
     ];
 
-    $form['predefined_theme']['#attributes']['data-default-value'] = $entity->get('predefined_theme');
+    $form['predefined_theme']['#attributes']['data-solo-default-value'] = $entity->get('predefined_theme');
 
     // Conjunction radio buttons.
     $form['conjunction'] = [

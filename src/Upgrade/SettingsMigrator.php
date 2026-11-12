@@ -450,7 +450,7 @@ final class SettingsMigrator {
         default => [FALSE, NULL],
       },
       'string' => is_scalar($value) ? [TRUE, (string) $value] : [FALSE, NULL],
-      'sequence', 'ignore' => is_array($value) ? [TRUE, $value] : [FALSE, NULL],
+      'sequence', 'ignore', 'mapping' => is_array($value) ? [TRUE, $value] : [FALSE, NULL],
       default => [FALSE, NULL],
     };
   }

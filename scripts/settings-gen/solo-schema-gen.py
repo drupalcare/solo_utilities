@@ -52,6 +52,9 @@ TYPES_SRC = os.path.join(HERE, 'solo-2.0-types.yml')
 CHOICES_SRC = os.path.join(HERE, 'solo-2.0-choices.yml')
 # Cross-field rules: the one owner of "A needs B" and "A overrides B"; emitted as src/Settings/CompatibilityRules.php.
 COMPAT_SRC = os.path.join(HERE, 'solo-2.0-compat.yml')
+# Settings with no 1.x key (2.0-only leaves and their Twig variables): the one owner of those keys.
+NEW_SRC = os.path.join(HERE, 'solo-2.0-new-settings.yml')
+NEW_TYPES = ('boolean', 'integer', 'string')
 FORM_SECTIONS = os.path.join(cm.UTILS_DIR, 'src', 'Form', 'ThemeSettings', 'Section')
 FORM_VALIDATOR = os.path.join(cm.UTILS_DIR, 'src', 'Form', 'ThemeSettings', 'SettingsFormValidator.php')
 OPTIONS_PHP = os.path.join(cm.UTILS_DIR, 'src', 'Form', 'SettingsOptions.php')
@@ -237,6 +240,51 @@ def read_defaults_2(src=DEFAULTS_SRC):
             raise SystemExit('DEFAULTS 2.0 PARSE: duplicate key at line %d: %s' % (number, m.group(1)))
         out[m.group(1)] = m.group(2)
     return out
+
+
+def read_new_settings(text=None):
+    """Return [(path, type, label, variable)] from the 2.0-only settings file."""
+    text = open(NEW_SRC).read() if text is None else text
+    out, seen = [], set()
+    for number, line in enumerate(text.split('\n'), 1):
+        if not line.strip() or line.lstrip().startswith('#'):
+            continue
+        m = re.match(r"^([a-z_0-9]+(?:\.[a-z_0-9]+)+): ([a-z]+) \| '([^']+)' \| ([a-z_0-9]+)\s*$", line)
+        if not m:
+            raise SystemExit('NEW SETTINGS PARSE: unhandled line %d: %s' % (number, line))
+        if m.group(1) in seen:
+            raise SystemExit('NEW SETTINGS PARSE: duplicate key at line %d: %s' % (number, m.group(1)))
+        seen.add(m.group(1))
+        out.append(m.groups())
+    return out
+
+
+def add_new_settings(tree, rules, defaults):
+    """Add each 2.0-only leaf to the schema tree; a leaf 1.x already maps, a bad type or no default is red."""
+    errors, existing = [], set(flatten_leaves(tree))
+    for path, typ, label, _var in rules:
+        if typ not in NEW_TYPES:
+            errors.append('NEW SETTING %s: type %s is not one of %s' % (path, typ, ', '.join(NEW_TYPES)))
+            continue
+        if path in existing:
+            errors.append('NEW SETTING %s already exists in the schema' % path)
+            continue
+        if path not in defaults:
+            errors.append('NEW SETTING %s has no default in solo-2.0-defaults.yml' % path)
+        put(tree, path, Leaf(OrderedDict([('type', typ), ('label', q(label))])))
+    return errors
+
+
+def add_new_variables(groups, rules):
+    """Add each 2.0-only Twig variable to the misc group; a name already in use is red."""
+    errors, names = [], {n for g in groups.values() for n in g}
+    for path, _typ, _label, var in rules:
+        if var in names:
+            errors.append('NEW SETTING %s: Twig variable %s already exists' % (path, var))
+            continue
+        groups['misc'][var] = path
+        names.add(var)
+    return errors
 
 
 def defaults_2_errors(defaults, leaf_types):
@@ -881,6 +929,8 @@ def generate(src, files, rows=None):
     if set(recs) != set(src['schema']):
         errors.append('SCHEMA PARSE differs from the map tool key list')
     tree = schema_tree(rows, recs)
+    new_rules = read_new_settings()
+    errors += add_new_settings(tree, new_rules, read_defaults_2())
     errors += apply_types(tree, read_types())
     constraint_rules = read_constraints()
     choice_rules, choice_errors = read_choices()
@@ -910,6 +960,7 @@ def generate(src, files, rows=None):
     texts['install'] = emit_install(inst_new, '# Default settings, new names. count_* are derived and no longer stored.\n')
     texts['starter_install'] = emit_install(st_new, '# Starter defaults, new names. count_* are derived and no longer stored.\n')
     var_groups, e3 = variables(cm.tree(), by_old)
+    e3 += add_new_variables(var_groups, new_rules)
     texts['variables'] = emit_variables(var_groups, cm.commit())
     texts['map_copy'] = open(cm.OUT).read() if os.path.exists(cm.OUT) else ''
     texts['defaults_copy'] = open(DEFAULTS_SRC).read()
@@ -917,7 +968,7 @@ def generate(src, files, rows=None):
     p1, t1, e4 = verify_install('install', inst_old, texts['install'], by_old, leaf_paths, defaults_2, changed)
     p2, t2, e5 = verify_install('starter_install', st_old, texts['starter_install'], by_old, leaf_paths, None, changed)
     errors += e1 + e2 + e3 + e4 + e5 + constraint_default_errors(tree, texts['install'])
-    expected = sum(1 for r in rows if r['action'] in ('move', 'scheme_name', 'map_template_assignments')) + 4
+    expected = sum(1 for r in rows if r['action'] in ('move', 'scheme_name', 'map_template_assignments')) + 4 + len(new_rules)
     if leaves != expected:
         errors.append('SCHEMA LEAVES %d, rows predict %d' % (leaves, expected))
     stats = OrderedDict([
@@ -1056,6 +1107,21 @@ def self_test(src, files):
     expect('compat id twice', compat_errors(good_rules + good_rules[:1], ctypes, cr), 'id used twice')
     expect('compat rule the form does not use', compat_drift_errors(good_rules + read_compat('C99: warn_when when=preloader.enabled:checked\n')), 'does not enforce C99')
     expect('compat target the form dropped', compat_drift_errors(good_rules + read_compat('C98: states_invisible when=preloader.enabled:checked targets=preloader.bg_opacity\n')), 'no form field applies C98')
+    nr = read_new_settings()
+    expect('new setting on a path 1.x maps', add_new_settings(fresh(), [('layout.flip_header_menu', 'boolean', 'x', 'zz_var')], read_defaults_2()), 'already exists')
+    expect('new setting without a default', add_new_settings(fresh(), [('layout.zz_new', 'boolean', 'x', 'zz_var')], read_defaults_2()), 'has no default')
+    expect('new setting with an unknown type', add_new_settings(fresh(), [('layout.zz_new', 'mapping', 'x', 'zz_var')], read_defaults_2()), 'is not one of')
+    vg, _ = variables(cm.tree(), by_old)
+    expect('new setting reusing a Twig variable', add_new_variables(vg, [('layout.zz_new', 'boolean', 'x', 'site_flip_header_menu')]), 'already exists')
+    try:
+        read_new_settings('layout.zz_a: boolean | x | zz_a\n')
+        raised = []
+    except SystemExit as exc:
+        raised = [str(exc)]
+    expect('new settings line without a quoted label', raised, 'NEW SETTINGS PARSE')
+    print(('ok       ' if nr else 'NOT OK   ') + 'new settings file read')
+    if not nr:
+        bad.append('new settings file read')
     expect('hand-edited schema', [e for e in ['DRIFT'] if texts['schema'].replace('layout', 'layouts', 1) != texts['schema']], 'DRIFT')
     return bad
 

@@ -53,7 +53,7 @@ final class BackToTop {
     $variables['back_to_top_show'] = $show;
     $variables['back_to_top_config'] = $show ? $this->config($settings) : [];
     if ($show) {
-      $variables['#attached']['library'][] = 'solo/solo-back-to-top';
+      $variables['#attached']['library'][] = 'solo/component-back-to-top';
     }
   }
 

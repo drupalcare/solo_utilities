@@ -486,6 +486,13 @@ final class GlobalSiteSection implements SettingsSectionInterface {
       "#default_value" => $settings->get('layout.flip_header_menu'),
     ];
 
+    $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__flip_breadcrumb_page_title"] = [
+      "#parents" => ['layout', 'flip_breadcrumb_page_title'],
+      "#type" => "checkbox",
+      "#title" => $this->t("Flip the breadcrumb order. It will be displayed before the page title"),
+      "#default_value" => $settings->get('layout.flip_breadcrumb_page_title'),
+    ];
+
     $form["solo_settings"]["settings_global_misc"]["interface_behavior"]["layout__reveal_on_scroll"] = [
       "#parents" => ['layout', 'reveal_on_scroll'],
       "#type" => "checkbox",

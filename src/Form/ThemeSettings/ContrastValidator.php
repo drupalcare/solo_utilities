@@ -7,6 +7,7 @@ namespace Drupal\solo_utilities\Form\ThemeSettings;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -110,14 +111,63 @@ final class ContrastValidator {
    */
   public function validateForm(FormStateInterface $form_state, MessengerInterface $messenger, string $schemes_directory): void {
     $findings = $this->validate($form_state->getValues(), self::loadSchemes($schemes_directory));
+    $complete = $form_state->getCompleteForm();
     foreach ($findings as $finding) {
-      if ($finding['severity'] === 'error') {
+      // A pair blocks the save only when the user changed one of its colors.
+      // A pair stored before this check existed (an upgraded 1.x site) warns,
+      // so the rest of the form can still be saved.
+      if ($finding['severity'] === 'error' && self::changed($finding['fields'], $form_state, $complete)) {
         $form_state->setErrorByName($finding['fields'][0], $finding['message']);
       }
       else {
         $messenger->addWarning($finding['message']);
       }
     }
+  }
+
+  /**
+   * Whether any of the named fields differs from the value the form showed.
+   *
+   * @param list<string> $fields
+   *   Form element names, such as "preloader][colors][text".
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The theme settings form state.
+   * @param array<string|int, mixed> $complete
+   *   The complete form, which holds each element's default value.
+   */
+  private static function changed(array $fields, FormStateInterface $form_state, array $complete): bool {
+    foreach ($fields as $field) {
+      $parents = explode('][', $field);
+      $element = self::findByParents($complete, $parents);
+      $before = $element === NULL ? '' : (string) ($element['#default_value'] ?? '');
+      if (strtolower(trim((string) $form_state->getValue($parents))) !== strtolower(trim($before))) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Finds a form element by its #parents; details and tabs nest it elsewhere.
+   *
+   * @param array<string|int, mixed> $element
+   *   The form, or a part of it.
+   * @param list<string> $parents
+   *   The value path.
+   *
+   * @return array<string|int, mixed>|null
+   *   The element, or NULL.
+   */
+  private static function findByParents(array $element, array $parents): ?array {
+    if (($element['#parents'] ?? NULL) === $parents && array_key_exists('#default_value', $element)) {
+      return $element;
+    }
+    foreach (Element::children($element) as $key) {
+      if (is_array($element[$key]) && ($found = self::findByParents($element[$key], $parents)) !== NULL) {
+        return $found;
+      }
+    }
+    return NULL;
   }
 
   /**

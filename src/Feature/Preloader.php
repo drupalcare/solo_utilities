@@ -61,7 +61,7 @@ final class Preloader {
       return;
     }
 
-    $variables['#attached']['library'][] = 'solo/solo-preloader';
+    $variables['#attached']['library'][] = 'solo/component-preloader';
     $variables['#attached']['html_head'][] = [
       [
         '#tag' => 'meta',

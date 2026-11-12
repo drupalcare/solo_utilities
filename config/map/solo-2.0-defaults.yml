@@ -39,3 +39,4 @@ regions.bottom_fourth.alignment: region-left
 regions.footer_first.alignment: region-left
 regions.footer_second.alignment: region-left
 regions.footer_third.alignment: region-left
+layout.flip_breadcrumb_page_title: false

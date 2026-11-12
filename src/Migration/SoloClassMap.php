@@ -50,7 +50,7 @@ final class SoloClassMap {
    */
   public static function migrator(): ClassMigrator {
     try {
-      return new ClassMigrator(self::load());
+      return new ClassMigrator(SoloRenameMap::chain(self::load()));
     }
     catch (\InvalidArgumentException $e) {
       throw new \RuntimeException($e->getMessage() . ' (' . self::FILE . ')', 0, $e);

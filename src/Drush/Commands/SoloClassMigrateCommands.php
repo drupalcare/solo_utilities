@@ -16,6 +16,8 @@ use Drupal\solo_utilities\Migration\ClassMigrationPaths;
 use Drupal\solo_utilities\Migration\ClassMigrator;
 use Drupal\solo_utilities\Migration\RollbackLog;
 use Drupal\solo_utilities\Migration\SoloClassMap;
+use Drupal\solo_utilities\Migration\SoloRenameMap;
+use Drupal\solo_utilities\Migration\SoloRenameMigrator;
 use Drupal\solo_utilities\Migration\StoredClassMigrator;
 use Drupal\solo_utilities\Theme\SoloThemeDetectionInterface;
 use Drush\Attributes as CLI;
@@ -25,7 +27,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Drush command that renames Solo 1 classes and ids to the Solo 2 names.
+ * Drush command that renames Solo 1 and earlier 2.0 names to the current ones.
+ *
+ * Classes and ids, library ids, JavaScript names and CSS variables are
+ * rewritten; moved files are reported. The rows are in config/map.
  *
  * @internal
  */
@@ -65,11 +70,13 @@ final class SoloClassMigrateCommands extends DrushCommands {
   }
 
   /**
-   * Rewrite Solo 1 class names and ids in a sub-theme or module to Solo 2.
+   * Rewrite renamed Solo names (classes, ids, library ids, JS, variables).
    *
    * Dry run by default. Reads .css .scss .sass .less .twig .js files and
    * rewrites them; reads .theme .php .module .inc files and only reports
-   * them. Never reads .yml, *.min.*, a symbolic link or a hard-linked file.
+   * them. Reads .info.yml and .libraries.yml files only for library ids and
+   * moved files: rewritten only with --yml, reported otherwise. Never reads
+   * other .yml, *.min.*, a symbolic link or a hard-linked file.
    * Writes only inside the resolved target, which must be inside the Drupal
    * root and may not be core, Solo or the public files folder. Files are
    * replaced atomically. The --report file is written even in a dry run, and
@@ -87,18 +94,20 @@ final class SoloClassMigrateCommands extends DrushCommands {
   #[CLI\Argument(name: 'target', description: 'Theme machine name, or a directory inside the Drupal root, such as web/themes/custom/mytheme or web/modules/custom/my_module. A relative path is looked up from the current folder, then the Composer project folder, then the Drupal root.')]
   #[CLI\Option(name: 'apply', description: 'Write the changes. Without it nothing is written, in files or in the database.')]
   #[CLI\Option(name: 'report', description: 'Write a Markdown report of every change and every item to check by hand to this new file (mode 0600), even in a dry run. A relative name that would land inside the web root goes to the Composer project folder; an absolute path inside the web root is refused.')]
+  #[CLI\Option(name: 'yml', description: 'Also rewrite renamed library ids in the .info.yml and .libraries.yml files of the target (libraries-override, libraries-extend and dependencies). Without it they are reported. Old library ids keep working as deprecated aliases for one major.')]
   #[CLI\Option(name: 'ext', description: 'Comma-separated extensions to process, narrowing the default set. Allowed: css, scss, sass, less, twig, js, theme, php, module, inc.')]
   #[CLI\Option(name: 'stored', description: 'Also rename classes stored in configuration: the Solo inline CSS, Dynamic CSS and Dynamic JS settings, Block Class classes, Views classes and text format allowed tags (with CKEditor 5). Files under sites/*/files are reported, never written. Reported first.')]
   #[CLI\Option(name: 'content', description: 'Also rename Solo ids (only ids) in formatted text fields, paragraphs, Layout Builder inline blocks and menu link attributes. The default revision and the latest draft are rewritten; older revisions are counted and left. With --apply each changed item is saved as a new revision, and --backup-confirmed and --report are required.')]
   #[CLI\Option(name: 'backup-confirmed', description: 'With --apply --content: you have taken a database backup and checked that it restores. Without it --apply --content refuses and writes nothing.')]
-  #[CLI\Option(name: 'revision-user', description: 'User id or account name recorded as the author of the new revisions. Default: user 1.')]
+  #[CLI\Option(name: 'revision-user', description: 'User id or account name recorded as the author of the new revisions. When not given: user 1.')]
   #[CLI\Option(name: 'limit', description: 'Handle at most this many content items, then stop and print the --from value to carry on.')]
   #[CLI\Option(name: 'from', description: 'Start at this content item, given as entity_type:id (as printed by --limit).')]
-  #[CLI\Option(name: 'max-failures', description: 'Stop after this many content items failed. Default: 10.')]
+  #[CLI\Option(name: 'max-failures', description: 'Stop after this many content items failed. When not given: 10.')]
   #[CLI\Usage(name: 'drush solo:migrate-classes mytheme', description: 'Dry run: count what would change in theme "mytheme".')]
   #[CLI\Usage(name: 'drush solo:migrate-classes mytheme --stored --content --report=solo-report.md', description: 'Dry run of files, configuration and content, with a full report (run from the project folder).')]
   #[CLI\Usage(name: 'drush solo:migrate-classes mytheme --apply', description: 'Write the file changes.')]
   #[CLI\Usage(name: 'drush solo:migrate-classes mytheme --stored --content --apply --backup-confirmed --report=solo-report.md', description: 'After a database backup: write files, configuration and content, with a report and a rollback log beside it (solo-report.md.rollback.jsonl).')]
+  #[CLI\Usage(name: 'drush solo:migrate-classes mytheme --apply --yml', description: 'Write the file changes, including library ids in the theme .info.yml and .libraries.yml files.')]
   #[CLI\Usage(name: 'drush solo:migrate-classes modules/custom/my_module --ext=css,js', description: 'Only stylesheets and JavaScript, in a custom module.')]
   public function migrateClasses(
     string $target,
@@ -106,6 +115,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
       'apply' => FALSE,
       'report' => NULL,
       'ext' => NULL,
+      'yml' => FALSE,
       'stored' => FALSE,
       'content' => FALSE,
       'backup-confirmed' => FALSE,
@@ -161,6 +171,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
     }
     try {
       $migrator = SoloClassMap::migrator();
+      $renamer = new SoloRenameMigrator(SoloRenameMap::rows());
       $extensions = $migrator->normalizeExtensions(is_string($ext) ? $ext : NULL);
       $paths = $this->migrationPaths();
       $cwd = $this->getConfig()->cwd();
@@ -201,7 +212,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
 
     $site = $this->siteUri();
     $time = gmdate('Y-m-d\\TH:i:s\\Z', $this->time->getRequestTime());
-    $checksum = hash_file('sha256', dirname(__DIR__, 3) . '/' . SoloClassMap::FILE) ?: 'unknown';
+    $checksum = SoloRenameMap::checksum();
     $log = NULL;
     if ($logFile !== NULL) {
       try {
@@ -216,9 +227,10 @@ final class SoloClassMigrateCommands extends DrushCommands {
       }
     }
 
+    $writeYmlHeader = !empty($options['yml']);
     $relativeRoot = $paths->relative($root);
     $report = [
-      '# Solo 2 class migration report',
+      '# Solo class migration report',
       '',
       'Full-site rollback is your database backup: take one before --apply and check that it restores. The rollback log undoes this run item by item (drush solo:migrate-classes-rollback).',
       '',
@@ -229,7 +241,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
       'Class map sha256: ' . $checksum,
       'Backup: ' . (!$apply ? 'dry run, nothing is written' : ($content ? 'confirmed by the operator (--backup-confirmed)' : 'not asked for (no content is written)')),
       'Rollback log: ' . ($log !== NULL ? $log->path() : 'none'),
-      'Extensions: ' . implode(', ', $extensions),
+      'Extensions: ' . implode(', ', $extensions) . ($writeYmlHeader ? ', info.yml and libraries.yml (rewritten, --yml)' : ', info.yml and libraries.yml (reported; add --yml to rewrite library ids)'),
       '',
     ];
     $review = [];
@@ -291,6 +303,10 @@ final class SoloClassMigrateCommands extends DrushCommands {
     }
 
     $scan = $migrator->scan($root, $extensions);
+    $yamlFiles = $renamer->scanYaml($root);
+    $scan['files'] = array_merge($scan['files'], $yamlFiles);
+    sort($scan['files']);
+    $writeYml = !empty($options['yml']);
     $scan['readonly'] = [];
     $scan['owner'] = [];
     $euid = function_exists('posix_geteuid') ? posix_geteuid() : NULL;
@@ -316,7 +332,24 @@ final class SoloClassMigrateCommands extends DrushCommands {
         $failed++;
         continue;
       }
-      $result = $migrator->migrate($contents, $real);
+      if (SoloRenameMigrator::isYamlTarget($real)) {
+        $result = $renamer->migrate($contents, $real, $writeYml);
+      }
+      else {
+        $result = $migrator->migrate($contents, $real);
+        $renamed = $renamer->migrate($result['content'], $real, $writeYml);
+        $result['content'] = $renamed['content'];
+        // Both passes may touch one line: keep the first before and the last
+        // after, so the report and the counts show each line once.
+        $byLine = [];
+        foreach (array_merge($result['changes'], $renamed['changes']) as $change) {
+          $byLine[$change['line']] = isset($byLine[$change['line']])
+            ? ['line' => $change['line'], 'before' => $byLine[$change['line']]['before'], 'after' => $change['after']]
+            : $change;
+        }
+        $result['changes'] = array_values($byLine);
+        $result['notes'] = array_merge($result['notes'], $renamed['notes']);
+      }
       foreach ($result['notes'] as $note) {
         $review[$note['kind']][] = [$relative] + $note;
       }
@@ -365,7 +398,7 @@ final class SoloClassMigrateCommands extends DrushCommands {
       $report[] = '# Needs manual review';
       $report[] = '';
     }
-    foreach (ClassMigrator::NOTE_LABELS as $kind => $label) {
+    foreach (array_merge(ClassMigrator::NOTE_LABELS, SoloRenameMigrator::NOTE_LABELS) as $kind => $label) {
       if (empty($review[$kind])) {
         continue;
       }
@@ -436,8 +469,8 @@ final class SoloClassMigrateCommands extends DrushCommands {
   #[CLI\Command(name: 'solo:migrate-classes-rollback', aliases: ['solo-migrate-classes-rollback'])]
   #[CLI\Argument(name: 'log', description: 'The rollback log, for example solo-report.md.rollback.jsonl.')]
   #[CLI\Option(name: 'apply', description: 'Restore the values. Without it nothing is written.')]
-  #[CLI\Option(name: 'revision-user', description: 'User id or account name recorded as the author of the new revisions. Default: user 1.')]
-  #[CLI\Option(name: 'max-failures', description: 'Stop after this many items failed. Default: 10.')]
+  #[CLI\Option(name: 'revision-user', description: 'User id or account name recorded as the author of the new revisions. When not given: user 1.')]
+  #[CLI\Option(name: 'max-failures', description: 'Stop after this many items failed. When not given: 10.')]
   #[CLI\Usage(name: 'drush solo:migrate-classes-rollback ../solo-report.md.rollback.jsonl', description: 'Dry run: list what would be restored and every conflict.')]
   public function migrateClassesRollback(
     string $log,

@@ -1,0 +1,56 @@
+# Solo 1.x -> 2.x region custom property rename map. Canonical: edit here only.
+# Read by solo/scripts/build-region-legacy.py, which writes css/base/solo-region-legacy.css
+# and the README upgrade table, and by `build-region-legacy.py --check` (drift).
+# `roles` is the 15 region color names; their order is the order of the registrations in
+# css/base/solo-region-properties.css. `initial` is that registration's initial value.
+# `removed` maps an old name to a new one for readers only; setting an old name does nothing.
+# The --r-sc-* scheme defaults of 2.0 development builds are listed under `removed`: schemes now
+# set the --r-<role> names directly, so a reader of an old --r-sc-* name gets the live value.
+roles:
+  background: {initial: transparent}
+  text: {initial: currentcolor}
+  heading: {initial: currentcolor}
+  link: {initial: currentcolor}
+  link-hover: {initial: currentcolor}
+  border: {initial: currentcolor}
+  form-background: {initial: transparent}
+  menu-text: {initial: currentcolor}
+  menu-text-hover: {initial: currentcolor}
+  menu-background: {initial: transparent}
+  menu-background-hover: {initial: transparent}
+  button-text: {initial: currentcolor}
+  button-text-hover: {initial: currentcolor}
+  button-background: {initial: transparent}
+  button-background-hover: {initial: transparent}
+removed:
+  '--r-bg': '--r-background'
+  '--r-tx': '--r-text'
+  '--r-h1': '--r-heading'
+  '--r-lk': '--r-link'
+  '--r-lk-h': '--r-link-hover'
+  '--r-br': '--r-border'
+  '--r-bg-fr': '--r-form-background'
+  '--r-tx-lk': '--r-menu-text'
+  '--r-tx-lk-h': '--r-menu-text-hover'
+  '--r-menu-tx-h': '--r-menu-text-hover'
+  '--r-bg-lk': '--r-menu-background'
+  '--r-bg-lk-h': '--r-menu-background-hover'
+  '--r-menu-bg-h': '--r-menu-background-hover'
+  '--r-tx-bt': '--r-button-text'
+  '--r-tx-bt-h': '--r-button-text-hover'
+  '--r-bg-bt': '--r-button-background'
+  '--r-bg-bt-h': '--r-button-background-hover'
+  '--r-header-bg': '--solo-accent-background'
+  '--r-header-tx': '--solo-accent-text'
+  '--r-br-b': '--solo-border-default'
+  '--r-bg-dark': '--solo-tone-background-dark'
+  '--r-tx-dark': '--solo-tone-text-dark'
+  '--r-br-dark': '--solo-tone-border-dark'
+  '--r-bg-light': '--solo-tone-background-light'
+  '--r-tx-light': '--solo-tone-text-light'
+  '--r-br-light': '--solo-tone-border-light'
+  '--r-sc-h1': '--r-heading'
+  '--r-sc-lk': '--r-link'
+  '--r-sc-lk-h': '--r-link-hover'
+  '--r-sc-tx-bt': '--r-button-text'
+  '--r-sc-tx-bt-h': '--r-button-text-hover'

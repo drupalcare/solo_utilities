@@ -106,12 +106,12 @@ final class SearchResult {
     CacheableMetadata::createFromRenderArray($form)->addCacheableDependency($settings)->applyTo($form);
     $form['keys']['#attributes']['placeholder'] = $this->t('Search');
     $form['actions']['submit'] ??= [];
-    $this->attributes->addClasses($form['actions']['submit'], 'solo-fixed-search__button-block', '#attributes');
+    $this->attributes->addClasses($form['actions']['submit'], 'solo-fixed-search-block__button-block', '#attributes');
     $form['#attached']['drupalSettings']['solo'] = [
       'searchContentTypes' => array_filter($settings->array('search.result_content_types')),
       'searchBasePath' => '/search/node',
     ];
-    $form['#attached']['library'][] = 'solo/solo-search-settings';
+    $form['#attached']['library'][] = 'solo/component-search-settings';
   }
 
   /**

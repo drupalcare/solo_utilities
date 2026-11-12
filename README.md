@@ -159,8 +159,8 @@ migration.
 drush solo:migrate-classes mytheme
 ```
 
-Renames Solo 1 classes and ids to their Solo 2 names in a theme or module
-folder. Without `--apply` it is a dry run: it counts what would change and
+Renames Solo 1 classes and ids to their current names, and the later renames of library ids, JavaScript names and region color variables, in a theme or module
+folder. Library ids in `.info.yml` and `.libraries.yml` are rewritten only with `--yml`; moved files are only reported. Without `--apply` it is a dry run: it counts what would change and
 writes nothing. Add `--report=solo-report.md` for a full list.
 
 - `--stored` also renames classes kept in configuration: Solo's inline CSS and

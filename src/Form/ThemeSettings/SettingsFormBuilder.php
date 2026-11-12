@@ -180,7 +180,7 @@ final class SettingsFormBuilder {
     $form['#validate'][] = [$this->validator, 'validate'];
     $form['#submit'][] = [$this->submitter, 'submit'];
 
-    $form['#attached']['library'][] = 'solo/solo-form-theme-settings';
+    $form['#attached']['library'][] = 'solo/admin-form-theme-settings';
     $form['#attached']['library'][] = 'solo_utilities/settings-form-extras';
 
     [$mix, $groups] = $this->occupiedRegions($theme);

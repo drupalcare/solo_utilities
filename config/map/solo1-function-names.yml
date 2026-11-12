@@ -1,5 +1,6 @@
 # Solo 1 procedural function names, read once from Solo 1.0.x-dev (solo.theme and
 # includes/*.inc). Solo 2 ships neither, so the readiness scan reads this list.
+# classes: the Solo 1.0.39 PHP classes (src/) that Solo 2 removed. A sub-theme that names one is reported.
 functions:
   - _add_admin_context_to_body_class
   - _add_node_breadcrumb
@@ -160,3 +161,6 @@ functions:
   - solo_utilities__is_solo_or_sub_in_hierarchy_active
   - solo_utilities__is_block_title_visibility_enabled
   - solo_utilities__block_title_setting
+classes:
+  - Drupal\solo\SocialIconColor
+  - Drupal\solo\SoloIncludes

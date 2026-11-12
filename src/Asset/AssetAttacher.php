@@ -44,7 +44,7 @@ final class AssetAttacher {
   /**
    * Preloader rules that must paint before any stylesheet loads.
    */
-  private const PRELOADER_CRITICAL_CSS = 'html.solo-preloader-enabled #solo-preloader{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;background-color:var(--solo-preloader-bg,transparent);color:var(--r-tx,#333)}html.solo-preloader-enabled #solo-preloader .solo-preloader__inner{display:flex;flex-direction:column;align-items:center;gap:1rem}html.solo-preloader-enabled #solo-preloader .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}@media (scripting:none){html.solo-preloader-enabled #solo-preloader{display:none}}';
+  private const PRELOADER_CRITICAL_CSS = 'html.solo-preloader-enabled #solo-preloader{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;background-color:var(--solo-preloader-bg,transparent);color:var(--r-text,#333)}html.solo-preloader-enabled #solo-preloader .solo-preloader__inner{display:flex;flex-direction:column;align-items:center;gap:1rem}html.solo-preloader-enabled #solo-preloader .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}@media (scripting:none){html.solo-preloader-enabled #solo-preloader{display:none}}';
 
   public function __construct(
     private readonly SettingsReader $settingsReader,
@@ -116,15 +116,15 @@ final class AssetAttacher {
       $this->attachSoloLibrary($build, $theme, 'typography.fonts.icon_library', $icon_library);
     }
     if ($settings->bool('typography.load_w3css')) {
-      $this->attachSoloLibrary($build, $theme, 'typography.load_w3css', 'w3-css');
+      $this->attachSoloLibrary($build, $theme, 'typography.load_w3css', 'bundle-w3-css');
     }
     if ($settings->bool('color_scheme.colored_system_tabs')) {
-      $this->attachSoloLibrary($build, $theme, 'color_scheme.colored_system_tabs', 'solo-color-coded-system-tabs');
+      $this->attachSoloLibrary($build, $theme, 'color_scheme.colored_system_tabs', 'component-menu-local-tasks-color-coded');
     }
     if ($settings->bool('layout.reveal_on_scroll')) {
       $build['#cache']['contexts'][] = RequestContext::CACHE_CONTEXT_ROUTE;
       if (!$this->requestContext->isAdminRoute()) {
-        $this->attachSoloLibrary($build, $theme, 'layout.reveal_on_scroll', 'solo-full-opacity');
+        $this->attachSoloLibrary($build, $theme, 'layout.reveal_on_scroll', 'base-full-opacity');
         $build['#attached']['drupalSettings']['solo']['fullOpacity'] ??= [
           'animationHeightRatio' => 0.15,
           'fadeInDuration' => '1s',
@@ -265,7 +265,7 @@ final class AssetAttacher {
     if (!$this->files->exists($uri) && !$this->files->rebuild($theme)) {
       return;
     }
-    $this->attachSoloLibrary($build, $theme, 'custom_code.js_file', 'solo-js-dynamic');
+    $this->attachSoloLibrary($build, $theme, 'custom_code.js_file', 'theme-js-dynamic');
     $build['#attached']['html_head'][] = [
       [
         '#type' => 'html_tag',
@@ -299,7 +299,7 @@ final class AssetAttacher {
       ->applyTo($build);
     $negotiated = $negotiation->scheme;
     if ($negotiated !== NULL && $negotiated !== '') {
-      $this->attachSoloLibrary($build, $theme, 'color_scheme.name', $negotiated);
+      $this->attachSoloLibrary($build, $theme, 'color_scheme.name', SoloLibraryDefinitions::schemeLibrary($negotiated));
       return;
     }
     if ($settings->string('color_scheme.category') === 'none') {
@@ -307,7 +307,7 @@ final class AssetAttacher {
     }
     $name = $settings->string('color_scheme.name');
     if ($name !== '') {
-      $this->attachSoloLibrary($build, $theme, 'color_scheme.name', $name);
+      $this->attachSoloLibrary($build, $theme, 'color_scheme.name', SoloLibraryDefinitions::schemeLibrary($name));
     }
   }
 
@@ -326,10 +326,11 @@ final class AssetAttacher {
    *   The library family: in for local, ex for external.
    */
   private function attachFont(array &$build, string $theme, BoundThemeSettings $settings, string $field, string $source): void {
-    // The stored name starts with a four character prefix that 1.x dropped.
-    $font = substr($settings->string($field), 4);
+    // The stored name is the slug with a solo- prefix, such as solo-abel. The
+    // library id takes the bare slug; an unknown value is refused below.
+    $font = preg_replace('/^solo-/', '', $settings->string($field));
     if ($font !== '') {
-      $this->attachSoloLibrary($build, $theme, $field, 'solo-gf' . $source . $font);
+      $this->attachSoloLibrary($build, $theme, $field, SoloLibraryDefinitions::fontLibrary($font, $source === 'in'));
     }
   }
 

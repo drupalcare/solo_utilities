@@ -1,0 +1,517 @@
+# Solo renames made while 2.0 was in development: classes, libraries, files, JavaScript names. Canonical: edit here only.
+# Read by solo_utilities/src/Migration/SoloRenameMap.php (the drush solo:migrate-classes command) and by
+# solo_utilities/scripts/class-list.py (the human list in solo/docs/CLASS-MIGRATION.md and class-migration.html).
+# Source of the first fill: planning/rename-map-solo-2026-11-10.json (dated 2026-11-10); this file is the owner from now on.
+# CSS variables are NOT repeated here: they live in solo-variable-map.yml (`removed`), and both tools read them from there.
+# 1.x names live in solo-class-map.yml. A 1.x name whose 2.x target was renamed again is chained at load time, so a
+# 1.x name maps straight to its final name; edit the 1.x row only when the 1.x meaning changes.
+# Row: 'old': {new, action[, kind|op]}. Actions:
+#   rewrite      the tool rewrites the old name where the file type allows; elsewhere it reports.
+#   alias        as rewrite, and the old name keeps working in Solo for one major (a deprecated library id, a second JS
+#                behavior name, both data attributes read). Informational for the reader of the list.
+#   report-only  the tool never rewrites: the new name is not one name (a split or a merge), or the place is not safe to edit.
+#                `new` then lists the replacements for a person to pick.
+theme: solo
+counts: {classes: 44, libraries: 348, files: 74, js: 32}
+classes:
+  'solo-comment-replies': {new: 'solo-comment__replies', action: rewrite}
+  'solo-file-button': {new: 'solo-input-file__button', action: rewrite}
+  'solo-file-custom': {new: 'solo-input-file__custom', action: rewrite}
+  'solo-file-name': {new: 'solo-input-file__name', action: rewrite}
+  'solo-file-native': {new: 'solo-input-file__native', action: rewrite}
+  'solo-file-upload-wrapper': {new: 'solo-input-file__wrapper', action: rewrite}
+  'solo-fixed-search': {new: 'solo-fixed-search-block', action: rewrite}
+  'solo-fixed-search__button-block': {new: 'solo-fixed-search-block__button-block', action: rewrite}
+  'solo-fixed-search__close': {new: 'solo-fixed-search-block__close', action: rewrite}
+  'solo-fixed-search__close-inner': {new: 'solo-fixed-search-block__close-inner', action: rewrite}
+  'solo-fixed-search__inner': {new: 'solo-fixed-search-block__inner', action: rewrite}
+  'solo-fixed-search__open': {new: 'solo-fixed-search-block__open', action: rewrite}
+  'solo-fixed-search__wrapper': {new: 'solo-fixed-search-block__wrapper', action: rewrite}
+  'solo-footer-nav': {new: 'solo-footer-menu__nav', action: rewrite}
+  'solo-footer-nav__first': {new: 'solo-footer-menu__nav__first', action: rewrite}
+  'solo-footer-nav__inner': {new: 'solo-footer-menu__nav__inner', action: rewrite}
+  'solo-footer-nav__second': {new: 'solo-footer-menu__nav__second', action: rewrite}
+  'solo-local-task': {new: 'solo-menu-local-task', action: rewrite}
+  'solo-local-task--core': {new: 'solo-menu-local-task--core', action: rewrite}
+  'solo-local-task--delete': {new: 'solo-menu-local-task--delete', action: rewrite}
+  'solo-local-task--revisions': {new: 'solo-menu-local-task--revisions', action: rewrite}
+  'solo-local-task--view': {new: 'solo-menu-local-task--view', action: rewrite}
+  'solo-local-task__icon': {new: 'solo-menu-local-task__icon', action: rewrite}
+  'solo-main-nav': {new: 'solo-menu-main', action: rewrite}
+  'solo-menu-wrapper--responsive': {new: 'solo-table__menu-wrapper--responsive', action: rewrite}
+  'solo-menu-wrapper--sticky': {new: 'solo-table__menu-wrapper--sticky', action: rewrite}
+  'solo-mobile-nav': {new: 'solo-menu-main--mobile', action: rewrite}
+  'solo-popup-login': {new: 'solo-popup-login-block', action: rewrite}
+  'solo-popup-login__close': {new: 'solo-popup-login-block__close', action: rewrite}
+  'solo-popup-login__close-inner': {new: 'solo-popup-login-block__close-inner', action: rewrite}
+  'solo-popup-login__inner': {new: 'solo-popup-login-block__inner', action: rewrite}
+  'solo-popup-login__open': {new: 'solo-popup-login-block__open', action: rewrite}
+  'solo-popup-login__open-inner': {new: 'solo-popup-login-block__open-inner', action: rewrite}
+  'solo-popup-login__trigger': {new: 'solo-popup-login-block__trigger', action: rewrite}
+  'solo-search-button-close': {new: 'solo-fixed-search-block__close', action: rewrite}
+  'solo-search-button-open': {new: 'solo-fixed-search-block__open', action: rewrite}
+  'solo-sidebar-button-close': {new: 'solo-menu-primary-sidebar__close', action: rewrite}
+  'solo-sidebar-button-open': {new: 'solo-menu-primary-sidebar__open', action: rewrite}
+  'solo-sidebar-menu__close': {new: 'solo-primary-sidebar-menu__close', action: rewrite}
+  'solo-sidebar-menu__open': {new: 'solo-primary-sidebar-menu__open', action: rewrite}
+  'solo-system-messages': {new: 'solo-status-messages', action: rewrite}
+  'solo-system-messages__inner': {new: 'solo-status-messages__inner', action: rewrite}
+  'solo-table-all': {new: 'solo-table--all', action: rewrite}
+  'solo-table-wrapper': {new: 'solo-table__wrapper', action: rewrite}
+libraries:
+  'solo/font-awesome-4-ex': {new: 'solo/font-awesome-7-ex', action: alias}
+  'solo/font-awesome-4-in': {new: 'solo/font-awesome-7-in', action: alias}
+  'solo/font-awesome-5-ex': {new: 'solo/font-awesome-7-ex', action: alias}
+  'solo/font-awesome-6-ex': {new: 'solo/font-awesome-7-ex', action: alias}
+  'solo/solo-action-links': {new: 'solo/component-menu-local-action', action: alias}
+  'solo/solo-back-to-top': {new: 'solo/component-back-to-top', action: alias}
+  'solo/solo-berry-blue-dreams': {new: 'solo/scheme-berry-blue-dreams', action: alias}
+  'solo/solo-blueberry-skies-quartet': {new: 'solo/scheme-blueberry-skies-quartet', action: alias}
+  'solo/solo-blushing-magnolia': {new: 'solo/scheme-blushing-magnolia', action: alias}
+  'solo/solo-celestial-blue-depths': {new: 'solo/scheme-celestial-blue-depths', action: alias}
+  'solo/solo-charcoal-gray': {new: 'solo/scheme-charcoal-gray', action: alias}
+  'solo/solo-classic-ivory-lace': {new: 'solo/scheme-classic-ivory-lace', action: alias}
+  'solo/solo-color-coded-system-tabs': {new: 'solo/component-menu-local-tasks-color-coded', action: alias}
+  'solo/solo-cookies': {new: 'solo/theme-cookies', action: alias}
+  'solo/solo-cotton-candy-whispers': {new: 'solo/scheme-cotton-candy-whispers', action: alias}
+  'solo/solo-crimson-denim-night': {new: 'solo/scheme-crimson-denim-night', action: alias}
+  'solo/solo-css-dynamic': {new: 'solo/theme-css-dynamic', action: alias}
+  'solo/solo-debug': {new: 'solo/debug-menu', action: alias}
+  'solo/solo-deep-ocean-shadows': {new: 'solo/scheme-deep-ocean-shadows', action: alias}
+  'solo/solo-deep-sea-echo': {new: 'solo/scheme-deep-sea-echo', action: alias}
+  'solo/solo-denim-twilight': {new: 'solo/scheme-denim-twilight', action: alias}
+  'solo/solo-dusk-shadow-fusion': {new: 'solo/scheme-dusk-shadow-fusion', action: alias}
+  'solo/solo-eclipse-noir': {new: 'solo/scheme-eclipse-noir', action: alias}
+  'solo/solo-enchanted-forest-zest': {new: 'solo/scheme-enchanted-forest-zest', action: alias}
+  'solo/solo-ethereal-white-harmony': {new: 'solo/scheme-ethereal-white-harmony', action: alias}
+  'solo/solo-fixed-search-block': {new: 'solo/component-fixed-search-block', action: alias}
+  'solo/solo-flaming-sapphire': {new: 'solo/scheme-flaming-sapphire', action: alias}
+  'solo/solo-form-theme-settings': {new: 'solo/admin-form-theme-settings', action: alias}
+  'solo/solo-full-opacity': {new: 'solo/base-full-opacity', action: alias}
+  'solo/solo-galactic-stone-hues': {new: 'solo/scheme-galactic-stone-hues', action: alias}
+  'solo/solo-gentle-ivory-breeze': {new: 'solo/scheme-gentle-ivory-breeze', action: alias}
+  'solo/solo-gfex-abel': {new: 'solo/font-abel-external', action: alias}
+  'solo/solo-gfex-abril-fatface': {new: 'solo/font-abril-fatface-external', action: alias}
+  'solo/solo-gfex-acme': {new: 'solo/font-acme-external', action: alias}
+  'solo/solo-gfex-akronim': {new: 'solo/font-akronim-external', action: alias}
+  'solo/solo-gfex-aladin': {new: 'solo/font-aladin-external', action: alias}
+  'solo/solo-gfex-alegreya-sans': {new: 'solo/font-alegreya-sans-external', action: alias}
+  'solo/solo-gfex-alegreya-sans-sc': {new: 'solo/font-alegreya-sans-sc-external', action: alias}
+  'solo/solo-gfex-amita': {new: 'solo/font-amita-external', action: alias}
+  'solo/solo-gfex-anton': {new: 'solo/font-anton-external', action: alias}
+  'solo/solo-gfex-archivo-black': {new: 'solo/font-archivo-black-external', action: alias}
+  'solo/solo-gfex-archivo-narrow': {new: 'solo/font-archivo-narrow-external', action: alias}
+  'solo/solo-gfex-arimo': {new: 'solo/font-arimo-external', action: alias}
+  'solo/solo-gfex-arvo': {new: 'solo/font-arvo-external', action: alias}
+  'solo/solo-gfex-audiowide': {new: 'solo/font-audiowide-external', action: alias}
+  'solo/solo-gfex-barlow': {new: 'solo/font-barlow-external', action: alias}
+  'solo/solo-gfex-barlow-semi-condensed': {new: 'solo/font-barlow-semi-condensed-external', action: alias}
+  'solo/solo-gfex-barriecito': {new: 'solo/font-barriecito-external', action: alias}
+  'solo/solo-gfex-be-vietnam-pro': {new: 'solo/font-be-vietnam-pro-external', action: alias}
+  'solo/solo-gfex-bebas-neue': {new: 'solo/font-bebas-neue-external', action: alias}
+  'solo/solo-gfex-berkshire-swash': {new: 'solo/font-berkshire-swash-external', action: alias}
+  'solo/solo-gfex-big-shoulders-stencil-display': {new: 'solo/font-big-shoulders-stencil-display-external', action: alias}
+  'solo/solo-gfex-big-shoulders-stencil-text': {new: 'solo/font-big-shoulders-stencil-text-external', action: alias}
+  'solo/solo-gfex-bitter': {new: 'solo/font-bitter-external', action: alias}
+  'solo/solo-gfex-black-ops-one': {new: 'solo/font-black-ops-one-external', action: alias}
+  'solo/solo-gfex-bree-serif': {new: 'solo/font-bree-serif-external', action: alias}
+  'solo/solo-gfex-bungee-shade': {new: 'solo/font-bungee-shade-external', action: alias}
+  'solo/solo-gfex-cairo': {new: 'solo/font-cairo-external', action: alias}
+  'solo/solo-gfex-ceviche-one': {new: 'solo/font-ceviche-one-external', action: alias}
+  'solo/solo-gfex-cinzel': {new: 'solo/font-cinzel-external', action: alias}
+  'solo/solo-gfex-comfortaa': {new: 'solo/font-comfortaa-external', action: alias}
+  'solo/solo-gfex-contrail-one': {new: 'solo/font-contrail-one-external', action: alias}
+  'solo/solo-gfex-cookie': {new: 'solo/font-cookie-external', action: alias}
+  'solo/solo-gfex-courgette': {new: 'solo/font-courgette-external', action: alias}
+  'solo/solo-gfex-creepster': {new: 'solo/font-creepster-external', action: alias}
+  'solo/solo-gfex-croissant-one': {new: 'solo/font-croissant-one-external', action: alias}
+  'solo/solo-gfex-crushed': {new: 'solo/font-crushed-external', action: alias}
+  'solo/solo-gfex-dancing-script': {new: 'solo/font-dancing-script-external', action: alias}
+  'solo/solo-gfex-dm-serif-display': {new: 'solo/font-dm-serif-display-external', action: alias}
+  'solo/solo-gfex-domine': {new: 'solo/font-domine-external', action: alias}
+  'solo/solo-gfex-doppio-one': {new: 'solo/font-doppio-one-external', action: alias}
+  'solo/solo-gfex-dosis': {new: 'solo/font-dosis-external', action: alias}
+  'solo/solo-gfex-eagle-lake': {new: 'solo/font-eagle-lake-external', action: alias}
+  'solo/solo-gfex-exo-2': {new: 'solo/font-exo-2-external', action: alias}
+  'solo/solo-gfex-faster-one': {new: 'solo/font-faster-one-external', action: alias}
+  'solo/solo-gfex-finger-paint': {new: 'solo/font-finger-paint-external', action: alias}
+  'solo/solo-gfex-fira-sans': {new: 'solo/font-fira-sans-external', action: alias}
+  'solo/solo-gfex-fjalla-one': {new: 'solo/font-fjalla-one-external', action: alias}
+  'solo/solo-gfex-francois-one': {new: 'solo/font-francois-one-external', action: alias}
+  'solo/solo-gfex-fredericka-the-great': {new: 'solo/font-fredericka-the-great-external', action: alias}
+  'solo/solo-gfex-fredoka': {new: 'solo/font-fredoka-external', action: alias}
+  'solo/solo-gfex-frijole': {new: 'solo/font-frijole-external', action: alias}
+  'solo/solo-gfex-fugaz-one': {new: 'solo/font-fugaz-one-external', action: alias}
+  'solo/solo-gfex-gilda-display': {new: 'solo/font-gilda-display-external', action: alias}
+  'solo/solo-gfex-girassol': {new: 'solo/font-girassol-external', action: alias}
+  'solo/solo-gfex-glegoo': {new: 'solo/font-glegoo-external', action: alias}
+  'solo/solo-gfex-hammersmith-one': {new: 'solo/font-hammersmith-one-external', action: alias}
+  'solo/solo-gfex-hind-siliguri': {new: 'solo/font-hind-siliguri-external', action: alias}
+  'solo/solo-gfex-ibm-plex-sans': {new: 'solo/font-ibm-plex-sans-external', action: alias}
+  'solo/solo-gfex-inconsolata': {new: 'solo/font-inconsolata-external', action: alias}
+  'solo/solo-gfex-indie-flower': {new: 'solo/font-indie-flower-external', action: alias}
+  'solo/solo-gfex-irish-grover': {new: 'solo/font-irish-grover-external', action: alias}
+  'solo/solo-gfex-italiana': {new: 'solo/font-italiana-external', action: alias}
+  'solo/solo-gfex-joan': {new: 'solo/font-joan-external', action: alias}
+  'solo/solo-gfex-josefin-sans': {new: 'solo/font-josefin-sans-external', action: alias}
+  'solo/solo-gfex-julius-sans-one': {new: 'solo/font-julius-sans-one-external', action: alias}
+  'solo/solo-gfex-kalam': {new: 'solo/font-kalam-external', action: alias}
+  'solo/solo-gfex-kanit': {new: 'solo/font-kanit-external', action: alias}
+  'solo/solo-gfex-katibeh': {new: 'solo/font-katibeh-external', action: alias}
+  'solo/solo-gfex-kaushan-script': {new: 'solo/font-kaushan-script-external', action: alias}
+  'solo/solo-gfex-kavivanar': {new: 'solo/font-kavivanar-external', action: alias}
+  'solo/solo-gfex-kumar-one': {new: 'solo/font-kumar-one-external', action: alias}
+  'solo/solo-gfex-lato': {new: 'solo/font-lato-external', action: alias}
+  'solo/solo-gfex-libre-baskerville': {new: 'solo/font-libre-baskerville-external', action: alias}
+  'solo/solo-gfex-lobster-two': {new: 'solo/font-lobster-two-external', action: alias}
+  'solo/solo-gfex-londrina-outline': {new: 'solo/font-londrina-outline-external', action: alias}
+  'solo/solo-gfex-lora': {new: 'solo/font-lora-external', action: alias}
+  'solo/solo-gfex-megrim': {new: 'solo/font-megrim-external', action: alias}
+  'solo/solo-gfex-merienda': {new: 'solo/font-merienda-external', action: alias}
+  'solo/solo-gfex-merriweather': {new: 'solo/font-merriweather-external', action: alias}
+  'solo/solo-gfex-metal-mania': {new: 'solo/font-metal-mania-external', action: alias}
+  'solo/solo-gfex-monoton': {new: 'solo/font-monoton-external', action: alias}
+  'solo/solo-gfex-montserrat': {new: 'solo/font-montserrat-external', action: alias}
+  'solo/solo-gfex-moo-lah-lah': {new: 'solo/font-moo-lah-lah-external', action: alias}
+  'solo/solo-gfex-mukta': {new: 'solo/font-mukta-external', action: alias}
+  'solo/solo-gfex-new-rocker': {new: 'solo/font-new-rocker-external', action: alias}
+  'solo/solo-gfex-nosifer': {new: 'solo/font-nosifer-external', action: alias}
+  'solo/solo-gfex-nunito': {new: 'solo/font-nunito-external', action: alias}
+  'solo/solo-gfex-open-sans': {new: 'solo/font-open-sans-external', action: alias}
+  'solo/solo-gfex-oranienbaum': {new: 'solo/font-oranienbaum-external', action: alias}
+  'solo/solo-gfex-oswald': {new: 'solo/font-oswald-external', action: alias}
+  'solo/solo-gfex-overlock-sc': {new: 'solo/font-overlock-sc-external', action: alias}
+  'solo/solo-gfex-oxygen': {new: 'solo/font-oxygen-external', action: alias}
+  'solo/solo-gfex-patrick-hand': {new: 'solo/font-patrick-hand-external', action: alias}
+  'solo/solo-gfex-pirata-one': {new: 'solo/font-pirata-one-external', action: alias}
+  'solo/solo-gfex-playfair-display': {new: 'solo/font-playfair-display-external', action: alias}
+  'solo/solo-gfex-poiret-one': {new: 'solo/font-poiret-one-external', action: alias}
+  'solo/solo-gfex-poppins': {new: 'solo/font-poppins-external', action: alias}
+  'solo/solo-gfex-prata': {new: 'solo/font-prata-external', action: alias}
+  'solo/solo-gfex-prompt': {new: 'solo/font-prompt-external', action: alias}
+  'solo/solo-gfex-prosto-one': {new: 'solo/font-prosto-one-external', action: alias}
+  'solo/solo-gfex-pt-serif': {new: 'solo/font-pt-serif-external', action: alias}
+  'solo/solo-gfex-quicksand': {new: 'solo/font-quicksand-external', action: alias}
+  'solo/solo-gfex-raleway': {new: 'solo/font-raleway-external', action: alias}
+  'solo/solo-gfex-redressed': {new: 'solo/font-redressed-external', action: alias}
+  'solo/solo-gfex-righteous': {new: 'solo/font-righteous-external', action: alias}
+  'solo/solo-gfex-roboto': {new: 'solo/font-roboto-external', action: alias}
+  'solo/solo-gfex-roboto-condensed': {new: 'solo/font-roboto-condensed-external', action: alias}
+  'solo/solo-gfex-roboto-mono': {new: 'solo/font-roboto-mono-external', action: alias}
+  'solo/solo-gfex-ruslan-display': {new: 'solo/font-ruslan-display-external', action: alias}
+  'solo/solo-gfex-rye': {new: 'solo/font-rye-external', action: alias}
+  'solo/solo-gfex-sancreek': {new: 'solo/font-sancreek-external', action: alias}
+  'solo/solo-gfex-slackey': {new: 'solo/font-slackey-external', action: alias}
+  'solo/solo-gfex-source-sans-3': {new: 'solo/font-source-sans-3-external', action: alias}
+  'solo/solo-gfex-spline-sans': {new: 'solo/font-spline-sans-external', action: alias}
+  'solo/solo-gfex-staatliches': {new: 'solo/font-staatliches-external', action: alias}
+  'solo/solo-gfex-tapestry': {new: 'solo/font-tapestry-external', action: alias}
+  'solo/solo-gfex-titillium-web': {new: 'solo/font-titillium-web-external', action: alias}
+  'solo/solo-gfex-trade-winds': {new: 'solo/font-trade-winds-external', action: alias}
+  'solo/solo-gfex-train-one': {new: 'solo/font-train-one-external', action: alias}
+  'solo/solo-gfex-ubuntu': {new: 'solo/font-ubuntu-external', action: alias}
+  'solo/solo-gfex-uncial-antiqua': {new: 'solo/font-uncial-antiqua-external', action: alias}
+  'solo/solo-gfex-unica-one': {new: 'solo/font-unica-one-external', action: alias}
+  'solo/solo-gfex-unifrakturmaguntia': {new: 'solo/font-unifrakturmaguntia-external', action: alias}
+  'solo/solo-gfex-work-sans': {new: 'solo/font-work-sans-external', action: alias}
+  'solo/solo-gfex-yanone-kaffeesatz': {new: 'solo/font-yanone-kaffeesatz-external', action: alias}
+  'solo/solo-gfex-yatra-one': {new: 'solo/font-yatra-one-external', action: alias}
+  'solo/solo-gfex-yeseva-one': {new: 'solo/font-yeseva-one-external', action: alias}
+  'solo/solo-gfin-abel': {new: 'solo/font-abel-local', action: alias}
+  'solo/solo-gfin-abril-fatface': {new: 'solo/font-abril-fatface-local', action: alias}
+  'solo/solo-gfin-acme': {new: 'solo/font-acme-local', action: alias}
+  'solo/solo-gfin-akronim': {new: 'solo/font-akronim-local', action: alias}
+  'solo/solo-gfin-aladin': {new: 'solo/font-aladin-local', action: alias}
+  'solo/solo-gfin-alegreya-sans': {new: 'solo/font-alegreya-sans-local', action: alias}
+  'solo/solo-gfin-alegreya-sans-sc': {new: 'solo/font-alegreya-sans-sc-local', action: alias}
+  'solo/solo-gfin-amita': {new: 'solo/font-amita-local', action: alias}
+  'solo/solo-gfin-anton': {new: 'solo/font-anton-local', action: alias}
+  'solo/solo-gfin-archivo-black': {new: 'solo/font-archivo-black-local', action: alias}
+  'solo/solo-gfin-archivo-narrow': {new: 'solo/font-archivo-narrow-local', action: alias}
+  'solo/solo-gfin-arimo': {new: 'solo/font-arimo-local', action: alias}
+  'solo/solo-gfin-arvo': {new: 'solo/font-arvo-local', action: alias}
+  'solo/solo-gfin-audiowide': {new: 'solo/font-audiowide-local', action: alias}
+  'solo/solo-gfin-barlow': {new: 'solo/font-barlow-local', action: alias}
+  'solo/solo-gfin-barlow-semi-condensed': {new: 'solo/font-barlow-semi-condensed-local', action: alias}
+  'solo/solo-gfin-barriecito': {new: 'solo/font-barriecito-local', action: alias}
+  'solo/solo-gfin-be-vietnam-pro': {new: 'solo/font-be-vietnam-pro-local', action: alias}
+  'solo/solo-gfin-bebas-neue': {new: 'solo/font-bebas-neue-local', action: alias}
+  'solo/solo-gfin-berkshire-swash': {new: 'solo/font-berkshire-swash-local', action: alias}
+  'solo/solo-gfin-big-shoulders-stencil-display': {new: 'solo/font-big-shoulders-stencil-display-local', action: alias}
+  'solo/solo-gfin-big-shoulders-stencil-text': {new: 'solo/font-big-shoulders-stencil-text-local', action: alias}
+  'solo/solo-gfin-bitter': {new: 'solo/font-bitter-local', action: alias}
+  'solo/solo-gfin-black-ops-one': {new: 'solo/font-black-ops-one-local', action: alias}
+  'solo/solo-gfin-bree-serif': {new: 'solo/font-bree-serif-local', action: alias}
+  'solo/solo-gfin-bungee-shade': {new: 'solo/font-bungee-shade-local', action: alias}
+  'solo/solo-gfin-cairo': {new: 'solo/font-cairo-local', action: alias}
+  'solo/solo-gfin-ceviche-one': {new: 'solo/font-ceviche-one-local', action: alias}
+  'solo/solo-gfin-cinzel': {new: 'solo/font-cinzel-local', action: alias}
+  'solo/solo-gfin-comfortaa': {new: 'solo/font-comfortaa-local', action: alias}
+  'solo/solo-gfin-contrail-one': {new: 'solo/font-contrail-one-local', action: alias}
+  'solo/solo-gfin-cookie': {new: 'solo/font-cookie-local', action: alias}
+  'solo/solo-gfin-courgette': {new: 'solo/font-courgette-local', action: alias}
+  'solo/solo-gfin-creepster': {new: 'solo/font-creepster-local', action: alias}
+  'solo/solo-gfin-croissant-one': {new: 'solo/font-croissant-one-local', action: alias}
+  'solo/solo-gfin-crushed': {new: 'solo/font-crushed-local', action: alias}
+  'solo/solo-gfin-dancing-script': {new: 'solo/font-dancing-script-local', action: alias}
+  'solo/solo-gfin-dm-serif-display': {new: 'solo/font-dm-serif-display-local', action: alias}
+  'solo/solo-gfin-domine': {new: 'solo/font-domine-local', action: alias}
+  'solo/solo-gfin-doppio-one': {new: 'solo/font-doppio-one-local', action: alias}
+  'solo/solo-gfin-dosis': {new: 'solo/font-dosis-local', action: alias}
+  'solo/solo-gfin-eagle-lake': {new: 'solo/font-eagle-lake-local', action: alias}
+  'solo/solo-gfin-exo-2': {new: 'solo/font-exo-2-local', action: alias}
+  'solo/solo-gfin-faster-one': {new: 'solo/font-faster-one-local', action: alias}
+  'solo/solo-gfin-finger-paint': {new: 'solo/font-finger-paint-local', action: alias}
+  'solo/solo-gfin-fira-sans': {new: 'solo/font-fira-sans-local', action: alias}
+  'solo/solo-gfin-fjalla-one': {new: 'solo/font-fjalla-one-local', action: alias}
+  'solo/solo-gfin-francois-one': {new: 'solo/font-francois-one-local', action: alias}
+  'solo/solo-gfin-fredericka-the-great': {new: 'solo/font-fredericka-the-great-local', action: alias}
+  'solo/solo-gfin-fredoka': {new: 'solo/font-fredoka-local', action: alias}
+  'solo/solo-gfin-frijole': {new: 'solo/font-frijole-local', action: alias}
+  'solo/solo-gfin-fugaz-one': {new: 'solo/font-fugaz-one-local', action: alias}
+  'solo/solo-gfin-gilda-display': {new: 'solo/font-gilda-display-local', action: alias}
+  'solo/solo-gfin-girassol': {new: 'solo/font-girassol-local', action: alias}
+  'solo/solo-gfin-glegoo': {new: 'solo/font-glegoo-local', action: alias}
+  'solo/solo-gfin-hammersmith-one': {new: 'solo/font-hammersmith-one-local', action: alias}
+  'solo/solo-gfin-hind-siliguri': {new: 'solo/font-hind-siliguri-local', action: alias}
+  'solo/solo-gfin-ibm-plex-sans': {new: 'solo/font-ibm-plex-sans-local', action: alias}
+  'solo/solo-gfin-inconsolata': {new: 'solo/font-inconsolata-local', action: alias}
+  'solo/solo-gfin-indie-flower': {new: 'solo/font-indie-flower-local', action: alias}
+  'solo/solo-gfin-irish-grover': {new: 'solo/font-irish-grover-local', action: alias}
+  'solo/solo-gfin-italiana': {new: 'solo/font-italiana-local', action: alias}
+  'solo/solo-gfin-joan': {new: 'solo/font-joan-local', action: alias}
+  'solo/solo-gfin-josefin-sans': {new: 'solo/font-josefin-sans-local', action: alias}
+  'solo/solo-gfin-julius-sans-one': {new: 'solo/font-julius-sans-one-local', action: alias}
+  'solo/solo-gfin-kalam': {new: 'solo/font-kalam-local', action: alias}
+  'solo/solo-gfin-kanit': {new: 'solo/font-kanit-local', action: alias}
+  'solo/solo-gfin-katibeh': {new: 'solo/font-katibeh-local', action: alias}
+  'solo/solo-gfin-kaushan-script': {new: 'solo/font-kaushan-script-local', action: alias}
+  'solo/solo-gfin-kavivanar': {new: 'solo/font-kavivanar-local', action: alias}
+  'solo/solo-gfin-kumar-one': {new: 'solo/font-kumar-one-local', action: alias}
+  'solo/solo-gfin-lato': {new: 'solo/font-lato-local', action: alias}
+  'solo/solo-gfin-libre-baskerville': {new: 'solo/font-libre-baskerville-local', action: alias}
+  'solo/solo-gfin-lobster-two': {new: 'solo/font-lobster-two-local', action: alias}
+  'solo/solo-gfin-londrina-outline': {new: 'solo/font-londrina-outline-local', action: alias}
+  'solo/solo-gfin-lora': {new: 'solo/font-lora-local', action: alias}
+  'solo/solo-gfin-megrim': {new: 'solo/font-megrim-local', action: alias}
+  'solo/solo-gfin-merienda': {new: 'solo/font-merienda-local', action: alias}
+  'solo/solo-gfin-merriweather': {new: 'solo/font-merriweather-local', action: alias}
+  'solo/solo-gfin-metal-mania': {new: 'solo/font-metal-mania-local', action: alias}
+  'solo/solo-gfin-monoton': {new: 'solo/font-monoton-local', action: alias}
+  'solo/solo-gfin-montserrat': {new: 'solo/font-montserrat-local', action: alias}
+  'solo/solo-gfin-moo-lah-lah': {new: 'solo/font-moo-lah-lah-local', action: alias}
+  'solo/solo-gfin-mukta': {new: 'solo/font-mukta-local', action: alias}
+  'solo/solo-gfin-new-rocker': {new: 'solo/font-new-rocker-local', action: alias}
+  'solo/solo-gfin-nosifer': {new: 'solo/font-nosifer-local', action: alias}
+  'solo/solo-gfin-nunito': {new: 'solo/font-nunito-local', action: alias}
+  'solo/solo-gfin-open-sans': {new: 'solo/font-open-sans-local', action: alias}
+  'solo/solo-gfin-oranienbaum': {new: 'solo/font-oranienbaum-local', action: alias}
+  'solo/solo-gfin-oswald': {new: 'solo/font-oswald-local', action: alias}
+  'solo/solo-gfin-overlock-sc': {new: 'solo/font-overlock-sc-local', action: alias}
+  'solo/solo-gfin-oxygen': {new: 'solo/font-oxygen-local', action: alias}
+  'solo/solo-gfin-patrick-hand': {new: 'solo/font-patrick-hand-local', action: alias}
+  'solo/solo-gfin-pirata-one': {new: 'solo/font-pirata-one-local', action: alias}
+  'solo/solo-gfin-playfair-display': {new: 'solo/font-playfair-display-local', action: alias}
+  'solo/solo-gfin-poiret-one': {new: 'solo/font-poiret-one-local', action: alias}
+  'solo/solo-gfin-poppins': {new: 'solo/font-poppins-local', action: alias}
+  'solo/solo-gfin-prata': {new: 'solo/font-prata-local', action: alias}
+  'solo/solo-gfin-prompt': {new: 'solo/font-prompt-local', action: alias}
+  'solo/solo-gfin-prosto-one': {new: 'solo/font-prosto-one-local', action: alias}
+  'solo/solo-gfin-pt-serif': {new: 'solo/font-pt-serif-local', action: alias}
+  'solo/solo-gfin-quicksand': {new: 'solo/font-quicksand-local', action: alias}
+  'solo/solo-gfin-raleway': {new: 'solo/font-raleway-local', action: alias}
+  'solo/solo-gfin-redressed': {new: 'solo/font-redressed-local', action: alias}
+  'solo/solo-gfin-righteous': {new: 'solo/font-righteous-local', action: alias}
+  'solo/solo-gfin-roboto': {new: 'solo/font-roboto-local', action: alias}
+  'solo/solo-gfin-roboto-condensed': {new: 'solo/font-roboto-condensed-local', action: alias}
+  'solo/solo-gfin-roboto-mono': {new: 'solo/font-roboto-mono-local', action: alias}
+  'solo/solo-gfin-ruslan-display': {new: 'solo/font-ruslan-display-local', action: alias}
+  'solo/solo-gfin-rye': {new: 'solo/font-rye-local', action: alias}
+  'solo/solo-gfin-sancreek': {new: 'solo/font-sancreek-local', action: alias}
+  'solo/solo-gfin-slackey': {new: 'solo/font-slackey-local', action: alias}
+  'solo/solo-gfin-source-sans-3': {new: 'solo/font-source-sans-3-local', action: alias}
+  'solo/solo-gfin-spline-sans': {new: 'solo/font-spline-sans-local', action: alias}
+  'solo/solo-gfin-staatliches': {new: 'solo/font-staatliches-local', action: alias}
+  'solo/solo-gfin-tapestry': {new: 'solo/font-tapestry-local', action: alias}
+  'solo/solo-gfin-titillium-web': {new: 'solo/font-titillium-web-local', action: alias}
+  'solo/solo-gfin-trade-winds': {new: 'solo/font-trade-winds-local', action: alias}
+  'solo/solo-gfin-train-one': {new: 'solo/font-train-one-local', action: alias}
+  'solo/solo-gfin-ubuntu': {new: 'solo/font-ubuntu-local', action: alias}
+  'solo/solo-gfin-uncial-antiqua': {new: 'solo/font-uncial-antiqua-local', action: alias}
+  'solo/solo-gfin-unica-one': {new: 'solo/font-unica-one-local', action: alias}
+  'solo/solo-gfin-unifrakturmaguntia': {new: 'solo/font-unifrakturmaguntia-local', action: alias}
+  'solo/solo-gfin-work-sans': {new: 'solo/font-work-sans-local', action: alias}
+  'solo/solo-gfin-yanone-kaffeesatz': {new: 'solo/font-yanone-kaffeesatz-local', action: alias}
+  'solo/solo-gfin-yatra-one': {new: 'solo/font-yatra-one-local', action: alias}
+  'solo/solo-gfin-yeseva-one': {new: 'solo/font-yeseva-one-local', action: alias}
+  'solo/solo-global': {new: 'solo/bundle-global', action: alias}
+  'solo/solo-global-breakpoints-sb-1200': {new: 'solo/breakpoint-page-sb-1200', action: alias}
+  'solo/solo-global-breakpoints-sb-1400': {new: 'solo/breakpoint-page-sb-1400', action: alias}
+  'solo/solo-global-breakpoints-sb-576': {new: 'solo/breakpoint-page-sb-576', action: alias}
+  'solo/solo-global-breakpoints-sb-768': {new: 'solo/breakpoint-page-sb-768', action: alias}
+  'solo/solo-global-breakpoints-sb-992': {new: 'solo/breakpoint-page-sb-992', action: alias}
+  'solo/solo-gunmetal-echo': {new: 'solo/scheme-gunmetal-echo', action: alias}
+  'solo/solo-indigo-pulse': {new: 'solo/scheme-indigo-pulse', action: alias}
+  'solo/solo-ivory-whisper': {new: 'solo/scheme-ivory-whisper', action: alias}
+  'solo/solo-js-dynamic': {new: 'solo/theme-js-dynamic', action: alias}
+  'solo/solo-jungle-denim-fusion': {new: 'solo/scheme-jungle-denim-fusion', action: alias}
+  'solo/solo-layers': {new: 'solo/base-layers', action: alias}
+  'solo/solo-lemon-lime-forest': {new: 'solo/scheme-lemon-lime-forest', action: alias}
+  'solo/solo-luminous-alabaster': {new: 'solo/scheme-luminous-alabaster', action: alias}
+  'solo/solo-magnolia-afternoon': {new: 'solo/scheme-magnolia-afternoon', action: alias}
+  'solo/solo-menu': {new: 'solo/bundle-menu', action: alias}
+  'solo/solo-menu-breakpoints-mn-1200': {new: 'solo/breakpoint-menu-mn-1200', action: alias}
+  'solo/solo-menu-breakpoints-mn-1400': {new: 'solo/breakpoint-menu-mn-1400', action: alias}
+  'solo/solo-menu-breakpoints-mn-576': {new: 'solo/breakpoint-menu-mn-576', action: alias}
+  'solo/solo-menu-breakpoints-mn-768': {new: 'solo/breakpoint-menu-mn-768', action: alias}
+  'solo/solo-menu-breakpoints-mn-992': {new: 'solo/breakpoint-menu-mn-992', action: alias}
+  'solo/solo-menu-keyboard': {new: 'solo/component-menu-keyboard', action: alias}
+  'solo/solo-metallic-nebula': {new: 'solo/scheme-metallic-nebula', action: alias}
+  'solo/solo-midnight-denim-swirl': {new: 'solo/scheme-midnight-denim-swirl', action: alias}
+  'solo/solo-midnight-garden-trio': {new: 'solo/scheme-midnight-garden-trio', action: alias}
+  'solo/solo-midnight-navy-duo': {new: 'solo/scheme-midnight-navy-duo', action: alias}
+  'solo/solo-midnight-whispers': {new: 'solo/scheme-midnight-whispers', action: alias}
+  'solo/solo-monochrome-splash': {new: 'solo/scheme-monochrome-splash', action: alias}
+  'solo/solo-mystic-ash-twilight': {new: 'solo/scheme-mystic-ash-twilight', action: alias}
+  'solo/solo-nightfall-paris': {new: 'solo/scheme-nightfall-paris', action: alias}
+  'solo/solo-nocturnal-velvet': {new: 'solo/scheme-nocturnal-velvet', action: alias}
+  'solo/solo-node-edit-form': {new: 'solo/layout-node-edit', action: alias}
+  'solo/solo-obsidian-cascade': {new: 'solo/scheme-obsidian-cascade', action: alias}
+  'solo/solo-ocean-depths-mystery': {new: 'solo/scheme-ocean-depths-mystery', action: alias}
+  'solo/solo-parisian-skyline': {new: 'solo/scheme-parisian-skyline', action: alias}
+  'solo/solo-popup-login-block': {new: 'solo/component-popup-login-block', action: alias}
+  'solo/solo-porcelain-brilliance': {new: 'solo/scheme-porcelain-brilliance', action: alias}
+  'solo/solo-porpoise-dream': {new: 'solo/scheme-porpoise-dream', action: alias}
+  'solo/solo-preloader': {new: 'solo/component-preloader', action: alias}
+  'solo/solo-pristine-porcelain-glow': {new: 'solo/scheme-pristine-porcelain-glow', action: alias}
+  'solo/solo-raspberry-nightfall': {new: 'solo/scheme-raspberry-nightfall', action: alias}
+  'solo/solo-razzle-onyx-elegance': {new: 'solo/scheme-razzle-onyx-elegance', action: alias}
+  'solo/solo-royal-azure-flame': {new: 'solo/scheme-royal-azure-flame', action: alias}
+  'solo/solo-rustic-redwood-charm': {new: 'solo/scheme-rustic-redwood-charm', action: alias}
+  'solo/solo-salmon-denim-fade': {new: 'solo/scheme-salmon-denim-fade', action: alias}
+  'solo/solo-scheme-control-border': {new: 'solo/theme-scheme-control-border', action: alias}
+  'solo/solo-scheme-multi-span': {new: 'solo/theme-scheme-multi-span', action: alias}
+  'solo/solo-scheme-region-paint-1': {new: 'solo/theme-scheme-region-paint-1', action: alias}
+  'solo/solo-scheme-region-paint-2': {new: 'solo/theme-scheme-region-paint-2', action: alias}
+  'solo/solo-scheme-region-paint-3': {new: 'solo/theme-scheme-region-paint-3', action: alias}
+  'solo/solo-scheme-region-rule': {new: 'solo/theme-scheme-region-rule', action: alias}
+  'solo/solo-scheme-shared': {new: 'solo/theme-scheme-shared', action: alias}
+  'solo/solo-search': {new: 'solo/SPLIT: component-search-block + component-search-page', action: report-only}
+  'solo/solo-search-settings': {new: 'solo/component-search-settings', action: alias}
+  'solo/solo-silken-shadow-whisper': {new: 'solo/scheme-silken-shadow-whisper', action: alias}
+  'solo/solo-sitemap': {new: 'solo/component-sitemap', action: alias}
+  'solo/solo-smokey-quartz-symphony': {new: 'solo/scheme-smokey-quartz-symphony', action: alias}
+  'solo/solo-soft-silk-elegance': {new: 'solo/scheme-soft-silk-elegance', action: alias}
+  'solo/solo-system-messages-dark': {new: 'solo/component-system-messages-dark', action: alias}
+  'solo/solo-twilight-ash-mystique': {new: 'solo/scheme-twilight-ash-mystique', action: alias}
+  'solo/solo-urban-stone-shadows': {new: 'solo/scheme-urban-stone-shadows', action: alias}
+  'solo/solo-user-login-custom': {new: 'solo/layout-user-login', action: alias}
+  'solo/w3-css': {new: 'solo/base-w3-css, solo/utilities-extended-classes, solo/utilities-color-camouflage, solo/utilities-color-european-signal, solo/utilities-color-fashion, solo/utilities-color-flat-ui, solo/utilities-color-food, solo/utilities-color-ios, solo/utilities-color-metro-ui, solo/utilities-color-us-highway, solo/utilities-color-us-safety, solo/utilities-color-vivid, solo/utilities-color-win8, solo/bundle-w3-css', action: report-only}
+files:
+  'css/base/solo-hamburger.css': {new: 'css/components/solo-menu-hamburger.css', action: report-only, op: move}
+  'css/breakpoints/solo-global-breakpoints-sb-1200.css': {new: 'css/breakpoints/solo-page-sb-1200.css', action: report-only, op: rename}
+  'css/breakpoints/solo-global-breakpoints-sb-1400.css': {new: 'css/breakpoints/solo-page-sb-1400.css', action: report-only, op: rename}
+  'css/breakpoints/solo-global-breakpoints-sb-576.css': {new: 'css/breakpoints/solo-page-sb-576.css', action: report-only, op: rename}
+  'css/breakpoints/solo-global-breakpoints-sb-768.css': {new: 'css/breakpoints/solo-page-sb-768.css', action: report-only, op: rename}
+  'css/breakpoints/solo-global-breakpoints-sb-992.css': {new: 'css/breakpoints/solo-page-sb-992.css', action: report-only, op: rename}
+  'css/breakpoints/solo-menu-breakpoints-mn-1200.css': {new: 'css/breakpoints/solo-menu-mn-1200.css', action: report-only, op: rename}
+  'css/breakpoints/solo-menu-breakpoints-mn-1400.css': {new: 'css/breakpoints/solo-menu-mn-1400.css', action: report-only, op: rename}
+  'css/breakpoints/solo-menu-breakpoints-mn-576.css': {new: 'css/breakpoints/solo-menu-mn-576.css', action: report-only, op: rename}
+  'css/breakpoints/solo-menu-breakpoints-mn-768.css': {new: 'css/breakpoints/solo-menu-mn-768.css', action: report-only, op: rename}
+  'css/breakpoints/solo-menu-breakpoints-mn-992.css': {new: 'css/breakpoints/solo-menu-mn-992.css', action: report-only, op: rename}
+  'css/breakpoints/solo-responsive.css': {new: 'css/theme/solo-responsive.css', action: report-only, op: move}
+  'css/components/solo-action-links.css': {new: 'css/components/solo-menu-local-action.css', action: report-only, op: rename}
+  'css/components/solo-color-coded-system-tabs.css': {new: 'css/components/solo-menu-local-tasks-color-coded.css', action: report-only, op: rename}
+  'css/components/solo-comments.css': {new: 'css/components/solo-comment.css', action: report-only, op: rename}
+  'css/components/solo-default-node.css': {new: 'css/components/solo-node.css', action: report-only, op: rename}
+  'css/components/solo-default-views.css': {new: 'css/components/solo-views-view.css', action: report-only, op: rename}
+  'css/components/solo-embedded-media.css': {new: 'css/components/solo-media.css', action: report-only, op: rename}
+  'css/components/solo-file-upload.css': {new: 'css/components/solo-input-file.css', action: report-only, op: merge}
+  'css/components/solo-file.css': {new: 'css/components/solo-input-file.css', action: report-only, op: rename}
+  'css/components/solo-forms.css': {new: 'css/components/solo-form.css', action: report-only, op: split}
+  'css/components/solo-menu-keyboard.css': {new: 'removed (it was empty; nothing replaces it)', action: report-only, op: remove}
+  'css/components/solo-node-form.css': {new: 'css/components/solo-node-edit-form.css', action: report-only, op: rename}
+  'css/components/solo-system-admin.css': {new: 'css/admin/solo-admin-system.css', action: report-only, op: rename}
+  'css/components/solo-system-messages-dark.css': {new: 'css/components/solo-status-messages-dark.css', action: report-only, op: rename}
+  'css/components/solo-system-messages.css': {new: 'css/components/solo-status-messages.css', action: report-only, op: rename}
+  'css/components/solo-system-tabs.css': {new: 'css/components/solo-menu-local-tasks.css', action: report-only, op: rename}
+  'css/components/solo-tables.css': {new: 'css/components/solo-table.css', action: report-only, op: rename}
+  'css/components/solo-teaser-mode.css': {new: 'css/components/solo-node-teaser.css', action: report-only, op: rename}
+  'css/components/solo-text-content.css': {new: 'css/components/solo-text-format.css', action: report-only, op: rename}
+  'css/components/solo-user-login.css': {new: 'css/components/solo-form-user-login.css', action: report-only, op: rename}
+  'css/components/solo-user-menu.css': {new: 'css/components/solo-menu-account.css', action: report-only, op: rename}
+  'css/components/solo-user-profile.css': {new: 'css/components/solo-user.css', action: report-only, op: rename}
+  'css/layout/solo-layout-breakpoints-sb-1200.css': {new: 'css/layout/solo-page-sb-1200.css', action: report-only, op: rename}
+  'css/layout/solo-layout-breakpoints-sb-1400.css': {new: 'css/layout/solo-page-sb-1400.css', action: report-only, op: rename}
+  'css/layout/solo-layout-breakpoints-sb-576.css': {new: 'css/layout/solo-page-sb-576.css', action: report-only, op: rename}
+  'css/layout/solo-layout-breakpoints-sb-768.css': {new: 'css/layout/solo-page-sb-768.css', action: report-only, op: rename}
+  'css/layout/solo-layout-breakpoints-sb-992.css': {new: 'css/layout/solo-page-sb-992.css', action: report-only, op: rename}
+  'css/layout/solo-layout-node-edit.css': {new: 'css/layout/solo-node-edit.css', action: report-only, op: rename}
+  'css/layout/solo-layout-user-login.css': {new: 'css/layout/solo-user-login.css', action: report-only, op: rename}
+  'css/theme/solo-form-theme-settings.css': {new: 'css/admin/solo-form-theme-settings.css', action: report-only, op: move}
+  'css/theme/solo-menu-side.css': {new: 'css/theme/solo-menu-primary-sidebar.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-camouflage.css': {new: 'css/utilities/solo-color-camouflage.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-european-signal.css': {new: 'css/utilities/solo-color-european-signal.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-fashion.css': {new: 'css/utilities/solo-color-fashion.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-flat-ui.css': {new: 'css/utilities/solo-color-flat-ui.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-food.css': {new: 'css/utilities/solo-color-food.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-ios.css': {new: 'css/utilities/solo-color-ios.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-metro-ui.css': {new: 'css/utilities/solo-color-metro-ui.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-us-highway.css': {new: 'css/utilities/solo-color-us-highway.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-us-safety.css': {new: 'css/utilities/solo-color-us-safety.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-vivid.css': {new: 'css/utilities/solo-color-vivid.css', action: report-only, op: rename}
+  'css/w3-css/w3css-color-libraries-win8.css': {new: 'css/utilities/solo-color-win8.css', action: report-only, op: rename}
+  'css/w3-css/w3css-extended-classes.css': {new: 'css/utilities/solo-extended-classes.css', action: report-only, op: rename}
+  'fonts/font-awesome.4.7.0.css': {new: 'fonts/font-awesome-7.0.1.css', action: report-only, op: replace}
+  'js/base/solo-color-picker.js': {new: 'js/admin/solo-color-picker.js', action: report-only, op: move-rename}
+  'js/base/solo-form-scheme-picker.js': {new: 'js/admin/solo-form-scheme-picker.js', action: report-only, op: move-rename}
+  'js/base/solo-form-theme-settings.js': {new: 'js/admin/solo-form-theme-settings.js', action: report-only, op: move-rename}
+  'js/components/solo-scripts.js': {new: 'SPLIT into one file per template (image, skip-link, footer-menu, file-input, region size, details): see behaviors table', action: report-only, op: split}
+  'js/components/solo-search-settings.js': {new: 'js/components/solo-search-block.js', action: report-only, op: move-rename}
+  'js/components/solo-utils.js': {new: 'SPLIT: file upload (input-file), search animation (search-block), details animation, menu depth (menu)', action: report-only, op: split}
+  'js/keyboard/solo-keyboard-aria.js': {new: 'js/components/solo-menu-keyboard-aria.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-core.js': {new: 'js/components/solo-menu-keyboard-core.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-focus.js': {new: 'js/components/solo-menu-keyboard-focus.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-megamenu.js': {new: 'js/components/solo-menu-keyboard-megamenu.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-navigation.js': {new: 'js/components/solo-menu-keyboard-navigation.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-template-parser.js': {new: 'js/components/solo-menu-keyboard-template-parser.js', action: report-only, op: move-rename}
+  'js/keyboard/solo-keyboard-utils.js': {new: 'js/components/solo-menu-keyboard-utils.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu-mobile.js': {new: 'js/components/solo-menu-mobile.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu-repositions-submenus.js': {new: 'js/components/solo-menu-submenu-position.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu-scripts.js': {new: 'js/components/solo-menu-main.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu-side.js': {new: 'js/components/solo-menu-primary-sidebar.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu-state-manager.js': {new: 'js/components/solo-menu-state-manager.js', action: report-only, op: move-rename}
+  'js/menu/solo-menu.js': {new: 'js/components/solo-menu.js', action: report-only, op: move-rename}
+js:
+  'Drupal.behaviors.commentRepliesToggle': {new: 'Drupal.behaviors.soloComments', action: alias, kind: behavior}
+  'Drupal.behaviors.globalMenu': {new: 'Drupal.behaviors.soloMenuMain', action: alias, kind: behavior}
+  'Drupal.behaviors.menuAction': {new: 'Drupal.behaviors.soloMenu', action: alias, kind: behavior}
+  'Drupal.behaviors.mobileMenu': {new: 'Drupal.behaviors.soloMenuMobile', action: alias, kind: behavior}
+  'Drupal.behaviors.ColorSchemesRules': {new: 'Drupal.behaviors.soloUtilitiesColorSchemesRules', action: alias, kind: behavior}
+  'Drupal.behaviors.soloTheme': {new: 'Drupal.behaviors.SPLIT (soloImage, soloSkipLink, soloFooterMenu, soloRegionSize, ...)', action: report-only, kind: behavior}
+  'Drupal.behaviors.soloFileUpload / soloMenuDepth / soloSearchAnimation': {new: 'Drupal.behaviors.soloInputFile / soloMenu... / soloSearchBlock (move out of solo-utils.js)', action: report-only, kind: behavior}
+  'Drupal.behaviors.soloPrimarySideMenu': {new: 'Drupal.behaviors.soloMenuPrimarySidebar', action: alias, kind: behavior}
+  'Drupal.behaviors.soloMenuFix': {new: 'Drupal.behaviors.soloMenuSubmenuPosition', action: alias, kind: behavior}
+  'Drupal.behaviors.soloSearchBlock': {new: 'Drupal.behaviors.soloSearchBlock (file moves to solo-search-block.js)', action: report-only, kind: behavior}
+  'comment-replies-toggle': {new: 'solo-comment-replies-toggle', action: rewrite, kind: once-id}
+  'soloDetailsAnimation': {new: 'solo-details-animation', action: rewrite, kind: once-id}
+  'soloHamburgerInit': {new: 'solo-menu-hamburger-init', action: rewrite, kind: once-id}
+  'soloHamburgerLateInit': {new: 'solo-menu-hamburger-late-init', action: rewrite, kind: once-id}
+  'soloMenuDepth': {new: 'solo-menu-depth', action: rewrite, kind: once-id}
+  'soloMenuFix': {new: 'solo-menu-submenu-position', action: rewrite, kind: once-id}
+  'solo-menu-init': {new: 'solo-menu-main', action: rewrite, kind: once-id}
+  'solo-sidebar-button': {new: 'solo-menu-primary-sidebar-button', action: rewrite, kind: once-id}
+  'solo-sidebar-init': {new: 'solo-menu-primary-sidebar', action: rewrite, kind: once-id}
+  'solo-search-block-init': {new: 'solo-fixed-search-block', action: rewrite, kind: once-id}
+  'solo-search-close-btn': {new: 'solo-fixed-search-block-close', action: rewrite, kind: once-id}
+  'solo-search-open-btn': {new: 'solo-fixed-search-block-open', action: rewrite, kind: once-id}
+  'drupalSettings.solo.debug_verbosity': {new: 'drupalSettings.solo.debugVerbosity', action: alias, kind: drupalsettings-key}
+  'data-comment-id': {new: 'data-solo-comment-id', action: alias, kind: data-attribute}
+  'data-force-show': {new: 'data-solo-preloader-force-show', action: alias, kind: data-attribute}
+  'data-hide-on': {new: 'data-solo-preloader-hide-on', action: alias, kind: data-attribute}
+  'data-max-display': {new: 'data-solo-preloader-max-display', action: alias, kind: data-attribute}
+  'data-hover-added': {new: 'data-solo-hover-added', action: alias, kind: data-attribute}
+  'data-hover-toggle': {new: 'data-solo-hover-toggle', action: alias, kind: data-attribute}
+  'data-original-tabindex': {new: 'data-solo-original-tabindex', action: alias, kind: data-attribute}
+  'data-default-value': {new: 'data-solo-default-value', action: alias, kind: data-attribute}
+  'solo-aria-change': {new: 'solo:ariaChange', action: alias, kind: js-event}

@@ -211,6 +211,11 @@ final class ClassMigrator {
       if (!str_ends_with($old, '*')) {
         $this->ids[$old] = $new;
       }
+      else {
+        // A dynamic id (replies-* for replies-{{ comment.id }}) follows the
+        // same tail rule as a dynamic class. It was dropped here before.
+        $this->tails[substr($old, 0, -1)] = rtrim($new, '*');
+      }
     }
     foreach (self::stringMap($map['structural'] ?? []) as $old => $new) {
       if (str_ends_with($old, '*')) {
