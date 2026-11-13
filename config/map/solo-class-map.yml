@@ -9,7 +9,7 @@
 #   not Solo-owned or core/contrib vocabulary: not migrated; record of the decision).
 theme: solo
 prefix: solo-
-counts: {structural: 260, ids: 60, state: 19, values: 0, context: 2, generic: 19, removed: 2, frozen: 165, kept: 73}
+counts: {structural: 260, ids: 57, state: 19, values: 0, context: 2, generic: 19, removed: 5, frozen: 165, kept: 73}
 structural:
   'activate-branding': 'solo-menu--has-branding'
   'active-bottom-*': 'solo-container--bottom-active-*'
@@ -320,9 +320,6 @@ ids:
   'sidebar-box-second': 'solo-sidebar-box-second'
   'sidebar-button-close': 'solo-menu-primary-sidebar__close'
   'sidebar-button-open': 'solo-menu-primary-sidebar__open'
-  'svg-bottom': 'solo-svg-bottom'
-  'svg-middle': 'solo-svg-middle'
-  'svg-top': 'solo-svg-top'
   'system-messages': 'solo-status-messages'
   'system-messages-inner': 'solo-system-messages-inner'
   'top-box-first': 'solo-top-box-first'
@@ -379,6 +376,9 @@ generic:
 removed:
   'discription': 'typo selector, printed nowhere (needs checking)'
   'node-from': 'typo selector, printed nowhere (needs checking)'
+  'svg-bottom': 'now the class solo-svg-bottom (the icon prints more than once per page, so an id repeated); change #svg-bottom to .solo-svg-bottom by hand'
+  'svg-middle': 'now the class solo-svg-middle (the icon prints more than once per page, so an id repeated); change #svg-middle to .solo-svg-middle by hand'
+  'svg-top': 'now the class solo-svg-top (the icon prints more than once per page, so an id repeated); change #svg-top to .solo-svg-top by hand'
 frozen:
   - 'abel'
   - 'abril-fatface'
