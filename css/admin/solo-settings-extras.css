@@ -10,12 +10,12 @@
 form.system-theme-settings .solo-region-status {
   --solo-status-ok: #0f8a7e;
   --solo-status-off: #3b6fd4;
-  --solo-status-empty: color-mix(in srgb, currentColor 45%, transparent);
+  --solo-status-empty: color-mix(in sRGB, currentColor 45%, transparent);
 
   box-sizing: border-box;
   margin-block-end: 1rem;
   padding: 1.25rem 1.5rem;
-  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border: 1px solid color-mix(in sRGB, currentColor 18%, transparent);
   border-block-start: 3px solid var(--s-accent);
   border-radius: 0.75rem;
   background-color: var(--s-surface);
@@ -24,10 +24,10 @@ form.system-theme-settings .solo-region-status {
 form.system-theme-settings .solo-region-status__header {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem 0.75rem;
+  justify-content: space-between;
   margin-block-end: 1rem;
+  gap: 0.5rem 0.75rem;
 }
 
 form.system-theme-settings .solo-region-status__title {
@@ -62,30 +62,30 @@ form.system-theme-settings .solo-region-status__card {
   gap: 0.5rem;
   margin: 0;
   padding: 0.875rem;
-  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border: 1px solid color-mix(in sRGB, currentColor 12%, transparent);
   border-radius: 0.5rem;
 }
 
 form.system-theme-settings .solo-region-status__label {
-  font-size: 0.75rem;
-  font-weight: 600;
   letter-spacing: 0.025em;
   text-transform: uppercase;
   color: var(--s-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 form.system-theme-settings .solo-region-status__count {
   padding: 0.125rem 0.5rem;
+  white-space: nowrap;
   border-radius: 999px;
-  background-color: color-mix(in srgb, var(--solo-status-ok) 16%, transparent);
+  background-color: color-mix(in sRGB, var(--solo-status-ok) 16%, transparent);
   font-size: 0.75rem;
   font-weight: 600;
-  white-space: nowrap;
 }
 
 form.system-theme-settings .solo-region-status__count--zero {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
   color: var(--s-muted);
+  background-color: color-mix(in sRGB, currentColor 10%, transparent);
 }
 
 form.system-theme-settings .solo-region-status__map {
@@ -111,17 +111,13 @@ form.system-theme-settings .solo-region-status__region--wide {
 form.system-theme-settings .solo-region-status__region--enabled,
 form.system-theme-settings .solo-region-status__key--enabled::before {
   border-color: var(--solo-status-ok);
-  background-color: color-mix(in srgb, var(--solo-status-ok) 28%, transparent);
+  background-color: color-mix(in sRGB, var(--solo-status-ok) 28%, transparent);
 }
 
 form.system-theme-settings .solo-region-status__region--disabled,
 form.system-theme-settings .solo-region-status__key--disabled::before {
   border-color: var(--solo-status-off);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    color-mix(in srgb, var(--solo-status-off) 35%, transparent) 0 0.25rem,
-    transparent 0.25rem 0.5rem
-  );
+  background-image: repeating-linear-gradient(-45deg, color-mix(in sRGB, var(--solo-status-off) 35%, transparent) 0 0.25rem, transparent 0.25rem 0.5rem);
 }
 
 form.system-theme-settings .solo-region-status__region--empty,
@@ -155,8 +151,8 @@ form.system-theme-settings .solo-region-status__key::before {
 
 form.system-theme-settings .solo-region-status__help {
   margin: 0;
-  font-size: 0.8125rem;
   color: var(--s-muted);
+  font-size: 0.8125rem;
 }
 
 /* Navigation search. */
@@ -180,21 +176,21 @@ form.system-theme-settings .solo-nav__searchbox::before {
 
 form.system-theme-settings .solo-nav__search {
   box-sizing: border-box;
+  color: inherit;
+  border: 1px solid color-mix(in sRGB, currentColor 28%, transparent);
+  border-radius: 0.375rem;
+  background-color: var(--s-surface);
+  font-size: 0.875rem;
   inline-size: 100%;
   min-block-size: 2.375rem;
   padding-block: 0.375rem;
   padding-inline: 2.125rem 0.5rem;
-  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
-  border-radius: 0.375rem;
-  background-color: var(--s-surface);
-  font-size: 0.875rem;
-  color: inherit;
 }
 
 form.system-theme-settings .solo-nav__count {
   margin: 0.25rem 0 0;
-  font-size: 0.75rem;
   color: var(--s-muted);
+  font-size: 0.75rem;
 }
 
 form.system-theme-settings .solo-nav__count:empty {

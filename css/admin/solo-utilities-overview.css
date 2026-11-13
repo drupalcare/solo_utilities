@@ -7,7 +7,7 @@
   gap: 1rem;
   margin-block: 0 1.5rem;
   padding: 1rem 1.25rem;
-  border: 1px solid color-mix(in srgb, currentcolor 15%, transparent);
+  border: 1px solid color-mix(in sRGB, currentColor 15%, transparent);
   border-block-end: 3px solid #6957b5;
   border-radius: 0.75rem;
 }

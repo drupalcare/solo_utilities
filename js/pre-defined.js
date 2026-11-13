@@ -2,7 +2,9 @@
   // Deprecated in 2.0, removed in the next major: the old behavior name
   // ColorSchemesRules reads and writes Drupal.behaviors.soloUtilitiesColorSchemesRules.
   // It is not enumerable, so Drupal.attachBehaviors() runs it once.
-  if (!Object.prototype.hasOwnProperty.call(Drupal.behaviors, 'ColorSchemesRules')) {
+  if (
+    !Object.prototype.hasOwnProperty.call(Drupal.behaviors, 'ColorSchemesRules')
+  ) {
     Object.defineProperty(Drupal.behaviors, 'ColorSchemesRules', {
       configurable: true,
       get: () => Drupal.behaviors.soloUtilitiesColorSchemesRules,

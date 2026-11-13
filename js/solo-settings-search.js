@@ -1,4 +1,6 @@
 /**
+ * @param Drupal
+ * @param once
  * @file
  * Filters the Solo settings navigation by section, field label or help text.
  */
@@ -54,7 +56,9 @@
           input.placeholder = Drupal.t('Search settings...');
           input.setAttribute(
             'aria-label',
-            Drupal.t('Filter settings by section name, field label or help text'),
+            Drupal.t(
+              'Filter settings by section name, field label or help text',
+            ),
           );
           const count = document.createElement('p');
           count.className = 'solo-nav__count';
