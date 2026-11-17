@@ -62,6 +62,7 @@ final class SettingsFormValidator {
     $this->validatePreloaderLogo($form_state);
     $this->validateSocialIconColor($form_state);
     $this->validateFooterLink($form_state);
+    $this->validateSocialLinks($form_state);
     $this->validateCompatibility($form_state);
     // Color pairs below WCAG contrast: errors when both colors are set here,
     // warnings naming the schemes that fail when one side comes from a scheme.
@@ -204,6 +205,45 @@ final class SettingsFormValidator {
     if ($url !== '' && empty($form_state->getValue(['footer', 'credit_link', 'text']))) {
       $form_state->setErrorByName('footer][credit_link][text', $this->t('You must enter link text if you provide a URL.'));
     }
+  }
+
+  /**
+   * Checks the social links: a full http(s) address or a path on this site.
+   *
+   * The links print straight into href, and Twig escaping does not stop a
+   * javascript: or data: address. Email is skipped: it prints after mailto:.
+   * Same rule as the W3CSS theme (SocialLinks::isAllowedLink()).
+   */
+  private function validateSocialLinks(FormStateInterface $form_state): void {
+    $links = $form_state->getValue(['social_icons', 'links']);
+    if (!is_array($links)) {
+      return;
+    }
+    foreach ($links as $key => $value) {
+      $value = trim((string) $value);
+      if ($key === 'email' || $value === '' || $this->isAllowedLink($value)) {
+        continue;
+      }
+      $form_state->setErrorByName("social_icons][links][{$key}", $this->t('%value must be a full web address that starts with https:// or http://, or a path on this site.', ['%value' => $value]));
+    }
+  }
+
+  /**
+   * Whether a link is an absolute http(s) URL or a path on this site.
+   */
+  private function isAllowedLink(string $value): bool {
+    // A colon before the first "/", "?" or "#" starts a scheme, the same way a
+    // browser reads it.
+    $colon = strpos($value, ':');
+    if ($colon !== FALSE && $colon < strcspn($value, '/?#')) {
+      $scheme = strtolower(substr($value, 0, $colon));
+      return in_array($scheme, ['http', 'https'], TRUE) && UrlHelper::isValid($value, TRUE);
+    }
+    // A protocol-relative address points at another host.
+    if (str_starts_with($value, '//')) {
+      return FALSE;
+    }
+    return UrlHelper::isValid($value);
   }
 
 }

@@ -4,6 +4,7 @@ All notable changes to Solo Utilities are listed here. The format follows [Keep 
 
 ## [2.0.0] - Unreleased
 
+- Security: social links must be a full http(s) address or a path on this site, so a `javascript:` or `data:` address can no longer be saved (same rule as the W3CSS theme). The per-node width is saved only when it is one of the offered widths.
 - Library definitions accept string attribute values (an external file's integrity and crossorigin), and one library can stand in for several old ids, so `solo/font-awesome-7-ex` is built and aliases the 1.x Font Awesome 4, 5 and 6 CDN ids.
 - The readiness scan (`drush solo:preflight` and the upgrade page) reports sub-theme PHP that names the removed Solo 1 classes `Drupal\solo\SocialIconColor` and `Drupal\solo\SoloIncludes`.
 - `solo-rename-map.yml`: rows for the 4 Font Awesome library ids and 3 more moved or removed files; two unresolved drupalSettings rows removed (those keys are unchanged).

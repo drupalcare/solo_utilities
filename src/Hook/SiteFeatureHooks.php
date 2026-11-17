@@ -94,6 +94,44 @@ final class SiteFeatureHooks {
   }
 
   /**
+   * The widths the node form offers, keyed by the class each one prints.
+   *
+   * @return array<string, \Drupal\Core\StringTranslation\TranslatableMarkup>
+   *   The width options.
+   */
+  private function widthOptions(): array {
+    return [
+      'none' => $this->t('None'),
+      'sw-800' => $this->t('800px / 50rem'),
+      'sw-1024' => $this->t('1024px / 64rem'),
+      'sw-1280' => $this->t('1280px / 80rem'),
+      'sw-1440' => $this->t('1440px / 90rem'),
+      'sw-1600' => $this->t('1600px / 100rem'),
+      'sw-1920' => $this->t('1920px / 120rem'),
+      'sw-2560' => $this->t('2560px / 160rem'),
+      'sw-100' => $this->t('100%'),
+    ];
+  }
+
+  /**
+   * The posted node width, or NULL when it is missing or not an offered one.
+   *
+   * The node hooks read the raw request, which skips the form's select
+   * validation, so the value is checked against the offered widths here.
+   *
+   * @return string|null
+   *   An offered width key, or NULL.
+   */
+  private function postedWidth(): ?string {
+    $request = $this->requestStack->getCurrentRequest();
+    $value = $request?->request->get('custom_node_width');
+    if (!is_string($value) || !array_key_exists($value, $this->widthOptions())) {
+      return NULL;
+    }
+    return $value;
+  }
+
+  /**
    * Adds the custom width field, under the default Solo theme's setting.
    *
    * @param array<mixed> $form
@@ -118,17 +156,7 @@ final class SiteFeatureHooks {
             ]);
             $current_width_class = !empty($current_width) ? reset($current_width)->get('width_class')->value : 'none';
           }
-          $width_options = [
-            'none' => $this->t('None'),
-            'sw-800' => $this->t('800px / 50rem'),
-            'sw-1024' => $this->t('1024px / 64rem'),
-            'sw-1280' => $this->t('1280px / 80rem'),
-            'sw-1440' => $this->t('1440px / 90rem'),
-            'sw-1600' => $this->t('1600px / 100rem'),
-            'sw-1920' => $this->t('1920px / 120rem'),
-            'sw-2560' => $this->t('2560px / 160rem'),
-            'sw-100' => $this->t('100%'),
-          ];
+          $width_options = $this->widthOptions();
           $form['custom_node_width'] = [
             '#type' => 'select',
             '#title' => $this->t('Custom width'),
@@ -158,8 +186,8 @@ final class SiteFeatureHooks {
   public function nodePresave(NodeInterface $node): void {
     // Check if the Solo theme or its sub-themes are active.
     if ($this->detection->isDefault()) {
-      // Use the request stack to get the POST data during node save.
-      $custom_width = $this->requestStack->getCurrentRequest()->request->get('custom_node_width');
+      // The posted value, only when it is one of the offered widths.
+      $custom_width = $this->postedWidth();
       if ($custom_width === NULL) {
         // Exit if no width is provided.
         return;
@@ -210,8 +238,8 @@ final class SiteFeatureHooks {
   public function nodeInsert(NodeInterface $node): void {
     // Check if the Solo theme or its sub-themes are active.
     if ($this->detection->isDefault()) {
-      // Use the request object to get the POST data during node save.
-      $custom_width = $this->requestStack->getCurrentRequest()->request->get('custom_node_width');
+      // The posted value, only when it is one of the offered widths.
+      $custom_width = $this->postedWidth();
       // Check if custom width is not NULL and not 'none'.
       if ($custom_width !== NULL && $custom_width !== 'none') {
         // Get the storage for the node_width entity.
